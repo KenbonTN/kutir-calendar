@@ -4,15 +4,17 @@ import { AnimatePresence, motion } from "motion/react";
 import {
   CalendarDays, ChevronLeft, ChevronRight, Church, Flame, Leaf, Monitor, Moon, Plus, Star, Sun, Trash2, Trophy,
 } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   addisJdn, addisTime, formatEt, formatG, fromJdn, geez, MONTHS, MONTHS_AM, WEEKDAYS, WEEKDAYS_AM, weekday,
 } from "@/lib/ethiopian";
+import { startCloud } from "@/lib/cloud";
 import { FIXTURES_UPDATED, MATCHES, type Match } from "@/lib/fixtures";
 import { addGoal, goalStats, removeGoal, toggleDay, useGoals, type Goal } from "@/lib/goals";
 import { orthodoxDay } from "@/lib/orthodox";
 import { useStored } from "@/lib/storage";
 import { countdown, useToday } from "@/lib/useToday";
+import { AccountButton, CloudNotice } from "./Account";
 import { DaySheet } from "./DaySheet";
 import { CompBadge, MatchRow } from "./MatchRow";
 import { MonthGrid, type Layers } from "./MonthGrid";
@@ -24,6 +26,7 @@ const gutter = "px-[max(16px,env(safe-area-inset-left))] pr-[max(16px,env(safe-a
 
 export default function App() {
   const { today, now } = useToday();
+  useEffect(() => startCloud(), []);
   if (today == null || now == null) return <Skeleton />;
   return <Main today={today} now={now} />;
 }
@@ -58,6 +61,8 @@ function Main({ today, now }: { today: number; now: number }) {
           <NextUp now={now} today={today} onOpen={setOpenDay} />
         </div>
 
+        <CloudNotice />
+
         <GoalBar goals={goals} active={goal} onSelect={setActiveId} onNew={() => setNewGoal(true)} />
 
         <Calendar
@@ -79,7 +84,7 @@ function Main({ today, now }: { today: number; now: number }) {
           </p>
           <p>
             Saints&apos; days follow the common monthly commemorations of the Ethiopian Orthodox Tewahedo Church; some
-            parishes keep local feasts too. Your crosses are saved in this browser.
+            parishes keep local feasts too. Your crosses are saved in this browser, and in your account when you sign in with Google.
           </p>
         </footer>
       </main>
@@ -120,6 +125,7 @@ function TopBar({ today }: { today: number }) {
             <span lang="am">{MONTHS_AM[e.m - 1]} {e.d}</span> · {e.y}
           </span>
           <ThemeToggle />
+          <AccountButton />
         </div>
       </div>
     </header>

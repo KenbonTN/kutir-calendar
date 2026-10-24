@@ -18,7 +18,8 @@ export type Goal = {
 };
 
 // Same key and shape as the first (single-file) version, so crosses made there carry over.
-const KEY = "kutir-trackers-v1";
+export const GOALS_KEY = "kutir-trackers-v1";
+const KEY = GOALS_KEY;
 const EMPTY: Goal[] = [];
 
 /** The plan this app was built for: 90 days from 1 Tikimt 2019, or the current month for anyone starting later. */
@@ -38,7 +39,7 @@ export function useGoals(today: number | null) {
   }, [saved, today]);
 }
 
-const savedGoals = () => {
+export const savedGoals = () => {
   const v = readStored<Goal[]>(KEY, EMPTY);
   return Array.isArray(v) ? v : EMPTY;
 };
@@ -60,6 +61,11 @@ export function addGoal(goal: Omit<Goal, "id" | "done" | "created">) {
   const g: Goal = { ...goal, id: Math.random().toString(36).slice(2, 10), done: [], created: Date.now() };
   upsert(g);
   return g;
+}
+
+/** Replaces every saved goal at once (used when the cloud copy arrives). */
+export function replaceGoals(goals: Goal[]) {
+  writeStored(KEY, goals);
 }
 
 export function removeGoal(id: string) {

@@ -32,6 +32,14 @@ export function readStored<T>(key: string, fallback: T): T {
   return read(key, fallback);
 }
 
+/** Listen for changes to one key outside React (used by cloud sync). */
+export function subscribeStored(key: string, fn: () => void) {
+  const set = listeners.get(key) ?? new Set();
+  set.add(fn);
+  listeners.set(key, set);
+  return () => set.delete(fn);
+}
+
 export function useStored<T>(key: string, fallback: T) {
   const subscribe = useCallback(
     (fn: () => void) => {
