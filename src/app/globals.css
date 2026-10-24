@@ -1,0 +1,134 @@
+@import "tailwindcss";
+
+/* Highland palette: Ethiopian green for progress, meskel gold for feasts and today,
+   marker red for the hand-drawn X. Arsenal red and Champions League blue only mark matches. */
+:root {
+  --bg: #f3f5f0;
+  --surface: #ffffff;
+  --surface-2: #eceff0;
+  --ink: #101814;
+  --muted: #5d6a62;
+  --line: #dde3dc;
+  --green: #0b7a4b;
+  --green-soft: #dcefe4;
+  --on-green: #ffffff;
+  --gold: #b57a08;
+  --gold-soft: #fbefd3;
+  --marker: #e0322b;
+  --arsenal: #d50a0a;
+  --ucl: #2541b2;
+  --ucl-soft: #e3e8fb;
+  --glass: rgb(243 245 240 / 0.72);
+  --shadow: 0 1px 2px rgb(16 24 20 / 0.04), 0 8px 24px -12px rgb(16 24 20 / 0.12);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #090d0b;
+    --surface: #111714;
+    --surface-2: #19211d;
+    --ink: #e9f0eb;
+    --muted: #91a097;
+    --line: #243029;
+    --green: #3ddc91;
+    --green-soft: #133624;
+    --on-green: #04140c;
+    --gold: #f2b544;
+    --gold-soft: #33280f;
+    --marker: #ff5148;
+    --arsenal: #ff4d4d;
+    --ucl: #8fa3ff;
+    --ucl-soft: #1a2147;
+    --glass: rgb(9 13 11 / 0.7);
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 12px 32px -16px rgb(0 0 0 / 0.6);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #090d0b;
+  --surface: #111714;
+  --surface-2: #19211d;
+  --ink: #e9f0eb;
+  --muted: #91a097;
+  --line: #243029;
+  --green: #3ddc91;
+  --green-soft: #133624;
+  --on-green: #04140c;
+  --gold: #f2b544;
+  --gold-soft: #33280f;
+  --marker: #ff5148;
+  --arsenal: #ff4d4d;
+  --ucl: #8fa3ff;
+  --ucl-soft: #1a2147;
+  --glass: rgb(9 13 11 / 0.7);
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 12px 32px -16px rgb(0 0 0 / 0.6);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-green: var(--green);
+  --color-green-soft: var(--green-soft);
+  --color-on-green: var(--on-green);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-marker: var(--marker);
+  --color-arsenal: var(--arsenal);
+  --color-ucl: var(--ucl);
+  --color-ucl-soft: var(--ucl-soft);
+  --font-display: var(--font-bricolage), var(--font-ethiopic), system-ui, sans-serif;
+  --font-sans: var(--font-figtree), var(--font-ethiopic), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+}
+
+html {
+  background: var(--bg);
+}
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+}
+
+.missed {
+  background-image: repeating-linear-gradient(135deg, transparent 0 6px, var(--line) 6px 7.5px);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

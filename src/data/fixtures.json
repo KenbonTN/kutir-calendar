@@ -1,0 +1,672 @@
+{
+ "season": "2026-27",
+ "updated": "2026-10-24T12:40:44.424Z",
+ "matches": [
+  {
+   "id": "pl-2026-08-21-Arsenal-Coventry_City",
+   "comp": "PL",
+   "stage": "Matchday 1",
+   "kickoff": "2026-08-21T19:00:00.000Z",
+   "home": "Arsenal",
+   "away": "Coventry City",
+   "score": [
+    3,
+    0
+   ],
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2026-08-31-Aston_Villa-Arsenal",
+   "comp": "PL",
+   "stage": "Matchday 2",
+   "kickoff": "2026-08-31T19:00:00.000Z",
+   "home": "Aston Villa",
+   "away": "Arsenal",
+   "score": [
+    0,
+    1
+   ],
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2026-09-06-Arsenal-Chelsea",
+   "comp": "PL",
+   "stage": "Matchday 3",
+   "kickoff": "2026-09-06T15:30:00.000Z",
+   "home": "Arsenal",
+   "away": "Chelsea",
+   "score": [
+    2,
+    1
+   ],
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "ucl-2594629",
+   "comp": "UCL",
+   "stage": "League phase · Matchday 1",
+   "kickoff": "2026-09-08T19:00:00.000Z",
+   "home": "Real Madrid",
+   "away": "Inter Milan",
+   "score": [
+    2,
+    1
+   ],
+   "arsenal": false,
+   "big": true
+  },
+  {
+   "id": "ucl-2594541",
+   "comp": "UCL",
+   "stage": "League phase · Matchday 1",
+   "kickoff": "2026-09-09T19:00:00.000Z",
+   "home": "Liverpool",
+   "away": "Atlético Madrid",
+   "score": [
+    2,
+    1
+   ],
+   "arsenal": false,
+   "big": true
+  },
+  {
+   "id": "ucl-2594603",
+   "comp": "UCL",
+   "stage": "League phase · Matchday 1",
+   "kickoff": "2026-09-09T19:00:00.000Z",
+   "home": "Napoli",
+   "away": "Arsenal",
+   "score": [
+    0,
+    1
+   ],
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2026-09-12-Sunderland-Arsenal",
+   "comp": "PL",
+   "stage": "Matchday 4",
+   "kickoff": "2026-09-12T19:00:00.000Z",
+   "home": "Sunderland",
+   "away": "Arsenal",
+   "score": [
+    0,
+    2
+   ],
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2026-09-19-Brighton_&_Hove_Albion-Arsenal",
+   "comp": "PL",
+   "stage": "Matchday 5",
+   "kickoff": "2026-09-19T14:00:00.000Z",
+   "home": "Brighton & Hove Albion",
+   "away": "Arsenal",
+   "score": [
+    3,
+    0
+   ],
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2026-10-10-Arsenal-Leeds_United",
+   "comp": "PL",
+   "stage": "Matchday 6",
+   "kickoff": "2026-10-10T11:30:00.000Z",
+   "home": "Arsenal",
+   "away": "Leeds United",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "ucl-2594543",
+   "comp": "UCL",
+   "stage": "League phase · Matchday 2",
+   "kickoff": "2026-10-13T19:00:00.000Z",
+   "home": "Arsenal",
+   "away": "Lille",
+   "score": [
+    3,
+    0
+   ],
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "ucl-2594619",
+   "comp": "UCL",
+   "stage": "League phase · Matchday 2",
+   "kickoff": "2026-10-13T19:00:00.000Z",
+   "home": "Atlético Madrid",
+   "away": "Manchester United",
+   "score": [
+    2,
+    0
+   ],
+   "arsenal": false,
+   "big": true
+  },
+  {
+   "id": "ucl-2594547",
+   "comp": "UCL",
+   "stage": "League phase · Matchday 2",
+   "kickoff": "2026-10-14T19:00:00.000Z",
+   "home": "Manchester City",
+   "away": "Paris Saint-Germain",
+   "score": [
+    2,
+    4
+   ],
+   "arsenal": false,
+   "big": true
+  },
+  {
+   "id": "pl-2026-10-18-Nottingham_Forest-Arsenal",
+   "comp": "PL",
+   "stage": "Matchday 7",
+   "kickoff": "2026-10-18T15:30:00.000Z",
+   "home": "Nottingham Forest",
+   "away": "Arsenal",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "ucl-2594560",
+   "comp": "UCL",
+   "stage": "League phase · Matchday 3",
+   "kickoff": "2026-10-20T19:00:00.000Z",
+   "home": "Paris Saint-Germain",
+   "away": "Barcelona",
+   "score": [
+    4,
+    2
+   ],
+   "arsenal": false,
+   "big": true
+  },
+  {
+   "id": "ucl-2594567",
+   "comp": "UCL",
+   "stage": "League phase · Matchday 3",
+   "kickoff": "2026-10-21T19:00:00.000Z",
+   "home": "Bayern Munich",
+   "away": "Arsenal",
+   "score": [
+    2,
+    2
+   ],
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2026-10-24-Arsenal-Everton",
+   "comp": "PL",
+   "stage": "Matchday 8",
+   "kickoff": "2026-10-24T14:00:00.000Z",
+   "home": "Arsenal",
+   "away": "Everton",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2026-11-01-Liverpool-Arsenal",
+   "comp": "PL",
+   "stage": "Matchday 9",
+   "kickoff": "2026-11-01T16:30:00.000Z",
+   "home": "Liverpool",
+   "away": "Arsenal",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "ucl-2594620",
+   "comp": "UCL",
+   "stage": "League phase · Matchday 4",
+   "kickoff": "2026-11-03T20:00:00.000Z",
+   "home": "Atlético Madrid",
+   "away": "Bayern Munich",
+   "score": null,
+   "arsenal": false,
+   "big": true
+  },
+  {
+   "id": "ucl-2594639",
+   "comp": "UCL",
+   "stage": "League phase · Matchday 4",
+   "kickoff": "2026-11-04T20:00:00.000Z",
+   "home": "Slavia Prague",
+   "away": "Arsenal",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2026-11-07-Arsenal-Hull_City",
+   "comp": "PL",
+   "stage": "Matchday 10",
+   "kickoff": "2026-11-07T15:00:00.000Z",
+   "home": "Arsenal",
+   "away": "Hull City",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2026-11-21-Newcastle_United-Arsenal",
+   "comp": "PL",
+   "stage": "Matchday 11",
+   "kickoff": "2026-11-21T15:00:00.000Z",
+   "home": "Newcastle United",
+   "away": "Arsenal",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "ucl-2594544",
+   "comp": "UCL",
+   "stage": "League phase · Matchday 5",
+   "kickoff": "2026-11-24T20:00:00.000Z",
+   "home": "Arsenal",
+   "away": "Borussia Dortmund",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "ucl-2594549",
+   "comp": "UCL",
+   "stage": "League phase · Matchday 5",
+   "kickoff": "2026-11-24T20:00:00.000Z",
+   "home": "Manchester City",
+   "away": "Napoli",
+   "score": null,
+   "arsenal": false,
+   "big": true
+  },
+  {
+   "id": "pl-2026-11-28-Arsenal-Manchester_City",
+   "comp": "PL",
+   "stage": "Matchday 12",
+   "kickoff": "2026-11-28T15:00:00.000Z",
+   "home": "Arsenal",
+   "away": "Manchester City",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2026-12-02-Brentford-Arsenal",
+   "comp": "PL",
+   "stage": "Matchday 13",
+   "kickoff": "2026-12-02T20:00:00.000Z",
+   "home": "Brentford",
+   "away": "Arsenal",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2026-12-05-Tottenham_Hotspur-Arsenal",
+   "comp": "PL",
+   "stage": "Matchday 14",
+   "kickoff": "2026-12-05T15:00:00.000Z",
+   "home": "Tottenham Hotspur",
+   "away": "Arsenal",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "ucl-2594615",
+   "comp": "UCL",
+   "stage": "League phase · Matchday 6",
+   "kickoff": "2026-12-08T20:00:00.000Z",
+   "home": "Barcelona",
+   "away": "Manchester City",
+   "score": null,
+   "arsenal": false,
+   "big": true
+  },
+  {
+   "id": "ucl-2594545",
+   "comp": "UCL",
+   "stage": "League phase · Matchday 6",
+   "kickoff": "2026-12-09T20:00:00.000Z",
+   "home": "Arsenal",
+   "away": "Real Madrid",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "ucl-2594571",
+   "comp": "UCL",
+   "stage": "League phase · Matchday 6",
+   "kickoff": "2026-12-09T20:00:00.000Z",
+   "home": "Borussia Dortmund",
+   "away": "Inter Milan",
+   "score": null,
+   "arsenal": false,
+   "big": true
+  },
+  {
+   "id": "pl-2026-12-12-Arsenal-AFC_Bournemouth",
+   "comp": "PL",
+   "stage": "Matchday 15",
+   "kickoff": "2026-12-12T15:00:00.000Z",
+   "home": "Arsenal",
+   "away": "AFC Bournemouth",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2026-12-19-Arsenal-Manchester_United",
+   "comp": "PL",
+   "stage": "Matchday 16",
+   "kickoff": "2026-12-19T15:00:00.000Z",
+   "home": "Arsenal",
+   "away": "Manchester United",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2026-12-27-Crystal_Palace-Arsenal",
+   "comp": "PL",
+   "stage": "Matchday 17",
+   "kickoff": "2026-12-27T19:00:00.000Z",
+   "home": "Crystal Palace",
+   "away": "Arsenal",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2026-12-30-Fulham-Arsenal",
+   "comp": "PL",
+   "stage": "Matchday 18",
+   "kickoff": "2026-12-30T19:30:00.000Z",
+   "home": "Fulham",
+   "away": "Arsenal",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2027-01-02-Arsenal-Ipswich_Town",
+   "comp": "PL",
+   "stage": "Matchday 19",
+   "kickoff": "2027-01-02T15:00:00.000Z",
+   "home": "Arsenal",
+   "away": "Ipswich Town",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2027-01-05-Arsenal-Brentford",
+   "comp": "PL",
+   "stage": "Matchday 20",
+   "kickoff": "2027-01-05T19:30:00.000Z",
+   "home": "Arsenal",
+   "away": "Brentford",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2027-01-16-Hull_City-Arsenal",
+   "comp": "PL",
+   "stage": "Matchday 21",
+   "kickoff": "2027-01-16T15:00:00.000Z",
+   "home": "Hull City",
+   "away": "Arsenal",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "ucl-2594611",
+   "comp": "UCL",
+   "stage": "League phase · Matchday 7",
+   "kickoff": "2027-01-19T20:00:00.000Z",
+   "home": "Inter Milan",
+   "away": "Liverpool",
+   "score": null,
+   "arsenal": false,
+   "big": true
+  },
+  {
+   "id": "ucl-2594535",
+   "comp": "UCL",
+   "stage": "League phase · Matchday 7",
+   "kickoff": "2027-01-20T20:00:00.000Z",
+   "home": "Manchester United",
+   "away": "Bayern Munich",
+   "score": null,
+   "arsenal": false,
+   "big": true
+  },
+  {
+   "id": "ucl-2594631",
+   "comp": "UCL",
+   "stage": "League phase · Matchday 7",
+   "kickoff": "2027-01-20T20:00:00.000Z",
+   "home": "Real Betis",
+   "away": "Arsenal",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2027-01-23-Arsenal-Newcastle_United",
+   "comp": "PL",
+   "stage": "Matchday 22",
+   "kickoff": "2027-01-23T15:00:00.000Z",
+   "home": "Arsenal",
+   "away": "Newcastle United",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "ucl-2594546",
+   "comp": "UCL",
+   "stage": "League phase · Matchday 8",
+   "kickoff": "2027-01-27T20:00:00.000Z",
+   "home": "Arsenal",
+   "away": "Sabah Baku",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2027-01-30-Manchester_City-Arsenal",
+   "comp": "PL",
+   "stage": "Matchday 23",
+   "kickoff": "2027-01-30T15:00:00.000Z",
+   "home": "Manchester City",
+   "away": "Arsenal",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2027-02-06-Arsenal-Liverpool",
+   "comp": "PL",
+   "stage": "Matchday 24",
+   "kickoff": "2027-02-06T15:00:00.000Z",
+   "home": "Arsenal",
+   "away": "Liverpool",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2027-02-10-Ipswich_Town-Arsenal",
+   "comp": "PL",
+   "stage": "Matchday 25",
+   "kickoff": "2027-02-10T20:00:00.000Z",
+   "home": "Ipswich Town",
+   "away": "Arsenal",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2027-02-20-Arsenal-Fulham",
+   "comp": "PL",
+   "stage": "Matchday 26",
+   "kickoff": "2027-02-20T15:00:00.000Z",
+   "home": "Arsenal",
+   "away": "Fulham",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2027-02-27-Manchester_United-Arsenal",
+   "comp": "PL",
+   "stage": "Matchday 27",
+   "kickoff": "2027-02-27T15:00:00.000Z",
+   "home": "Manchester United",
+   "away": "Arsenal",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2027-03-03-Arsenal-Crystal_Palace",
+   "comp": "PL",
+   "stage": "Matchday 28",
+   "kickoff": "2027-03-03T20:00:00.000Z",
+   "home": "Arsenal",
+   "away": "Crystal Palace",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2027-03-13-Chelsea-Arsenal",
+   "comp": "PL",
+   "stage": "Matchday 29",
+   "kickoff": "2027-03-13T15:00:00.000Z",
+   "home": "Chelsea",
+   "away": "Arsenal",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2027-03-20-Arsenal-Sunderland",
+   "comp": "PL",
+   "stage": "Matchday 30",
+   "kickoff": "2027-03-20T15:00:00.000Z",
+   "home": "Arsenal",
+   "away": "Sunderland",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2027-04-10-Coventry_City-Arsenal",
+   "comp": "PL",
+   "stage": "Matchday 31",
+   "kickoff": "2027-04-10T14:00:00.000Z",
+   "home": "Coventry City",
+   "away": "Arsenal",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2027-04-17-Arsenal-Aston_Villa",
+   "comp": "PL",
+   "stage": "Matchday 32",
+   "kickoff": "2027-04-17T14:00:00.000Z",
+   "home": "Arsenal",
+   "away": "Aston Villa",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2027-04-24-AFC_Bournemouth-Arsenal",
+   "comp": "PL",
+   "stage": "Matchday 33",
+   "kickoff": "2027-04-24T14:00:00.000Z",
+   "home": "AFC Bournemouth",
+   "away": "Arsenal",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2027-05-01-Arsenal-Tottenham_Hotspur",
+   "comp": "PL",
+   "stage": "Matchday 34",
+   "kickoff": "2027-05-01T14:00:00.000Z",
+   "home": "Arsenal",
+   "away": "Tottenham Hotspur",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2027-05-08-Leeds_United-Arsenal",
+   "comp": "PL",
+   "stage": "Matchday 35",
+   "kickoff": "2027-05-08T14:00:00.000Z",
+   "home": "Leeds United",
+   "away": "Arsenal",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2027-05-15-Arsenal-Nottingham_Forest",
+   "comp": "PL",
+   "stage": "Matchday 36",
+   "kickoff": "2027-05-15T14:00:00.000Z",
+   "home": "Arsenal",
+   "away": "Nottingham Forest",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2027-05-23-Everton-Arsenal",
+   "comp": "PL",
+   "stage": "Matchday 37",
+   "kickoff": "2027-05-23T14:00:00.000Z",
+   "home": "Everton",
+   "away": "Arsenal",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  },
+  {
+   "id": "pl-2027-05-30-Arsenal-Brighton_&_Hove_Albion",
+   "comp": "PL",
+   "stage": "Matchday 38",
+   "kickoff": "2027-05-30T15:00:00.000Z",
+   "home": "Arsenal",
+   "away": "Brighton & Hove Albion",
+   "score": null,
+   "arsenal": true,
+   "big": true
+  }
+ ]
+}

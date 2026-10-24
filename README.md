@@ -1,10 +1,24 @@
 # Kutir Countdown Calendar
 
-An Ethiopian calendar for tracking a goal day by day. Pick a start date and a length (1 week up to 3 months or any number of days), then cross off each day you complete with a big red X and count down to the deadline.
+**Live:** https://kenbontn.github.io/kutir-calendar/
 
-- Ethiopian months in English and Amharic, with the Gregorian date on every day
-- Progress, current streak and days left until the deadline
-- Several goals at once
-- Saved in your browser (localStorage), so your crosses stay on the device you use
+An Ethiopian calendar for tracking goals day by day. Pick a start date and a length (1 week up to 3 months, or any number of days), cross off each day with a big red X, and count down to the deadline.
 
-It's a single `index.html` with no build step. Open it in a browser or host it on GitHub Pages.
+- **Goals:** several at once, with progress, streak, hit rate and days left
+- **Ethiopian calendar:** months in English and Amharic, Ge'ez numerals, the Gregorian date on every day
+- **Orthodox calendar:** the saint remembered on each day of the month, annual feasts (Meskel, Genna, Timket, Fasika and the movable feasts), and fasting days
+- **Football:** every Arsenal Premier League game and the big Champions League nights, with kickoff in Addis time on both the 24-hour and the Ethiopian clock
+
+Crosses are saved in your browser (localStorage) on the device you use.
+
+## Develop
+
+```bash
+npm install
+npm run fixtures   # refresh src/data/fixtures.json
+npm run dev
+```
+
+Built with Next.js (static export), Tailwind CSS and Motion. GitHub Actions rebuilds and deploys to GitHub Pages on every push and once a day, which keeps fixtures and results current.
+
+Fixture data: Premier League from [openfootball](https://github.com/openfootball/football.json), Champions League from [TheSportsDB](https://www.thesportsdb.com).
