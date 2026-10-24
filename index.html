@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="An Ethiopian calendar where you cross off each day of a goal and count down to the deadline.">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
+<title>Kutir Countdown Calendar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Noto+Sans+Ethiopic:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a wall calendar — goal tabs and a progress strip on top, then the Ethiopian months of the plan stacked as paper sheets. */
+:root{
+  --paper:#F1F3EE; --sheet:#FFFFFF; --ink:#16241C; --muted:#5E6B63; --line:#D6DCD4;
+  --green:#1F6B45; --green-soft:#DCEBE1; --ochre:#C98A1B; --marker:#D2322D; --off:#E7EAE4;
+  --f-display:"Bricolage Grotesque","Noto Sans Ethiopic",system-ui,sans-serif;
+  --f-body:"Noto Sans Ethiopic",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#101612; --sheet:#18201B; --ink:#E6EDE7; --muted:#97A59C; --line:#2C3830;
+  --green:#5CC28C; --green-soft:#1D3527; --ochre:#E2A940; --marker:#FF5A4E; --off:#141B16; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#101612; --sheet:#18201B; --ink:#E6EDE7; --muted:#97A59C; --line:#2C3830;
+  --green:#5CC28C; --green-soft:#1D3527; --ochre:#E2A940; --marker:#FF5A4E; --off:#141B16; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
+.wrap{max-width:980px;margin:0 auto;padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:22px}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+
+header.top{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px}
+.brand h1{font-family:var(--f-display);font-weight:800;font-size:clamp(28px,5vw,40px);line-height:1;margin:0;letter-spacing:-.01em;text-wrap:balance}
+.brand h1 span{color:var(--marker)}
+.brand p{margin:6px 0 0;color:var(--muted)}
+.today{font-family:var(--f-mono);font-size:13px;text-align:right;color:var(--muted)}
+.today b{display:block;font-family:var(--f-body);font-size:17px;color:var(--ink);font-weight:700}
+
+.tabs{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tab{border:1px solid var(--line);background:var(--sheet);border-radius:999px;padding:7px 14px;font-weight:600;font-size:14px}
+.tab[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.tab.new{border-style:dashed;color:var(--green);background:transparent}
+
+.panel{background:var(--sheet);border:1px solid var(--line);border-radius:14px;padding:20px;display:grid;gap:16px}
+.goal-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:start;gap:12px}
+.goal-head h2{font-family:var(--f-display);font-weight:700;font-size:24px;margin:0;line-height:1.15;text-wrap:balance;min-width:0;overflow-wrap:anywhere}
+.goal-head .range{color:var(--muted);font-size:14px;margin-top:2px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.stat{border-top:2px solid var(--line);padding-top:8px}
+.stat .k{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.stat .v{font-family:var(--f-display);font-weight:800;font-size:28px;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat .s{font-size:12.5px;color:var(--muted)}
+.stat.deadline .v{color:var(--marker)}
+@media (max-width:620px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.strip{display:flex;gap:2px;height:14px}
+.strip i{flex:1;border-radius:2px;background:var(--off);min-width:0}
+.strip i.done{background:var(--marker)}
+.strip i.missed{background:var(--line)}
+.strip i.today{outline:2px solid var(--ochre);outline-offset:1px}
+
+.months{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:18px}
+.month{background:var(--sheet);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:10px;min-width:0}
+.month-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.month-h h3{margin:0;font-family:var(--f-display);font-size:20px;font-weight:700}
+.month-h .am{font-weight:600;color:var(--green);margin-left:6px;font-size:16px}
+.month-h .yr{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.wd{font-size:11px;text-align:center;color:var(--muted);font-weight:600;padding-bottom:2px}
+.day{position:relative;aspect-ratio:1;max-width:100%;border:1px solid var(--line);border-radius:8px;background:var(--sheet);padding:3px 5px;text-align:left;display:flex;flex-direction:column;justify-content:space-between;min-width:0;overflow:hidden}
+.day .n{font-family:var(--f-display);font-weight:700;font-size:15px;line-height:1;font-variant-numeric:tabular-nums}
+.day .g{font-family:var(--f-mono);font-size:9.5px;color:var(--muted);line-height:1;align-self:end}
+.day.out{background:var(--off);border-color:transparent;color:var(--muted);cursor:default;opacity:.55}
+.day.future{cursor:not-allowed}
+.day.future .n{color:var(--muted)}
+.day.missed{background:repeating-linear-gradient(135deg,transparent 0 6px,var(--off) 6px 8px)}
+.day.today{border:2px solid var(--ochre)}
+.day.in:not(.future):hover{border-color:var(--green)}
+.day.first::after,.day.last::after{position:absolute;top:2px;right:4px;font-size:8px;font-weight:700;letter-spacing:.05em;color:var(--green)}
+.day.first::after{content:"START"}
+.day.last::after{content:"END";color:var(--marker)}
+.day svg{position:absolute;inset:8%;width:84%;height:84%;pointer-events:none;overflow:visible}
+.day svg path{fill:none;stroke:var(--marker);stroke-width:9;stroke-linecap:round;stroke-dasharray:130;stroke-dashoffset:0}
+.day svg.fresh path{animation:draw .22s ease-out both}
+.day svg.fresh path+path{animation-delay:.14s}
+@keyframes draw{from{stroke-dashoffset:130}}
+@media (prefers-reduced-motion:reduce){.day svg.fresh path{animation:none}}
+
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--muted);align-items:center}
+.legend span{display:inline-flex;gap:6px;align-items:center}
+.sw{width:14px;height:14px;border-radius:4px;border:1px solid var(--line);display:inline-block}
+
+.btn{border:1px solid var(--line);background:var(--sheet);border-radius:10px;padding:8px 14px;font-weight:600;font-size:14px}
+.btn.primary{background:var(--green);border-color:var(--green);color:var(--sheet)}
+.btn.danger{color:var(--marker)}
+.btn.danger.armed{background:var(--marker);border-color:var(--marker);color:var(--sheet)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+
+form.newgoal{display:grid;gap:16px}
+form.newgoal h2{margin:0;font-family:var(--f-display);font-size:22px}
+.field{display:grid;gap:6px}
+.field label,.field .lab{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.field input[type=text],.field input[type=number],.field select{border:1px solid var(--line);border-radius:10px;padding:9px 11px;background:var(--paper);min-width:0}
+.field input[type=text]{width:100%}
+.datepick{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:6px 12px;font-size:14px;font-weight:600}
+.chip[aria-pressed="true"]{background:var(--green-soft);border-color:var(--green);color:var(--green)}
+.hint{font-size:13px;color:var(--muted)}
+.status{font-size:12.5px;color:var(--muted);font-family:var(--f-mono)}
+.toast{font-size:13px;color:var(--ochre);min-height:1.2em}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>Kutir <span>✕</span> Countdown</h1>
+      <p>Cross off each day you show up. Watch the deadline get closer.</p>
+    </div>
+    <div class="today" id="today"></div>
+  </header>
+
+  <nav class="tabs" id="tabs" aria-label="Your goals"></nav>
+
+  <section class="panel" id="goal"></section>
+
+  <section class="panel" id="form" hidden></section>
+
+  <div class="legend">
+    <span><span class="sw" style="background:var(--sheet)"></span>Tap to cross off</span>
+    <span><span class="sw" style="border:2px solid var(--ochre)"></span>Today</span>
+    <span><span class="sw" style="background:repeating-linear-gradient(135deg,transparent 0 3px,var(--line) 3px 5px)"></span>Missed</span>
+    <span><span class="sw" style="background:var(--off);opacity:.55"></span>Outside the plan</span>
+    <span class="status" id="status">Loading…</span>
+  </div>
+</div>
+
+<script>
+(() => {
+  // ---------- Ethiopian calendar math (Julian Day Numbers) ----------
+  const EPOCH = 1724221; // 1 Meskerem, year 1 (Amete Mihret)
+  const toJdn = (y, m, d) => EPOCH + 365 * (y - 1) + Math.floor(y / 4) + 30 * (m - 1) + d - 1;
+  function fromJdn(j) {
+    const c = j - 1723856, r = ((c % 1461) + 1461) % 1461, n = r % 365 + 365 * Math.floor(r / 1460);
+    return { y: 4 * Math.floor(c / 1461) + Math.floor(r / 365) - Math.floor(r / 1460), m: Math.floor(n / 30) + 1, d: n % 30 + 1 };
+  }
+  const monthLen = (y, m) => m < 13 ? 30 : (y % 4 === 3 ? 6 : 5);
+  const gToJdn = dt => Math.floor(Date.UTC(dt.getFullYear(), dt.getMonth(), dt.getDate()) / 864e5) + 2440588;
+  const jdnToG = j => new Date((j - 2440588) * 864e5);
+  const weekday = j => j % 7; // 0 = Monday
+
+  const MONTHS = ["Meskerem","Tikimt","Hidar","Tahsas","Tir","Yekatit","Megabit","Miyazya","Ginbot","Sene","Hamle","Nehase","Pagume"];
+  const MONTHS_AM = ["መስከረም","ጥቅምት","ኅዳር","ታኅሣሥ","ጥር","የካቲት","መጋቢት","ሚያዝያ","ግንቦት","ሰኔ","ሐምሌ","ነሐሴ","ጳጉሜ"];
+  const WD_AM = ["ሰኞ","ማክ","ረቡ","ሐሙ","ዓር","ቅዳ","እሑ"];
+  const gFmt = new Intl.DateTimeFormat("en", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+  const gShort = new Intl.DateTimeFormat("en", { month: "short", day: "numeric", timeZone: "UTC" });
+  const etStr = j => { const e = fromJdn(j); return `${e.d} ${MONTHS[e.m - 1]} ${e.y}`; };
+
+  const todayJ = () => gToJdn(new Date());
+  const T = todayJ();
+  const tE = fromJdn(T);
+
+  // ---------- State ----------
+  const LS_KEY = "kutir-trackers-v1";
+  const uid4 = () => Math.random().toString(36).slice(2, 10);
+  const defaultTracker = () => ({ id: "three-months", name: "My 3 months", start: toJdn(tE.y, tE.m, 1), days: 90, done: [], created: Date.now(), draft: true });
+
+  let trackers = [];
+  let activeId = null;
+  let mode = "local"; // "local" | "account"
+  let db = null, uid = null;
+  let justMarked = null;
+
+  function lsRead() { try { const v = JSON.parse(localStorage.getItem(LS_KEY) || "null"); return Array.isArray(v) ? v : null; } catch { return null; } }
+  function lsWrite() { try { localStorage.setItem(LS_KEY, JSON.stringify(trackers.filter(t => !t.draft))); } catch {} }
+
+  trackers = lsRead() || [];
+  if (!trackers.length) trackers = [defaultTracker()];
+  activeId = trackers[0].id;
+
+  const active = () => trackers.find(t => t.id === activeId) || trackers[0];
+
+  // ---------- Saving (one write at a time per tracker, coalesced) ----------
+  const pending = new Map(), inflight = new Set(), timers = new Map();
+  function save(t) {
+    delete t.draft;
+    lsWrite();
+    if (mode !== "account") { setStatus(); return; }
+    pending.set(t.id, t);
+    clearTimeout(timers.get(t.id));
+    timers.set(t.id, setTimeout(() => flush(t.id), 350));
+    setStatus("Saving…");
+  }
+  async function flush(id) {
+    if (inflight.has(id) || !pending.has(id)) return;
+    const t = pending.get(id); pending.delete(id); inflight.add(id);
+    try {
+      await db.collection("data/users/" + uid).doc(id).set({ name: t.name, start: t.start, days: t.days, done: t.done.slice(), created: t.created });
+      setStatus();
+    } catch (e) {
+      mode = "local"; setStatus();
+    } finally {
+      inflight.delete(id);
+      if (pending.has(id)) flush(id);
+    }
+  }
+  async function remove(id) {
+    trackers = trackers.filter(t => t.id !== id);
+    lsWrite();
+    if (mode === "account") { try { await db.collection("data/users/" + uid).doc(id).delete(); } catch {} }
+    if (!trackers.length) trackers = [defaultTracker()];
+    activeId = trackers[0].id;
+    render();
+  }
+  function setStatus(msg) {
+    document.getElementById("status").textContent = msg || (mode === "account" ? "Saved to your account" : "Saved on this device");
+  }
+
+  // ---------- Rendering ----------
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  function renderToday() {
+    const g = jdnToG(T);
+    $("today").innerHTML = `Today<b>${tE.d} ${MONTHS[tE.m - 1]} ${tE.y} · ${MONTHS_AM[tE.m - 1]} ${tE.d}</b>${gFmt.format(g)}`;
+  }
+
+  function renderTabs() {
+    const nav = $("tabs");
+    nav.innerHTML = trackers.map(t => `<button class="tab" type="button" data-id="${esc(t.id)}" aria-pressed="${t.id === activeId && $("form").hidden}">${esc(t.name)}</button>`).join("") +
+      `<button class="tab new" type="button" id="newBtn">+ New goal</button>`;
+  }
+
+  function xSvg(fresh, j) {
+    const r = ((j * 37) % 11) - 5; // stable little tilt per day
+    return `<svg class="${fresh ? "fresh" : ""}" viewBox="0 0 100 100" style="transform:rotate(${r}deg)" aria-hidden="true"><path d="M14 16 C38 40 60 62 86 86"/><path d="M84 14 C62 38 40 60 16 86"/></svg>`;
+  }
+
+  function stats(t) {
+    const end = t.start + t.days - 1, done = new Set(t.done);
+    const elapsed = Math.max(0, Math.min(t.days, T - t.start + 1));
+    let streak = 0;
+    for (let j = Math.min(T, end); j >= t.start; j--) { if (done.has(j)) streak++; else if (j === T) continue; else break; }
+    return { end, done, count: t.done.filter(j => j >= t.start && j <= end).length, elapsed, left: Math.max(0, end - T), streak };
+  }
+
+  function renderGoal() {
+    const t = active(), s = stats(t);
+    const dayNo = T < t.start ? "—" : T > s.end ? "Finished" : `Day ${T - t.start + 1}`;
+    const pct = s.elapsed ? Math.round(100 * s.count / s.elapsed) : 0;
+
+    let strip = "";
+    for (let j = t.start; j <= s.end; j++) {
+      const c = s.done.has(j) ? "done" : j < T ? "missed" : "";
+      strip += `<i class="${c}${j === T ? " today" : ""}" title="${etStr(j)}"></i>`;
+    }
+
+    // months covering the plan
+    const sE = fromJdn(t.start), eE = fromJdn(s.end);
+    const months = [];
+    let y = sE.y, m = sE.m;
+    while (y < eE.y || (y === eE.y && m <= eE.m)) { months.push([y, m]); m++; if (m > 13) { m = 1; y++; } }
+
+    const monthHtml = months.map(([y, m]) => {
+      const first = toJdn(y, m, 1), len = monthLen(y, m);
+      let cells = WD_AM.map(w => `<div class="wd">${w}</div>`).join("");
+      for (let i = 0; i < weekday(first); i++) cells += `<div></div>`;
+      for (let d = 1; d <= len; d++) {
+        const j = first + d - 1, inR = j >= t.start && j <= s.end;
+        const g = jdnToG(j), gl = g.getUTCDate() === 1 || d === 1 ? gShort.format(g) : g.getUTCDate();
+        const cls = ["day", inR ? "in" : "out"];
+        if (inR && j > T) cls.push("future");
+        if (inR && j < T && !s.done.has(j)) cls.push("missed");
+        if (j === T) cls.push("today");
+        if (j === t.start) cls.push("first");
+        if (j === s.end) cls.push("last");
+        const label = `${d} ${MONTHS[m - 1]} ${y}, ${gFmt.format(g)}${s.done.has(j) ? ", crossed off" : ""}`;
+        cells += `<button type="button" class="${cls.join(" ")}" data-j="${j}" ${inR ? "" : "tabindex=\"-1\""} aria-label="${label}" aria-pressed="${s.done.has(j)}"><span class="n">${d}</span><span class="g">${gl}</span>${s.done.has(j) ? xSvg(justMarked === j, j) : ""}</button>`;
+      }
+      return `<article class="month"><div class="month-h"><h3>${MONTHS[m - 1]}<span class="am">${MONTHS_AM[m - 1]}</span></h3><span class="yr">${y} E.C.</span></div><div class="grid">${cells}</div></article>`;
+    }).join("");
+
+    $("goal").innerHTML = `
+      <div class="goal-head">
+        <div style="min-width:0"><h2>${esc(t.name)}</h2>
+          <div class="range">${etStr(t.start)} → ${etStr(s.end)} · ${t.days} days · ${gFmt.format(jdnToG(t.start))} – ${gFmt.format(jdnToG(s.end))}</div></div>
+        <div class="row"><button type="button" class="btn danger" id="delBtn">Delete goal</button></div>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="k">Crossed off</div><div class="v">${s.count}<small style="font-size:16px;color:var(--muted)"> / ${t.days}</small></div><div class="s">${pct}% of days so far</div></div>
+        <div class="stat"><div class="k">Where you are</div><div class="v">${dayNo}</div><div class="s">${s.elapsed} of ${t.days} days passed</div></div>
+        <div class="stat"><div class="k">Streak</div><div class="v">${s.streak}</div><div class="s">day${s.streak === 1 ? "" : "s"} in a row</div></div>
+        <div class="stat deadline"><div class="k">Until deadline</div><div class="v">${s.left}</div><div class="s">days left · ${MONTHS_AM[eE.m - 1]} ${eE.d}</div></div>
+      </div>
+      <div class="strip" aria-hidden="true">${strip}</div>
+      <div class="toast" id="toast"></div>
+      <div class="months">${monthHtml}</div>`;
+    justMarked = null;
+  }
+
+  // ---------- New goal form ----------
+  const PRESETS = [["1 week", 7], ["2 weeks", 14], ["1 month", 30], ["2 months", 60], ["3 months", 90]];
+  let fState = null;
+  function openForm() {
+    fState = { y: tE.y, m: tE.m, d: tE.d, days: 30 };
+    $("form").hidden = false;
+    renderForm();
+    renderTabs();
+    $("form").scrollIntoView({ behavior: "smooth", block: "start" });
+    $("gName").focus();
+  }
+  function renderForm() {
+    const f = fState, len = monthLen(f.y, f.m);
+    if (f.d > len) f.d = len;
+    const sj = toJdn(f.y, f.m, f.d), ej = sj + f.days - 1;
+    const years = [tE.y - 1, tE.y, tE.y + 1];
+    $("form").innerHTML = `<form class="newgoal" id="gForm">
+      <h2>New goal</h2>
+      <div class="field"><label for="gName">What are you tracking?</label><input type="text" id="gName" maxlength="60" placeholder="e.g. Gym, Reading, Learning Python" value="${esc(f.name || "")}"></div>
+      <div class="field"><span class="lab">Start date (Ethiopian)</span>
+        <div class="datepick">
+          <select id="gD" aria-label="Day">${Array.from({ length: len }, (_, i) => `<option ${i + 1 === f.d ? "selected" : ""}>${i + 1}</option>`).join("")}</select>
+          <select id="gM" aria-label="Month">${MONTHS.map((n, i) => `<option value="${i + 1}" ${i + 1 === f.m ? "selected" : ""}>${n} · ${MONTHS_AM[i]}</option>`).join("")}</select>
+          <select id="gY" aria-label="Year">${years.map(y => `<option ${y === f.y ? "selected" : ""}>${y}</option>`).join("")}</select>
+        </div>
+        <div class="row"><button type="button" class="chip" data-start="today">Today</button><button type="button" class="chip" data-start="month">1st of this month</button></div>
+      </div>
+      <div class="field"><span class="lab">How long?</span>
+        <div class="row">${PRESETS.map(([l, n]) => `<button type="button" class="chip" data-days="${n}" aria-pressed="${f.days === n}">${l}</button>`).join("")}
+          <label class="hint" for="gDays">or</label><input type="number" id="gDays" min="1" max="400" value="${f.days}" style="width:90px"> <span class="hint">days</span></div>
+      </div>
+      <p class="hint" style="margin:0">Runs <b>${etStr(sj)}</b> to <b>${etStr(ej)}</b> (${gFmt.format(jdnToG(sj))} – ${gFmt.format(jdnToG(ej))}).</p>
+      <div class="row"><button type="submit" class="btn primary">Start tracking</button><button type="button" class="btn" id="gCancel">Cancel</button></div>
+    </form>`;
+  }
+
+  // ---------- Events ----------
+  document.addEventListener("click", e => {
+    const tab = e.target.closest(".tab[data-id]");
+    if (tab) { activeId = tab.dataset.id; $("form").hidden = true; render(); return; }
+    if (e.target.closest("#newBtn")) { openForm(); return; }
+    if (e.target.closest("#gCancel")) { $("form").hidden = true; renderTabs(); return; }
+
+    const del = e.target.closest("#delBtn");
+    if (del) {
+      if (del.classList.contains("armed")) { remove(active().id); return; }
+      del.classList.add("armed"); del.textContent = "Tap again to delete";
+      setTimeout(() => { if (del.isConnected) { del.classList.remove("armed"); del.textContent = "Delete goal"; } }, 3000);
+      return;
+    }
+
+    const day = e.target.closest(".day.in");
+    if (day) {
+      const j = +day.dataset.j, t = active();
+      if (j > T) { $("toast").textContent = "That day hasn't come yet. Cross it off when you get there."; return; }
+      const i = t.done.indexOf(j);
+      if (i >= 0) t.done.splice(i, 1); else { t.done.push(j); justMarked = j; }
+      save(t);
+      const y = scrollY; renderGoal(); scrollTo(0, y);
+      return;
+    }
+
+    const st = e.target.closest("[data-start]");
+    if (st && fState) {
+      fState.name = $("gName").value;
+      Object.assign(fState, { y: tE.y, m: tE.m, d: st.dataset.start === "today" ? tE.d : 1 });
+      renderForm(); return;
+    }
+    const pd = e.target.closest("[data-days]");
+    if (pd && fState) { fState.name = $("gName").value; fState.days = +pd.dataset.days; renderForm(); }
+  });
+
+  document.addEventListener("change", e => {
+    if (!fState) return;
+    if (["gD", "gM", "gY", "gDays"].includes(e.target.id)) {
+      fState.name = $("gName").value;
+      fState.d = +$("gD").value; fState.m = +$("gM").value; fState.y = +$("gY").value;
+      const n = Math.round(+$("gDays").value); if (n >= 1 && n <= 400) fState.days = n;
+      renderForm();
+    }
+  });
+
+  document.addEventListener("submit", e => {
+    if (e.target.id !== "gForm") return;
+    e.preventDefault();
+    const name = $("gName").value.trim() || "My goal";
+    const t = { id: uid4(), name, start: toJdn(fState.y, fState.m, fState.d), days: fState.days, done: [], created: Date.now() };
+    trackers = trackers.filter(x => !x.draft);
+    trackers.push(t); activeId = t.id;
+    $("form").hidden = true; fState = null;
+    save(t); render();
+  });
+
+  function render() { renderToday(); renderTabs(); renderGoal(); setStatus(); }
+  render();
+
+  // ---------- Account storage (private per person) ----------
+  (async () => {
+    if (!window.claude?.use) return;
+    const [d, user] = await Promise.all([claude.use("db"), claude.use("user")]);
+    const id = user ? await user.id() : null;
+    if (!d || !id) return;
+    db = d; uid = id; mode = "account"; setStatus();
+    let first = true;
+    db.collection("data/users/" + uid).onSnapshot(snap => {
+      const remote = snap.docs.map(doc => ({ id: doc.id, ...doc.data(), done: [...(doc.data().done || [])] }));
+      if (first) {
+        first = false;
+        // carry over anything saved on this device before signing in
+        const local = trackers.filter(t => !t.draft && !remote.some(r => r.id === t.id));
+        local.forEach(t => save(t));
+        trackers = [...remote, ...local];
+      } else {
+        trackers = remote.map(r => pending.has(r.id) || inflight.has(r.id) ? trackers.find(t => t.id === r.id) || r : r);
+      }
+      trackers.sort((a, b) => (a.created || 0) - (b.created || 0));
+      if (!trackers.length) trackers = [defaultTracker()];
+      if (!trackers.some(t => t.id === activeId)) activeId = trackers[0].id;
+      lsWrite();
+      const y = scrollY; renderTabs(); renderGoal(); scrollTo(0, y);
+    }, () => { mode = "local"; setStatus(); });
+  })();
+})();
+</script>
+</body>
+</html>
