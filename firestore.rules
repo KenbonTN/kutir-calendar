@@ -1,16 +1,19 @@
 rules_version = '2';
 
 // Each signed-in person can read and write only their own document, users/{their uid}.
-// Everything else is closed.
+// Everything else is closed. (The evening-reminder job uses an admin key and isn't bound by these.)
 service cloud.firestore {
   match /databases/{database}/documents {
     match /users/{uid} {
       allow read, delete: if request.auth != null && request.auth.uid == uid;
       allow create, update: if request.auth != null
         && request.auth.uid == uid
-        && request.resource.data.keys().hasOnly(['goals', 'updated'])
-        && request.resource.data.goals is list
-        && request.resource.data.goals.size() <= 100;
+        && request.resource.data.keys().hasOnly(
+             ['goals', 'tasks', 'routines', 'screen', 'updated', 'reminder', 'lastReminder'])
+        && (!('goals' in request.resource.data) || request.resource.data.goals.size() <= 200)
+        && (!('tasks' in request.resource.data) || request.resource.data.tasks.size() <= 5000)
+        && (!('routines' in request.resource.data) || request.resource.data.routines.size() <= 200)
+        && (!('screen' in request.resource.data) || request.resource.data.screen.size() <= 2000);
     }
   }
 }

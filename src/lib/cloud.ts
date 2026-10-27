@@ -2,14 +2,17 @@
 
 // Google sign-in and cloud backup through Firebase (Auth + Firestore).
 //
-// Each person has one document, users/{uid}, holding all their goals. The
-// device keeps its own copy in localStorage, so the app works offline and
-// for people who never sign in. When both sides change, crosses are merged
-// (a day crossed on either device stays crossed).
+// Each person has one document, users/{uid}, holding their goals, tasks,
+// repeating tasks and screen-time logs, plus their reminder settings. The
+// device keeps its own copy in localStorage, so the app works offline and for
+// people who never sign in. Every record carries a change time (`u`), so when
+// both sides changed, the newer version of each record wins.
 
 import { useSyncExternalStore } from "react";
 import { firebaseConfig } from "./firebase-config";
-import { GOALS_KEY, replaceGoals, savedGoals, type Goal } from "./goals";
+import { GOALS_KEY } from "./goals";
+import { SCREEN_KEY } from "./screen";
+import { ROUTINES_KEY, TASKS_KEY } from "./tasks";
 import { readStored, subscribeStored, writeStored } from "./storage";
 
 export type CloudStatus = "off" | "starting" | "signed-out" | "syncing" | "synced" | "saving" | "offline" | "error";
@@ -76,7 +79,7 @@ export function startCloud() {
         startSync(u.uid);
       }),
     )
-    .catch(() => set({ status: "error", message: "Couldn't connect to your account. Your crosses are still saved on this device." }));
+    .catch(() => set({ status: "error", message: "Couldn't connect to your account. Everything is still saved on this device." }));
 }
 
 export async function signIn() {
@@ -104,31 +107,68 @@ export async function signOut() {
 
 /* ---------- Sync ---------- */
 
-const SYNC_KEY = "kutir-last-synced"; // the last copy this device and the cloud agreed on
+type Rec = { id: string; u?: number; deleted?: boolean; draft?: boolean };
+type Data = Record<Field, Rec[]>;
+type Field = "goals" | "tasks" | "routines" | "screen";
 
-const clean = (goals: Goal[]): Goal[] =>
-  goals
-    .filter((g) => !g.draft)
-    .map(({ id, name, start, days, done, created }) => ({
-      id, name, start, days, created, done: [...new Set(done)].sort((x, y) => x - y),
-    }));
-const asJson = (goals: Goal[]) => JSON.stringify(clean(goals));
+const FIELDS: Record<Field, string> = {
+  goals: GOALS_KEY,
+  tasks: TASKS_KEY,
+  routines: ROUTINES_KEY,
+  screen: SCREEN_KEY,
+};
+const KEEP_DELETED_MS = 90 * 864e5; // long enough for every device to hear about a deletion
 
-/** Same goal on both sides: keep every crossed day. Goals only on one side are kept too. */
-export function mergeGoals(local: Goal[], cloud: Goal[]): Goal[] {
-  const out = new Map(cloud.map((g) => [g.id, g]));
-  for (const g of local) {
-    const c = out.get(g.id);
-    out.set(g.id, c ? { ...c, done: [...new Set([...c.done, ...g.done])] } : g);
+const tidy = (list: Rec[]) =>
+  list
+    .filter((r) => !r.draft && !(r.deleted && Date.now() - (r.u ?? 0) > KEEP_DELETED_MS))
+    .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+
+const readLocal = (): Data =>
+  Object.fromEntries(
+    (Object.keys(FIELDS) as Field[]).map((f) => {
+      const v = readStored<Rec[]>(FIELDS[f], []);
+      return [f, tidy(Array.isArray(v) ? v : [])];
+    }),
+  ) as Data;
+
+/** Record by record, the most recently changed version wins; records on only one side are kept. */
+export function merge(a: Data, b: Data): Data {
+  const out = {} as Data;
+  for (const f of Object.keys(FIELDS) as Field[]) {
+    const m = new Map<string, Rec>();
+    for (const r of b[f] ?? []) m.set(r.id, r);
+    for (const r of a[f] ?? []) {
+      const o = m.get(r.id);
+      if (!o || (r.u ?? 0) > (o.u ?? 0)) m.set(r.id, r);
+    }
+    out[f] = tidy([...m.values()]);
   }
-  return clean([...out.values()].sort((x, y) => x.created - y.created));
+  return out;
 }
+
+const json = (d: Data) => JSON.stringify(d);
 
 let stop: (() => void) | null = null;
 const stopSync = () => {
   stop?.();
   stop = null;
 };
+
+/* Reminder settings live on the same document; the page writes them, the daily job reads them. */
+export type Reminder = { on: boolean; time: string; subs: PushSubscriptionJSON[] };
+let docRef: unknown = null;
+let latestReminder: Reminder | null = null;
+
+export async function saveReminder(change: (r: Reminder) => Reminder) {
+  if (!docRef) throw new Error("not signed in");
+  const { fs } = await firebase();
+  const next = change(latestReminder ?? { on: false, time: "21:00", subs: [] });
+  latestReminder = next;
+  await fs.setDoc(docRef as never, { reminder: next }, { merge: true });
+  return next;
+}
+export const currentReminder = () => latestReminder;
 
 function startSync(uid: string) {
   let cancelled = false;
@@ -139,32 +179,37 @@ function startSync(uid: string) {
   firebase().then(({ fs, db }) => {
     if (cancelled) return;
     const ref = fs.doc(db, "users", uid);
-    let first = true;
+    docRef = ref;
+    let ready = false;
     let cloudJson = "";
     let timer: ReturnType<typeof setTimeout> | undefined;
     let writing = false;
     let again = false;
 
-    const agreed = (json: string) => writeStored(SYNC_KEY, { uid, json });
+    const applyLocal = (d: Data) => {
+      const local = readLocal();
+      for (const f of Object.keys(FIELDS) as Field[])
+        if (JSON.stringify(d[f]) !== JSON.stringify(local[f])) writeStored(FIELDS[f], d[f]);
+    };
 
     const push = async () => {
-      if (first) return;
+      if (!ready) return;
       if (writing) {
         again = true;
         return;
       }
-      const goals = clean(savedGoals());
-      const json = JSON.stringify(goals);
-      if (json === cloudJson) return set({ status: navigator.onLine ? "synced" : "offline" });
+      const data = readLocal();
+      const j = json(data);
+      if (j === cloudJson) return set({ status: navigator.onLine ? "synced" : "offline" });
       writing = true;
       set({ status: navigator.onLine ? "saving" : "offline" });
       try {
-        await fs.setDoc(ref, { goals, updated: fs.serverTimestamp() }); // resolves once the server has it
-        cloudJson = json;
-        agreed(json);
+        // merge: true leaves the reminder settings alone. Resolves once the server has it.
+        await fs.setDoc(ref, { ...data, updated: fs.serverTimestamp() }, { merge: true });
+        cloudJson = j;
         set({ status: "synced", message: null });
       } catch {
-        set({ status: "error", message: "Couldn't save to your account. Your crosses are still on this device." });
+        set({ status: "error", message: "Couldn't save to your account. Everything is still saved on this device." });
       }
       writing = false;
       if (again) {
@@ -173,46 +218,32 @@ function startSync(uid: string) {
       }
     };
 
-    const apply = (goals: Goal[]) => {
-      if (asJson(goals) !== asJson(savedGoals())) replaceGoals(clean(goals));
-    };
-
     const unsubSnap = fs.onSnapshot(
       ref,
       { includeMetadataChanges: true },
       (snap) => {
         // Only act on the server's confirmed copy, never on our own unconfirmed write or a stale cache.
         if (snap.metadata.fromCache || snap.metadata.hasPendingWrites) return;
-        const cloud = clean((snap.data()?.goals ?? []) as Goal[]);
-        cloudJson = JSON.stringify(cloud);
-
-        if (first) {
-          first = false;
-          const local = clean(savedGoals());
-          const last = readStored<{ uid: string; json: string } | null>(SYNC_KEY, null);
-          const unchangedHere = last?.uid === uid && last.json === JSON.stringify(local);
-          const next = unchangedHere || !local.length ? cloud : mergeGoals(local, cloud);
-          apply(next);
-          if (JSON.stringify(next) !== cloudJson) push();
-          else {
-            agreed(cloudJson);
-            set({ status: "synced" });
-          }
-          return;
-        }
-        if (cloudJson !== asJson(savedGoals())) {
-          apply(cloud);
-          agreed(cloudJson);
-        }
-        if (!writing) set({ status: "synced" });
+        const raw = (snap.data() ?? {}) as Partial<Data> & { reminder?: Reminder };
+        latestReminder = raw.reminder ?? null;
+        const cloud = merge({ goals: [], tasks: [], routines: [], screen: [] }, {
+          goals: raw.goals ?? [], tasks: raw.tasks ?? [], routines: raw.routines ?? [], screen: raw.screen ?? [],
+        });
+        cloudJson = json(cloud);
+        ready = true;
+        const merged = merge(readLocal(), cloud);
+        applyLocal(merged);
+        if (json(merged) !== cloudJson) push();
+        else if (!writing) set({ status: "synced" });
       },
-      () => set({ status: "error", message: "Couldn't load your saved crosses. Check your connection." }),
+      () => set({ status: "error", message: "Couldn't load your saved data. Check your connection." }),
     );
 
-    const unsubLocal = subscribeStored(GOALS_KEY, () => {
+    const onLocal = () => {
       clearTimeout(timer);
-      timer = setTimeout(push, 400);
-    });
+      timer = setTimeout(push, 500);
+    };
+    const unsubs = Object.values(FIELDS).map((k) => subscribeStored(k, onLocal));
     const onOnline = () => push();
     const onOffline = () => set({ status: "offline" });
     window.addEventListener("online", onOnline);
@@ -220,8 +251,10 @@ function startSync(uid: string) {
 
     stop = () => {
       cancelled = true;
+      docRef = null;
+      latestReminder = null;
       unsubSnap();
-      unsubLocal();
+      unsubs.forEach((u) => u());
       clearTimeout(timer);
       window.removeEventListener("online", onOnline);
       window.removeEventListener("offline", onOffline);

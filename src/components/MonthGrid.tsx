@@ -10,7 +10,9 @@ import { orthodoxDay } from "@/lib/orthodox";
 import { XMark } from "./XMark";
 
 export type Layers = { saints: boolean; football: boolean };
-export type Plan = { start: number; end: number; done: Set<number> } | null;
+export type Plan = { start: number; end: number } | null;
+/** Per day: tasks done and tasks due (for past days), or tasks planned (today and later). */
+export type DayInfo = Map<number, { done: number; due: number }>;
 
 type Props = {
   y: number;
@@ -18,7 +20,7 @@ type Props = {
   today: number;
   plan: Plan;
   layers: Layers;
-  justMarked: number | null;
+  info: DayInfo;
   onOpen: (j: number) => void;
 };
 
@@ -30,11 +32,13 @@ const gDay = (j: number) => {
 };
 
 const Day = memo(function Day({
-  j, d, today, plan, layers, animate, onOpen,
-}: { j: number; d: number; today: number; plan: Plan; layers: Layers; animate: boolean; onOpen: (j: number) => void }) {
+  j, d, today, plan, layers, score, onOpen,
+}: {
+  j: number; d: number; today: number; plan: Plan; layers: Layers;
+  score: { done: number; due: number } | undefined; onOpen: (j: number) => void;
+}) {
   const inPlan = !!plan && j >= plan.start && j <= plan.end;
-  const done = inPlan && plan!.done.has(j);
-  const missed = inPlan && !done && j < today;
+  const crossed = inPlan && j < today; // the day is over: it crosses itself
   const isToday = j === today;
   const od = layers.saints ? orthodoxDay(j) : null;
   const feast = od?.feasts[0];
@@ -45,11 +49,10 @@ const Day = memo(function Day({
     <button
       type="button"
       onClick={() => onOpen(j)}
-      aria-label={`${d}${done ? ", crossed off" : ""}${isToday ? ", today" : ""}${feast ? `, ${feast.en}` : ""}${match ? `, ${match.home} vs ${match.away}` : ""}`}
+      aria-label={`${d}${crossed ? ", passed" : ""}${score?.due ? `, ${j < today ? `${score.done} of ${score.due} tasks done` : `${score.due} tasks`}` : ""}${isToday ? ", today" : ""}${feast ? `, ${feast.en}` : ""}${match ? `, ${match.home} vs ${match.away}` : ""}`}
       className={[
         "group relative flex aspect-square min-w-0 flex-col justify-between overflow-hidden rounded-xl border p-1 text-left transition sm:aspect-[5/4] sm:rounded-2xl sm:p-2",
         inPlan ? "border-line bg-surface hover:border-green" : "border-transparent bg-surface-2/60 text-muted hover:border-line",
-        missed ? "missed" : "",
         isToday ? "!border-gold ring-2 ring-gold/40" : "",
         feast?.kind === "major" ? "bg-gold-soft/60" : "",
       ].join(" ")}
@@ -83,7 +86,9 @@ const Day = memo(function Day({
       )}
 
       <div className="flex items-end justify-between gap-1">
-        {match ? (
+        {score?.due ? (
+          <ScoreChip score={score} past={j < today} />
+        ) : match ? (
           <>
             <span
               className={`size-1.5 shrink-0 rounded-full sm:hidden ${match.arsenal ? "bg-arsenal" : "bg-ucl"}`}
@@ -103,12 +108,29 @@ const Day = memo(function Day({
         <span className="ml-auto font-mono text-[9px] leading-none text-muted sm:text-[10px]">{gDay(j)}</span>
       </div>
 
-      {done && <XMark seed={j} animate={animate} />}
+      {crossed && <XMark seed={j} animate={false} className="opacity-70" />}
     </button>
   );
 });
 
-export function MonthGrid({ y, m, today, plan, layers, justMarked, onOpen }: Props) {
+function ScoreChip({ score, past }: { score: { done: number; due: number }; past: boolean }) {
+  const all = score.done === score.due;
+  const tone = !past
+    ? "bg-surface-2 text-muted"
+    : all
+      ? "bg-green-soft text-green"
+      : score.done
+        ? "bg-gold-soft text-gold"
+        : "bg-marker/10 text-marker";
+  return (
+    <span className={`relative z-10 rounded-md px-1 py-px font-mono text-[9px] font-bold leading-tight sm:px-1.5 sm:text-[10.5px] ${tone}`}>
+      {past || score.done ? `${score.done}/${score.due}` : `${score.due}`}
+      <span className="hidden sm:inline">{past || score.done ? "" : score.due === 1 ? " task" : " tasks"}</span>
+    </span>
+  );
+}
+
+export function MonthGrid({ y, m, today, plan, layers, info, onOpen }: Props) {
   const first = toJdn(y, m, 1);
   const len = monthLength(y, m);
   const lead = weekday(first);
@@ -142,7 +164,7 @@ export function MonthGrid({ y, m, today, plan, layers, justMarked, onOpen }: Pro
               today={today}
               plan={plan}
               layers={layers}
-              animate={justMarked === j}
+              score={info.get(j)}
               onOpen={onOpen}
             />
           );

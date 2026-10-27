@@ -7,10 +7,15 @@ const figtree = Figtree({ variable: "--font-figtree", subsets: ["latin"] });
 const ethiopic = Noto_Sans_Ethiopic({ variable: "--font-ethiopic", subsets: ["ethiopic"] });
 const jetbrains = JetBrains_Mono({ variable: "--font-jetbrains", subsets: ["latin"] });
 
+const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
 export const metadata: Metadata = {
   title: "Kutir Countdown Calendar",
   description:
-    "An Ethiopian calendar for crossing off each day of a goal, with Orthodox saints' days, feasts and fasts, and Arsenal and Champions League matches in Addis time.",
+    "An Ethiopian countdown calendar with daily tasks that carry over, Orthodox saints' days, and a log of time spent on social apps.",
+  manifest: `${base}/manifest.webmanifest`,
+  appleWebApp: { capable: true, title: "Kutir", statusBarStyle: "black-translucent" },
+  icons: { apple: `${base}/apple-touch-icon.png` },
 };
 
 export const viewport: Viewport = {

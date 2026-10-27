@@ -1,0 +1,10 @@
+{
+  "name": "kutir-reminders",
+  "private": true,
+  "type": "module",
+  "description": "Evening reminder sender, run by .github/workflows/reminders.yml",
+  "dependencies": {
+    "firebase-admin": "14.4.0",
+    "web-push": "3.6.7"
+  }
+}

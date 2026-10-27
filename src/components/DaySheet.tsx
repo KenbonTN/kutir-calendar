@@ -1,29 +1,38 @@
 "use client";
 
-import { Check, Church, Leaf, Star, Trophy } from "lucide-react";
+import { Church, Hourglass, Leaf, ListChecks, Star, Trophy } from "lucide-react";
 import {
   formatEt, formatEtAm, formatGLong, fromJdn, geez, MONTHS_AM, WEEKDAYS, WEEKDAYS_AM, weekday,
 } from "@/lib/ethiopian";
 import { matchesOn } from "@/lib/fixtures";
 import { orthodoxDay } from "@/lib/orthodox";
 import type { Goal } from "@/lib/goals";
+import { fmt, total, type ScreenLog } from "@/lib/screen";
+import { tasksOn, type Routine, type Task } from "@/lib/tasks";
 import { MatchRow } from "./MatchRow";
+import { ScreenLogForm } from "./ScreenTime";
+import { DaySummary } from "./Summary";
+import { TaskList } from "./TaskList";
 
 type Props = {
   j: number;
   today: number;
   now: number;
   goal: Goal | null;
-  onToggle: (j: number) => void;
+  tasks: Task[];
+  routines: Routine[];
+  log?: ScreenLog;
 };
 
-export function DaySheet({ j, today, now, goal, onToggle }: Props) {
+const heading = "flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-muted";
+
+export function DaySheet({ j, today, now, goal, tasks, routines, log }: Props) {
   const e = fromJdn(j);
   const od = orthodoxDay(j);
   const matches = matchesOn(j);
   const end = goal ? goal.start + goal.days - 1 : -1;
   const inPlan = !!goal && j >= goal.start && j <= end;
-  const done = inPlan && goal!.done.includes(j);
+  const list = tasksOn(j, tasks, routines, today);
   const rel = j === today ? "Today" : j === today + 1 ? "Tomorrow" : j === today - 1 ? "Yesterday" : null;
 
   return (
@@ -41,37 +50,34 @@ export function DaySheet({ j, today, now, goal, onToggle }: Props) {
       </header>
 
       {inPlan && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-surface-2 p-3">
-          <div className="min-w-0 text-sm">
-            <div className="font-semibold">{goal!.name}</div>
-            <div className="text-muted">
-              Day {j - goal!.start + 1} of {goal!.days}
-            </div>
-          </div>
-          {j <= today ? (
-            <button
-              type="button"
-              onClick={() => onToggle(j)}
-              aria-pressed={done}
-              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition active:scale-95 ${
-                done ? "bg-surface text-muted ring-1 ring-line" : "bg-marker text-white"
-              }`}
-            >
-              {done ? <>Undo cross</> : <>✕ Cross off this day</>}
-            </button>
-          ) : (
-            <span className="text-sm text-muted">Comes up in {j - today} day{j - today === 1 ? "" : "s"}</span>
-          )}
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-surface-2 px-3 py-2 text-sm">
+          <span className="font-semibold">{goal!.name}</span>
+          <span className="text-muted">
+            Day {j - goal!.start + 1} of {goal!.days}
+            {j < today ? " · crossed off" : j === today ? " · today" : ` · in ${j - today} day${j - today === 1 ? "" : "s"}`}
+          </span>
         </div>
       )}
-      {done && (
-        <p className="-mt-3 flex items-center gap-1.5 text-sm font-medium text-green">
-          <Check size={16} /> Crossed off
-        </p>
+
+      <section className="grid gap-2">
+        <h3 className={heading}>
+          <ListChecks size={14} /> Tasks
+        </h3>
+        {j < today && <DaySummary day={j} today={today} tasks={tasks} routines={routines} log={log} />}
+        <TaskList day={j} today={today} tasks={list} />
+      </section>
+
+      {j <= today && (
+        <section className="grid gap-2">
+          <h3 className={heading}>
+            <Hourglass size={14} /> Social apps{log ? ` · ${fmt(total(log))}` : ""}
+          </h3>
+          <ScreenLogForm key={j} day={j} existing={log} />
+        </section>
       )}
 
       <section className="grid gap-3">
-        <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-muted">
+        <h3 className={heading}>
           <Church size={14} /> Orthodox calendar
         </h3>
         <div className="rounded-2xl border border-line p-3">
@@ -101,7 +107,7 @@ export function DaySheet({ j, today, now, goal, onToggle }: Props) {
 
       {matches.length > 0 && (
         <section>
-          <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-muted">
+          <h3 className={heading}>
             <Trophy size={14} /> Football
           </h3>
           <div className="divide-y divide-line">
