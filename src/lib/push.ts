@@ -37,8 +37,24 @@ export function registerServiceWorker() {
     e.preventDefault();
     installPrompt = e as InstallPrompt;
   });
-  if ("serviceWorker" in navigator)
-    navigator.serviceWorker.register(`${BASE}/sw.js`, { scope: `${BASE}/` }).catch(() => {});
+  if (!("serviceWorker" in navigator)) return;
+  navigator.serviceWorker
+    .register(`${BASE}/sw.js`, { scope: `${BASE}/`, updateViaCache: "none" })
+    .then((reg) => {
+      // A Home Screen app can sit in memory for days: look for a newer version whenever it comes back.
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") reg.update().catch(() => {});
+      });
+    })
+    .catch(() => {});
+  // When a new version takes over, reload once so the page matches it.
+  let reloaded = false;
+  const hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (!hadController || reloaded) return;
+    reloaded = true;
+    location.reload();
+  });
 }
 
 const keyBytes = (b64: string) => {

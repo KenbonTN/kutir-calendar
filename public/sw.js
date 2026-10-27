@@ -1,6 +1,6 @@
 // Kutir service worker: keeps the app opening offline and shows the evening reminder.
 
-const CACHE = "kutir-v1";
+const CACHE = "kutir-v2";
 const SCOPE = new URL(self.registration.scope).pathname; // "/kutir-calendar/" on GitHub Pages
 
 self.addEventListener("install", (event) => {
@@ -22,10 +22,11 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(req.url);
   if (req.method !== "GET" || url.origin !== self.location.origin || !url.pathname.startsWith(SCOPE)) return;
 
-  // Pages: fresh from the network when online, the saved copy when offline.
+  // Pages: fresh from the network when online (asking the server, not the phone's
+  // 10-minute HTTP cache, so updates show up straight away), the saved copy when offline.
   if (req.mode === "navigate") {
     event.respondWith(
-      fetch(req)
+      fetch(req, { cache: "no-cache" })
         .then((res) => {
           const copy = res.clone();
           caches.open(CACHE).then((c) => c.put(SCOPE, copy));
