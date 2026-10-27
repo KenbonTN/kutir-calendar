@@ -3,13 +3,14 @@
 // Google sign-in and cloud backup through Firebase (Auth + Firestore).
 //
 // Each person has one document, users/{uid}, holding their goals, tasks,
-// repeating tasks and screen-time logs, plus their reminder settings. The
+// repeating tasks, screen-time logs and expenses, plus their reminder settings. The
 // device keeps its own copy in localStorage, so the app works offline and for
 // people who never sign in. Every record carries a change time (`u`), so when
 // both sides changed, the newer version of each record wins.
 
 import { useSyncExternalStore } from "react";
 import { firebaseConfig } from "./firebase-config";
+import { EXPENSES_KEY } from "./expenses";
 import { GOALS_KEY } from "./goals";
 import { SCREEN_KEY } from "./screen";
 import { ROUTINES_KEY, TASKS_KEY } from "./tasks";
@@ -109,13 +110,14 @@ export async function signOut() {
 
 type Rec = { id: string; u?: number; deleted?: boolean; draft?: boolean };
 type Data = Record<Field, Rec[]>;
-type Field = "goals" | "tasks" | "routines" | "screen";
+type Field = "goals" | "tasks" | "routines" | "screen" | "expenses";
 
 const FIELDS: Record<Field, string> = {
   goals: GOALS_KEY,
   tasks: TASKS_KEY,
   routines: ROUTINES_KEY,
   screen: SCREEN_KEY,
+  expenses: EXPENSES_KEY,
 };
 const KEEP_DELETED_MS = 90 * 864e5; // long enough for every device to hear about a deletion
 
@@ -226,8 +228,10 @@ function startSync(uid: string) {
         if (snap.metadata.fromCache || snap.metadata.hasPendingWrites) return;
         const raw = (snap.data() ?? {}) as Partial<Data> & { reminder?: Reminder };
         latestReminder = raw.reminder ?? null;
-        const cloud = merge({ goals: [], tasks: [], routines: [], screen: [] }, {
+        const empty = { goals: [], tasks: [], routines: [], screen: [], expenses: [] };
+        const cloud = merge(empty, {
           goals: raw.goals ?? [], tasks: raw.tasks ?? [], routines: raw.routines ?? [], screen: raw.screen ?? [],
+          expenses: raw.expenses ?? [],
         });
         cloudJson = json(cloud);
         ready = true;

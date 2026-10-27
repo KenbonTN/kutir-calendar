@@ -71,6 +71,16 @@ export const formatGLong = (j: number) => gLong.format(jdnToDate(j));
 export const formatG = (j: number) => gMed.format(jdnToDate(j));
 export const formatGShort = (j: number) => gShort.format(jdnToDate(j));
 
+/** 20, 0 → "8:00 PM" */
+export const twelveHour = (h: number, min: number) =>
+  `${h % 12 || 12}:${String(min).padStart(2, "0")} ${h < 12 ? "AM" : "PM"}`;
+
+/** "20:30" → "8:30 PM" */
+export const formatClock = (hhmm: string) => {
+  const [h, m] = hhmm.split(":").map(Number);
+  return twelveHour(h, m);
+};
+
 /** Ethiopia runs on EAT (UTC+3) all year, no daylight saving. */
 export const ADDIS_OFFSET_H = 3;
 
@@ -80,8 +90,8 @@ export const addisJdn = (iso: string) =>
 
 /**
  * Kickoff time in Addis, both ways people say it:
- * the international 24h clock, and the Ethiopian clock, where the day starts at 6 a.m.
- * (22:00 EAT is "ከምሽቱ 4 ሰዓት", 4 o'clock in the evening).
+ * the international 12-hour clock, and the Ethiopian clock, where the day starts at 6 a.m.
+ * (10:00 PM EAT is "ከምሽቱ 4 ሰዓት", 4 o'clock in the evening).
  */
 export function addisTime(iso: string) {
   const t = new Date(Date.parse(iso) + ADDIS_OFFSET_H * 3600e3);
@@ -94,7 +104,7 @@ export function addisTime(iso: string) {
   const periodEn =
     h >= 6 && h < 12 ? "morning" : h >= 12 && h < 18 ? "afternoon" : h >= 18 ? "evening" : "night";
   return {
-    intl: `${String(h).padStart(2, "0")}:${mm}`,
+    intl: twelveHour(h, min),
     ethiopian: `${period} ${etHour}${min ? ":" + mm : ""} ሰዓት`,
     ethiopianEn: `${etHour}${min ? ":" + mm : ""} in the ${periodEn} (Ethiopian clock)`,
   };

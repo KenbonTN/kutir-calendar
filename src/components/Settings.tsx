@@ -3,7 +3,7 @@
 import { Bell, BellOff, Check, Download, Repeat, Share, SquarePlus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { currentReminder, useCloud } from "@/lib/cloud";
-import { formatEt } from "@/lib/ethiopian";
+import { formatClock, formatEt } from "@/lib/ethiopian";
 import {
   canPromptInstall, isInstalled, isIOS, promptInstall, pushSupported, reminderOnHere, setReminderTime,
   turnOffReminder, turnOnReminder,
@@ -12,7 +12,7 @@ import { deleteRoutine, routineLabel, type Routine } from "@/lib/tasks";
 
 const heading = "flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-muted";
 const TIMES = Array.from({ length: 14 }, (_, i) => {
-  const mins = 17 * 60 + i * 30; // 17:00 … 23:30
+  const mins = 17 * 60 + i * 30; // 5:00 PM … 11:30 PM (stored as "17:00" … "23:30")
   return `${String(Math.floor(mins / 60)).padStart(2, "0")}:${mins % 60 ? "30" : "00"}`;
 });
 
@@ -164,7 +164,7 @@ function Reminder() {
               className="rounded-xl border border-line bg-surface-2 px-3 py-2 text-[15px]"
             >
               {TIMES.map((t) => (
-                <option key={t} value={t}>{t}</option>
+                <option key={t} value={t}>{formatClock(t)}</option>
               ))}
             </select>
             <span className="text-muted">Addis time</span>
@@ -175,7 +175,7 @@ function Reminder() {
             onClick={() =>
               on
                 ? run(async () => { await turnOffReminder(); setOn(false); }, "Reminder turned off on this device.")
-                : run(async () => { await turnOnReminder(time); setOn(true); }, `Done. You'll get a reminder around ${time} each evening.`)
+                : run(async () => { await turnOnReminder(time); setOn(true); }, `Done. You'll get a reminder around ${formatClock(time)} each evening.`)
             }
             className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition disabled:opacity-50 ${
               on ? "border border-line text-muted" : "bg-green text-on-green"

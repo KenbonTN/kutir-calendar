@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import {
   CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Church, Flame, Leaf, ListChecks, Monitor, Moon, Plus,
-  Settings as SettingsIcon, Star, Sun, Trash2, Trophy,
+  Settings as SettingsIcon, Star, Sun, Trash2, Trophy, Wallet,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -11,6 +11,7 @@ import {
   WEEKDAYS_AM, weekday,
 } from "@/lib/ethiopian";
 import { startCloud } from "@/lib/cloud";
+import { useExpenses } from "@/lib/expenses";
 import { FIXTURES_UPDATED, MATCHES, type Match } from "@/lib/fixtures";
 import { addGoal, goalStats, removeGoal, useGoals, type Goal } from "@/lib/goals";
 import { orthodoxDay } from "@/lib/orthodox";
@@ -20,10 +21,13 @@ import { useStored } from "@/lib/storage";
 import { dayScore, ensureRoutineTasks, rollOver, tasksOn, useTasks, type Routine, type Task } from "@/lib/tasks";
 import { countdown, useToday } from "@/lib/useToday";
 import { AccountButton, CloudNotice } from "./Account";
+import { CalendarTab } from "./CalendarTab";
 import { DaySheet } from "./DaySheet";
 import { MatchRow } from "./MatchRow";
 import { MonthGrid, type DayInfo, type Layers } from "./MonthGrid";
+import { Money } from "./Money";
 import { NewGoalForm } from "./NewGoalForm";
+import { QuoteCard } from "./QuoteCard";
 import { ScreenDashboard } from "./ScreenTime";
 import { Settings } from "./Settings";
 import { Sheet } from "./Sheet";
@@ -53,6 +57,8 @@ function Main({ today, now }: { today: number; now: number }) {
   const [openDay, setOpenDay] = useState<number | null>(null);
   const [newGoal, setNewGoal] = useState(false);
   const [settings, setSettings] = useState(false);
+  const [tab, setTab] = useStored<Tab>("kutir-tab", "today");
+  const expenses = useExpenses();
 
   // A new day: create today's repeating tasks and move unfinished ones forward.
   // Runs again whenever tasks change (e.g. a synced copy arrives); both steps do nothing when there's nothing to do.
@@ -63,39 +69,50 @@ function Main({ today, now }: { today: number; now: number }) {
 
   const goal = goals.find((g) => g.id === activeId) ?? goals[0] ?? null;
   const todays = tasksOn(today, tasks, routines, today);
+  const streak = useMemo(() => (goal ? goalStats(goal, today, tasks, routines).streak : 0), [goal, today, tasks, routines]);
+
+  const today_ = (
+    <>
+      <div className="grid gap-4 lg:grid-cols-12">
+        <TodayCard today={today} tasks={todays} />
+        {goal && <CountdownCard goal={goal} today={today} tasks={tasks} routines={routines} />}
+      </div>
+
+      <QuoteCard today={today} tasks={tasks} logs={logs} expenses={expenses} streak={streak} />
+
+      <EndOfDayCard today={today} now={now} tasks={tasks} routines={routines} logs={logs} />
+
+      <CloudNotice />
+
+      <ScreenDashboard today={today} logs={logs} tasks={tasks} onLogToday={() => setOpenDay(today)} />
+
+      <GoalBar goals={goals} active={goal} onSelect={setActiveId} onNew={() => setNewGoal(true)} />
+
+      <Calendar
+        today={today}
+        goal={goal}
+        tasks={tasks}
+        routines={routines}
+        layers={layers}
+        setLayers={setLayers}
+        onOpen={setOpenDay}
+      />
+
+      <Football now={now} today={today} onOpen={setOpenDay} />
+    </>
+  );
 
   return (
     <>
-      <TopBar today={today} onSettings={() => setSettings(true)} />
-      <main className={`mx-auto grid max-w-6xl gap-6 pb-24 pt-5 sm:gap-8 ${gutter}`}>
-        <div className="grid gap-4 lg:grid-cols-12">
-          <TodayCard today={today} tasks={todays} />
-          {goal && <CountdownCard goal={goal} today={today} tasks={tasks} routines={routines} />}
-        </div>
-
-        <EndOfDayCard today={today} now={now} tasks={tasks} routines={routines} logs={logs} />
-
-        <CloudNotice />
-
-        <ScreenDashboard today={today} logs={logs} tasks={tasks} onLogToday={() => setOpenDay(today)} />
-
-        <GoalBar goals={goals} active={goal} onSelect={setActiveId} onNew={() => setNewGoal(true)} />
-
-        <Calendar
-          today={today}
-          goal={goal}
-          tasks={tasks}
-          routines={routines}
-          layers={layers}
-          setLayers={setLayers}
-          onOpen={setOpenDay}
-        />
-
-        <Football now={now} today={today} onOpen={setOpenDay} />
+      <TopBar today={today} tab={tab} setTab={setTab} onSettings={() => setSettings(true)} />
+      <main className={`mx-auto grid max-w-6xl gap-6 pb-32 pt-5 sm:gap-8 sm:pb-24 ${gutter}`}>
+        {tab === "today" && today_}
+        {tab === "calendar" && <CalendarTab today={today} tasks={tasks} routines={routines} onOpen={setOpenDay} />}
+        {tab === "money" && <Money today={today} />}
 
         <footer className="grid gap-1 border-t border-line pt-6 text-xs text-muted">
           <p>
-            Every day of your plan is crossed off automatically once it ends. Unfinished tasks move to the next day.
+            Every day of your countdown is crossed off automatically once it ends. Unfinished tasks move to the next day.
             Everything is saved in this browser, and in your account when you sign in with Google.
           </p>
           <p>
@@ -106,6 +123,7 @@ function Main({ today, now }: { today: number; now: number }) {
           </p>
         </footer>
       </main>
+      <BottomTabs tab={tab} setTab={setTab} />
 
       <Sheet open={openDay != null} onClose={() => setOpenDay(null)} label="Day details">
         {openDay != null && (
@@ -133,7 +151,65 @@ function Main({ today, now }: { today: number; now: number }) {
 
 /* ---------- Top bar ---------- */
 
-function TopBar({ today, onSettings }: { today: number; onSettings: () => void }) {
+type Tab = "today" | "calendar" | "money";
+const TABS: [Tab, string, typeof ListChecks][] = [
+  ["today", "Today", ListChecks],
+  ["calendar", "Calendar", CalendarDays],
+  ["money", "Money", Wallet],
+];
+
+function TopTabs({ tab, setTab }: { tab: Tab; setTab: (t: Tab) => void }) {
+  return (
+    <nav aria-label="Sections" className="hidden rounded-full border border-line bg-surface p-1 text-sm font-semibold sm:flex">
+      {TABS.map(([k, label, Icon]) => (
+        <button
+          key={k}
+          type="button"
+          aria-current={tab === k ? "page" : undefined}
+          onClick={() => {
+            setTab(k);
+            window.scrollTo({ top: 0 });
+          }}
+          className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 transition ${tab === k ? "bg-ink text-bg" : "text-muted hover:text-ink"}`}
+        >
+          <Icon size={15} /> {label}
+        </button>
+      ))}
+    </nav>
+  );
+}
+
+/** Phone navigation, pinned to the bottom like a native app. */
+function BottomTabs({ tab, setTab }: { tab: Tab; setTab: (t: Tab) => void }) {
+  return (
+    <nav
+      aria-label="Sections"
+      className="glass fixed inset-x-0 bottom-0 z-40 border-t border-line/70 pb-[env(safe-area-inset-bottom)] sm:hidden"
+    >
+      <div className="grid grid-cols-3">
+        {TABS.map(([k, label, Icon]) => (
+          <button
+            key={k}
+            type="button"
+            aria-current={tab === k ? "page" : undefined}
+            onClick={() => {
+              setTab(k);
+              window.scrollTo({ top: 0 });
+            }}
+            className={`flex flex-col items-center gap-0.5 pb-2 pt-2.5 text-[11px] font-semibold transition ${tab === k ? "text-green" : "text-muted"}`}
+          >
+            <Icon size={22} strokeWidth={tab === k ? 2.4 : 1.8} />
+            {label}
+          </button>
+        ))}
+      </div>
+    </nav>
+  );
+}
+
+function TopBar({
+  today, tab, setTab, onSettings,
+}: { today: number; tab: Tab; setTab: (t: Tab) => void; onSettings: () => void }) {
   const e = fromJdn(today);
   return (
     <header className="glass sticky top-0 z-40 border-b border-line/70 pt-[env(safe-area-inset-top)]">
@@ -141,10 +217,11 @@ function TopBar({ today, onSettings }: { today: number; onSettings: () => void }
         <div className="flex items-center gap-2 font-display text-lg font-extrabold tracking-tight">
           <span className="grid size-8 place-items-center rounded-xl bg-ink text-base text-bg">✕</span>
           Kutir
-          <span lang="am" className="hidden text-sm font-semibold text-muted sm:inline">ቁጥር</span>
+          <span lang="am" className="hidden text-sm font-semibold text-muted lg:inline">ቁጥር</span>
         </div>
+        <TopTabs tab={tab} setTab={setTab} />
         <div className="flex items-center gap-2">
-          <span className="hidden rounded-full border border-line px-3 py-1 text-sm sm:inline">
+          <span className="hidden rounded-full border border-line px-3 py-1 text-sm lg:inline">
             <span lang="am">{MONTHS_AM[e.m - 1]} {e.d}</span> · {e.y}
           </span>
           <ThemeToggle />
