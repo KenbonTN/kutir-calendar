@@ -1,24 +1,35 @@
-# Kutir Countdown Calendar
+# Kutir ቁጥር
 
-**Live:** https://kenbontn.github.io/kutir-calendar/
+**A planner built on the Ethiopian calendar. Plan your days, then see how much of the plan you actually did.**
 
-An Ethiopian calendar for tracking goals day by day. Pick a start date and a length (1 week up to 3 months, or any number of days), cross off each day with a big red X, and count down to the deadline.
+**Live:** https://kenbontn.github.io/kutir-calendar/ · install it on your phone from the browser (Share → Add to Home Screen on iPhone, or Install app on Android).
 
-- **Goals:** several at once, with progress, streak, hit rate and days left
-- **Ethiopian calendar:** months in English and Amharic, Ge'ez numerals, the Gregorian date on every day
-- **Orthodox calendar:** the saint remembered on each day of the month, annual feasts (Meskel, Genna, Timket, Fasika and the movable feasts), and fasting days
-- **Football:** every Arsenal Premier League game and the big Champions League nights, with kickoff in Addis time on both the 24-hour and the Ethiopian clock
+## What it does
 
-Crosses are saved in your browser (localStorage) on the device you use.
+- **Countdowns:** set a goal and a deadline. Each day that passes gets a big red ✕, and you see days left, perfect days and your streak.
+- **Tasks:** plan each day. Unfinished tasks move to the next day and show how late they are. Repeating tasks cover habits, and you can star a top 3 for the day.
+- **Task pool:** a list of everything you want to do, grouped by life area (faith, family, health, work, each of your businesses…). Plan items onto days. If you finish early, pull more from the pool and they move to today.
+- **Weekly review:** planned vs. done, how evenly your time went across life areas, and what keeps slipping. Each evening you can add a one-line reflection.
+- **Money:** income by source and spending by category, in Birr, with what each business brings in and costs.
+- **Birthdays & important dates:** they repeat every year on their Ethiopian or Gregorian date, show ages, and remind you ahead of time.
+- **Screen time:** log TikTok, Instagram and YouTube minutes, and see what that time could have been.
+- **Calendar:** Ethiopian and Gregorian months side by side, Ge'ez numerals, the saint of each day, feasts, fasts and national holidays.
+- **Football (optional):** Arsenal and big Champions League games, with kickoff in Addis time.
+- **Everywhere:** sign in with Google to sync across your phone and laptop. It works offline and sends an evening reminder.
 
-## Develop
+## How it's built
+
+- **Next.js** (static export), **TypeScript**, **Tailwind CSS**, **Motion**
+- Ethiopian calendar math on Julian Day Numbers, with Orthodox Easter from the Julian computus
+- **Firebase** Auth + Firestore for sync. Every record carries a change time, so devices merge one record at a time without losing edits.
+- **PWA** with a service worker and Web Push. GitHub Actions deploys to GitHub Pages, refreshes fixtures daily and sends evening reminders.
+
+## Run it locally
 
 ```bash
 npm install
-npm run fixtures   # refresh src/data/fixtures.json
+npm run fixtures   # refresh football fixtures
 npm run dev
 ```
-
-Built with Next.js (static export), Tailwind CSS and Motion. GitHub Actions rebuilds and deploys to GitHub Pages on every push and once a day, which keeps fixtures and results current.
 
 Fixture data: Premier League from [openfootball](https://github.com/openfootball/football.json), Champions League from [TheSportsDB](https://www.thesportsdb.com).
