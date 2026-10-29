@@ -2,23 +2,25 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import {
-  CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Church, Flame, Leaf, ListChecks, Monitor, Moon, Plus,
-  Settings as SettingsIcon, Star, Sun, Trash2, Trophy, Wallet,
+  CalendarDays, ChevronDown, Church, Flame, Leaf, ListChecks, Monitor, Moon, Plus,
+  Settings as SettingsIcon, Sparkles, Star, Sun, Target, Trash2, Trophy, Wallet,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
-  addisJdn, addisTime, formatEt, formatG, fromJdn, geez, monthLength, MONTHS, MONTHS_AM, toJdn, WEEKDAYS,
-  WEEKDAYS_AM, weekday,
+  addisJdn, addisTime, formatEt, formatG, fromJdn, geez, MONTHS, MONTHS_AM, WEEKDAYS, WEEKDAYS_AM, weekday,
 } from "@/lib/ethiopian";
-import { startCloud } from "@/lib/cloud";
-import { useExpenses } from "@/lib/expenses";
+import { startCloud, useCloud } from "@/lib/cloud";
+import { EXPENSES_KEY, useExpenses } from "@/lib/expenses";
 import { FIXTURES_UPDATED, MATCHES, type Match } from "@/lib/fixtures";
-import { addGoal, goalStats, removeGoal, useGoals, type Goal } from "@/lib/goals";
+import { addGoal, goalStats, keepLegacyGoal, removeGoal, useGoals, type Goal } from "@/lib/goals";
+import { monthsCovering, type Cal } from "@/lib/months";
 import { orthodoxDay } from "@/lib/orthodox";
 import { registerServiceWorker } from "@/lib/push";
-import { useScreen } from "@/lib/screen";
+import { SCREEN_KEY, useScreen } from "@/lib/screen";
 import { useStored } from "@/lib/storage";
-import { dayScore, ensureRoutineTasks, rollOver, tasksOn, useTasks, type Routine, type Task } from "@/lib/tasks";
+import {
+  dayScore, ensureRoutineTasks, rollOver, ROUTINES_KEY, tasksOn, TASKS_KEY, useTasks, type Routine, type Task,
+} from "@/lib/tasks";
 import { countdown, useToday } from "@/lib/useToday";
 import { AccountButton, CloudNotice } from "./Account";
 import { CalendarTab } from "./CalendarTab";
@@ -26,7 +28,7 @@ import { DaySheet } from "./DaySheet";
 import { MatchRow } from "./MatchRow";
 import { MonthGrid, type DayInfo, type Layers } from "./MonthGrid";
 import { Money } from "./Money";
-import { NewGoalForm } from "./NewGoalForm";
+import { CalSwitch, DateBoth, NewGoalForm } from "./NewGoalForm";
 import { QuoteCard } from "./QuoteCard";
 import { ScreenDashboard } from "./ScreenTime";
 import { Settings } from "./Settings";
@@ -49,16 +51,20 @@ export default function App() {
 }
 
 function Main({ today, now }: { today: number; now: number }) {
-  const goals = useGoals(today);
+  const goals = useGoals();
+  const cloud = useCloud();
   const { tasks, routines } = useTasks();
   const logs = useScreen();
   const [activeId, setActiveId] = useStored<string | null>("kutir-active", null);
   const [layers, setLayers] = useStored<Layers>("kutir-layers-v2", DEFAULT_LAYERS);
   const [openDay, setOpenDay] = useState<number | null>(null);
-  const [newGoal, setNewGoal] = useState(false);
+  const [newGoal, setNewGoal] = useState<{ name?: string; days?: number } | null>(null);
   const [settings, setSettings] = useState(false);
   const [tab, setTab] = useStored<Tab>("kutir-tab", "today");
   const expenses = useExpenses();
+
+  // Devices that used Kutir before countdowns had to be created keep the old "My 3 months".
+  useEffect(() => keepLegacyGoal([TASKS_KEY, ROUTINES_KEY, SCREEN_KEY, EXPENSES_KEY]), []);
 
   // A new day: create today's repeating tasks and move unfinished ones forward.
   // Runs again whenever tasks change (e.g. a synced copy arrives); both steps do nothing when there's nothing to do.
@@ -75,7 +81,13 @@ function Main({ today, now }: { today: number; now: number }) {
     <>
       <div className="grid gap-4 lg:grid-cols-12">
         <TodayCard today={today} tasks={todays} />
-        {goal && <CountdownCard goal={goal} today={today} tasks={tasks} routines={routines} />}
+        {goal ? (
+          <CountdownCard goal={goal} today={today} tasks={tasks} routines={routines} />
+        ) : cloud.status === "starting" || cloud.status === "syncing" ? (
+          <div className="card h-72 animate-pulse lg:col-span-5" aria-label="Loading your countdowns" />
+        ) : (
+          <WelcomeCard today={today} onStart={setNewGoal} />
+        )}
       </div>
 
       <QuoteCard today={today} tasks={tasks} logs={logs} expenses={expenses} streak={streak} />
@@ -86,17 +98,20 @@ function Main({ today, now }: { today: number; now: number }) {
 
       <ScreenDashboard today={today} logs={logs} tasks={tasks} onLogToday={() => setOpenDay(today)} />
 
-      <GoalBar goals={goals} active={goal} onSelect={setActiveId} onNew={() => setNewGoal(true)} />
-
-      <Calendar
-        today={today}
-        goal={goal}
-        tasks={tasks}
-        routines={routines}
-        layers={layers}
-        setLayers={setLayers}
-        onOpen={setOpenDay}
-      />
+      {goal && (
+        <>
+          <GoalBar goals={goals} active={goal} onSelect={setActiveId} onNew={() => setNewGoal({})} />
+          <Calendar
+            today={today}
+            goal={goal}
+            tasks={tasks}
+            routines={routines}
+            layers={layers}
+            setLayers={setLayers}
+            onOpen={setOpenDay}
+          />
+        </>
+      )}
 
       <Football now={now} today={today} onOpen={setOpenDay} />
     </>
@@ -130,14 +145,15 @@ function Main({ today, now }: { today: number; now: number }) {
           <DaySheet j={openDay} today={today} now={now} goal={goal} tasks={tasks} routines={routines} log={logs.get(openDay)} />
         )}
       </Sheet>
-      <Sheet open={newGoal} onClose={() => setNewGoal(false)} label="New goal">
+      <Sheet open={newGoal != null} onClose={() => setNewGoal(null)} label="New countdown">
         {newGoal && (
           <NewGoalForm
             today={today}
+            initial={newGoal}
             onCreate={(g) => {
               const created = addGoal(g);
               setActiveId(created.id);
-              setNewGoal(false);
+              setNewGoal(null);
             }}
           />
         )}
@@ -337,7 +353,6 @@ function TodayCard({ today, tasks }: { today: number; tasks: Task[] }) {
 function CountdownCard({ goal, today, tasks, routines }: { goal: Goal; today: number; tasks: Task[]; routines: Routine[] }) {
   const s = useMemo(() => goalStats(goal, today, tasks, routines), [goal, today, tasks, routines]);
   const R = 54, C = 2 * Math.PI * R;
-  const endE = fromJdn(s.end);
   return (
     <motion.section
       initial={{ opacity: 0, y: 8 }}
@@ -376,11 +391,9 @@ function CountdownCard({ goal, today, tasks, routines }: { goal: Goal; today: nu
         </dl>
       </div>
       <div>
-        <div className="mb-2 flex justify-between text-xs text-muted">
-          <span>{formatEt(goal.start)}</span>
-          <span>
-            Deadline <b className="text-ink">{endE.d} {MONTHS[endE.m - 1]}</b>
-          </span>
+        <div className="mb-3 grid grid-cols-2 gap-3 text-sm">
+          <DateBoth j={goal.start} title="Started" />
+          <DateBoth j={s.end} title="Deadline" align="right" />
         </div>
         <div className="flex h-3 gap-[2px]" aria-hidden>
           {Array.from({ length: goal.days }, (_, i) => {
@@ -388,6 +401,60 @@ function CountdownCard({ goal, today, tasks, routines }: { goal: Goal; today: nu
             const c = j < today ? "bg-marker" : j === today ? "bg-gold" : "bg-surface-2";
             return <i key={j} className={`min-w-0 flex-1 rounded-[2px] ${c}`} />;
           })}
+        </div>
+      </div>
+    </motion.section>
+  );
+}
+
+/** Shown instead of the countdown until the person creates their first one. */
+function WelcomeCard({ today, onStart }: { today: number; onStart: (preset: { name?: string; days?: number }) => void }) {
+  const ideas: [string, number][] = [["30 days of gym", 30], ["Exam in 60 days", 60], ["90-day reset", 90]];
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.05 }}
+      className="card relative flex flex-col justify-between gap-5 overflow-hidden p-5 sm:p-7 lg:col-span-5"
+    >
+      <div aria-hidden className="pointer-events-none absolute -bottom-10 -right-6 hidden grid-cols-5 gap-1.5 opacity-60 sm:grid">
+        {Array.from({ length: 15 }, (_, i) => (
+          <span key={i} className="relative grid size-7 place-items-center rounded-md border border-line bg-surface-2">
+            {i < 9 && <span className="text-sm font-black text-marker">✕</span>}
+          </span>
+        ))}
+      </div>
+      <div className="relative">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-green-soft px-2.5 py-1 text-xs font-bold text-green">
+          <Sparkles size={13} /> Start here
+        </span>
+        <h2 className="mt-3 font-display text-2xl font-extrabold leading-tight text-balance sm:text-3xl">
+          What are you counting down to?
+        </h2>
+        <p className="mt-2 max-w-sm text-[15px] text-muted">
+          Pick a goal and a deadline. Every day that passes gets a big red ✕, so you always see how many days are left.
+        </p>
+      </div>
+      <div className="relative grid gap-3">
+        <button
+          type="button"
+          onClick={() => onStart({})}
+          className="inline-flex w-fit items-center gap-2 rounded-full bg-marker px-5 py-3 font-semibold text-white shadow-lg shadow-marker/25 transition active:scale-95"
+        >
+          <Plus size={18} /> Start your countdown
+        </button>
+        <div className="flex flex-wrap items-center gap-2 text-xs text-muted">
+          <span>Or try:</span>
+          {ideas.map(([idea, days]) => (
+            <button
+              key={idea}
+              type="button"
+              onClick={() => onStart({ name: idea, days })}
+              className="rounded-full border border-line bg-surface px-2.5 py-1 transition hover:border-green hover:text-ink"
+            >
+              {idea} · ends {formatEt(today + days - 1)}
+            </button>
+          ))}
         </div>
       </div>
     </motion.section>
@@ -436,7 +503,7 @@ function GoalBar({
           <Plus size={16} /> New countdown
         </button>
       </div>
-      {active && !active.draft && (
+      {active && (
         <button
           type="button"
           onClick={() => {
@@ -472,25 +539,15 @@ function Calendar({
   setLayers: (l: Layers) => void;
   onOpen: (j: number) => void;
 }) {
-  const [view, setView] = useStored<"plan" | "browse">("kutir-view", "plan");
-  const t = fromJdn(today);
-  const [cursor, setCursor] = useState({ y: t.y, m: t.m });
-
+  const [cal, setCal] = useStored<Cal>("kutir-countdown-cal", "ethiopian");
   const plan = useMemo(() => (goal ? { start: goal.start, end: goal.start + goal.days - 1 } : null), [goal]);
-
-  const months = useMemo(() => {
-    if (view === "browse" || !plan) return [cursor];
-    const s = fromJdn(plan.start), e = fromJdn(plan.end);
-    const out: { y: number; m: number }[] = [];
-    for (let y = s.y, m = s.m; y < e.y || (y === e.y && m <= e.m); m === 13 ? ((m = 1), y++) : m++) out.push({ y, m });
-    return out;
-  }, [view, plan, cursor]);
+  const months = useMemo(() => (plan ? monthsCovering(cal, plan.start, plan.end) : []), [cal, plan]);
+  const todayInPlan = !!plan && today >= plan.start && today <= plan.end;
 
   const info: DayInfo = useMemo(() => {
     const map: DayInfo = new Map();
-    for (const { y, m } of months) {
-      for (let d = 1; d <= monthLength(y, m); d++) {
-        const j = toJdn(y, m, d);
+    for (const { first, length } of months) {
+      for (let j = first; j < first + length; j++) {
         if (j < today) map.set(j, dayScore(j, tasks, routines));
         else {
           const list = tasksOn(j, tasks, routines, today);
@@ -500,14 +557,6 @@ function Calendar({
     }
     return map;
   }, [months, tasks, routines, today]);
-
-  const step = (d: number) =>
-    setCursor(({ y, m }) => {
-      m += d;
-      if (m > 13) return { y: y + 1, m: 1 };
-      if (m < 1) return { y: y - 1, m: 13 };
-      return { y, m };
-    });
 
   const toggleChip = (key: keyof Layers, label: string, Icon: typeof Church) => (
     <button
@@ -526,53 +575,39 @@ function Calendar({
     <section className="grid gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="flex items-center gap-2 font-display text-2xl font-extrabold">
-          <CalendarDays size={22} className="text-green" /> Calendar
+          <CalendarDays size={22} className="text-green" /> Countdown calendar
         </h2>
         <div className="flex flex-wrap items-center gap-2">
-          <div className="flex rounded-full border border-line bg-surface p-1 text-sm font-semibold">
-            {(["plan", "browse"] as const).map((v) => (
-              <button
-                key={v}
-                type="button"
-                aria-pressed={view === v}
-                onClick={() => setView(v)}
-                className={`rounded-full px-3 py-1 transition ${view === v ? "bg-ink text-bg" : "text-muted"}`}
-              >
-                {v === "plan" ? "My countdown" : "Any month"}
-              </button>
-            ))}
-          </div>
+          <CalSwitch cal={cal} setCal={setCal} id="countdown-cal" />
+          {todayInPlan && (
+            <button
+              type="button"
+              onClick={() => document.getElementById("countdown-today")?.scrollIntoView({ behavior: "smooth", block: "center" })}
+              className="inline-flex items-center gap-1.5 rounded-full bg-gold-soft px-3 py-1.5 text-sm font-semibold text-gold"
+            >
+              <Target size={15} /> Today
+            </button>
+          )}
           {toggleChip("saints", "Saints' days", Church)}
           {toggleChip("football", "Football", Trophy)}
         </div>
       </div>
 
-      {view === "browse" && (
-        <div className="flex items-center justify-between gap-2">
-          <button type="button" onClick={() => step(-1)} aria-label="Previous month" className="grid size-10 place-items-center rounded-full border border-line bg-surface">
-            <ChevronLeft size={18} />
-          </button>
-          <button type="button" onClick={() => setCursor({ y: t.y, m: t.m })} className="text-sm font-semibold text-muted hover:text-ink">
-            Back to this month
-          </button>
-          <button type="button" onClick={() => step(1)} aria-label="Next month" className="grid size-10 place-items-center rounded-full border border-line bg-surface">
-            <ChevronRight size={18} />
-          </button>
-        </div>
-      )}
-
-      <p className="text-sm text-muted">Tap any day to plan its tasks, see how it went, and see its saint, feasts and fasting.</p>
+      <p className="text-sm text-muted">
+        {cal === "ethiopian" ? "Big number: Ethiopian date, small: Gregorian." : "Big number: Gregorian date, small: Ethiopian."} Tap
+        any day to plan its tasks or see how it went. To browse other months, use the Calendar tab.
+      </p>
 
       <AnimatePresence mode="popLayout" initial={false}>
         <motion.div
-          key={months.map((x) => `${x.y}-${x.m}`).join(",")}
+          key={cal}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0 }}
           className="grid gap-4"
         >
-          {months.map(({ y, m }) => (
-            <MonthGrid key={`${y}-${m}`} y={y} m={m} today={today} plan={plan} layers={layers} info={info} onOpen={onOpen} />
+          {months.map((month) => (
+            <MonthGrid key={month.key} month={month} cal={cal} today={today} plan={plan} layers={layers} info={info} onOpen={onOpen} />
           ))}
         </motion.div>
       </AnimatePresence>
@@ -587,7 +622,7 @@ function Legend({ layers }: { layers: Layers }) {
   return (
     <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-muted">
       <span className={item}><span className="text-base font-bold text-marker">✕</span> Day passed</span>
-      <span className={item}><span className="size-3.5 rounded border-2 border-gold" /> Today</span>
+      <span className={item}><span className="rounded-full bg-gold px-1.5 text-[9px] font-extrabold uppercase text-bg">Today</span> Today</span>
       <span className={item}><span className="rounded bg-green-soft px-1 font-mono font-bold text-green">5/5</span> All tasks done</span>
       <span className={item}><span className="rounded bg-gold-soft px-1 font-mono font-bold text-gold">3/5</span> Some done</span>
       <span className={item}><span className="size-3.5 rounded bg-surface-2" /> Outside your countdown</span>

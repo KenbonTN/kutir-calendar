@@ -4,7 +4,7 @@
 // has ended is crossed off automatically; how each day went comes from its tasks.
 
 import { useMemo } from "react";
-import { fromJdn, toJdn } from "./ethiopian";
+import { toJdn } from "./ethiopian";
 import { readStored, useStored, writeStored } from "./storage";
 import { dayScore, type Routine, type Task } from "./tasks";
 
@@ -19,31 +19,45 @@ export type Goal = {
   created: number;
   deleted?: boolean;
   u?: number;
-  /** shown before anything is saved; becomes real on the first change */
-  draft?: boolean;
 };
 
 // Same key as the first version, so goals made there carry over.
 export const GOALS_KEY = "kutir-trackers-v1";
 const EMPTY: Goal[] = [];
 
-/** The plan this app was built for: 90 days from 1 Tikimt 2019, or the current month for anyone starting later. */
-export function defaultGoal(today: number): Goal {
-  const original = toJdn(2019, 2, 1);
-  const t = fromJdn(today);
-  const start = today >= original && today < original + 90 ? original : toJdn(t.y, t.m, 1);
-  return { id: "three-months", name: "My 3 months", start, days: 90, done: [], created: 0, draft: true };
+/**
+ * The countdown everyone saw before countdowns had to be created: 90 days from 1 Tikimt 2019.
+ * New visitors start with none; people who were already using the app keep this one.
+ * `u: 1` means any saved copy (from the cloud or an edit) always wins over this.
+ */
+export const LEGACY_GOAL: Goal = {
+  id: "three-months", name: "My 3 months", start: toJdn(2019, 2, 1), days: 90, done: [], created: 0, u: 1,
+};
+
+export function useGoals() {
+  const [saved] = useStored<Goal[]>(GOALS_KEY, EMPTY);
+  return useMemo(
+    () => (Array.isArray(saved) ? saved : EMPTY).filter((g) => !g.deleted).sort((a, b) => a.created - b.created),
+    [saved],
+  );
 }
 
-export function useGoals(today: number | null) {
-  const [saved] = useStored<Goal[]>(GOALS_KEY, EMPTY);
-  return useMemo(() => {
-    const list = (Array.isArray(saved) ? saved : EMPTY)
-      .filter((g) => !g.deleted)
-      .sort((a, b) => a.created - b.created);
-    if (list.length || today == null) return list;
-    return [defaultGoal(today)];
-  }, [saved, today]);
+/**
+ * One-time step for devices that used Kutir before: if this device has data
+ * (tasks, screen time, expenses, or crosses from the first version) but has
+ * never saved a countdown, save the old default so it doesn't disappear.
+ */
+export function keepLegacyGoal(otherKeys: string[]) {
+  if (savedGoals().length) return; // saved, edited or deleted before: leave it alone
+  const used = otherKeys.some((k) => {
+    try {
+      const v = JSON.parse(localStorage.getItem(k) ?? "[]");
+      return Array.isArray(v) && v.length > 0;
+    } catch {
+      return false;
+    }
+  });
+  if (used) writeStored(GOALS_KEY, [LEGACY_GOAL]);
 }
 
 export const savedGoals = () => {

@@ -138,8 +138,8 @@ export function CloudNotice() {
       <div className="flex min-w-0 items-start gap-3">
         <CloudOff size={20} className="mt-0.5 shrink-0 text-muted" />
         <div className="min-w-0 text-sm">
-          <div className="font-semibold">Your crosses are only saved on this device</div>
-          <div className="text-muted">Sign in with Google to back them up and see them on your phone and laptop.</div>
+          <div className="font-semibold">Your data is only saved on this device</div>
+          <div className="text-muted">Sign in with Google to back up your countdowns, tasks and spending, and see them on your phone and laptop.</div>
         </div>
       </div>
       <div className="flex items-center gap-2">
