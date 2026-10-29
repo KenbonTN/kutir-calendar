@@ -2,14 +2,17 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import {
-  CalendarDays, ChevronDown, Church, Clock, Flame, Inbox, Leaf, ListChecks, Monitor, Moon, Plus,
-  Settings as SettingsIcon, Sparkles, Star, Sun, Target, Trash2, Trophy, Wallet,
+  CalendarDays, ChevronDown, Church, Clock, Flame, Inbox, Leaf, ListChecks, Monitor, Moon, Mountain, PartyPopper, Plus,
+  Settings as SettingsIcon, Sparkles, Star, Sun, Target, Trash2, Trophy, Wallet, X,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
   addisJdn, addisTime, formatEt, formatG, fromJdn, geez, MONTHS, MONTHS_AM, WEEKDAYS, WEEKDAYS_AM, weekday,
 } from "@/lib/ethiopian";
 import { startCloud, useCloud } from "@/lib/cloud";
+import { useT } from "@/lib/i18n";
+import { isNewYearWeek } from "@/lib/insights";
+import { useFasts } from "@/lib/people";
 import { useEvents } from "@/lib/events";
 import { EXPENSES_KEY, useExpenses } from "@/lib/expenses";
 import { FIXTURES_UPDATED, MATCHES, type Match } from "@/lib/fixtures";
@@ -32,13 +35,16 @@ import { MatchRow } from "./MatchRow";
 import { MonthGrid, type DayInfo, type Layers } from "./MonthGrid";
 import { Money } from "./Money";
 import { PoolTab, PullFromPool, usePool, WeekReview } from "./PoolTab";
-import { DateReminders, StuckTasks } from "./TodayExtras";
+import { DateReminders, LifeNudges, StuckTasks } from "./TodayExtras";
 import { CalSwitch, DateBoth, NewGoalForm } from "./NewGoalForm";
 import { QuoteCard } from "./QuoteCard";
 import { ScreenDashboard } from "./ScreenTime";
 import { Settings } from "./Settings";
 import { Sheet } from "./Sheet";
 import { EndOfDayCard } from "./Summary";
+import { FocusBar } from "./Focus";
+import { FastToggle, LifeTab, YearReview } from "./LifeTab";
+import { Aurora, Burst, Counter, partOfDay, Reveal } from "./Motion";
 import { TaskList } from "./TaskList";
 
 // v2 key: football markers are now off unless switched on.
@@ -73,6 +79,8 @@ function Main({ today, now }: { today: number; now: number }) {
   const [reviewSeen, setReviewSeen] = useStored<number>("kutir-review-seen", 0);
   const wd = weekday(today);
   const reviewWeek = wd === 6 ? weekOf(today)[0] : wd === 0 ? weekOf(today - 7)[0] : null;
+  const [nySeen, setNySeen] = useStored<number>("kutir-newyear-seen", 0);
+  const [yearReview, setYearReview] = useState<number | null>(null);
 
   // Devices that used Kutir before countdowns had to be created keep the old "My 3 months".
   useEffect(() => keepLegacyGoal([TASKS_KEY, ROUTINES_KEY, SCREEN_KEY, EXPENSES_KEY]), []);
@@ -91,17 +99,29 @@ function Main({ today, now }: { today: number; now: number }) {
   const today_ = (
     <>
       <div className="grid gap-4 lg:grid-cols-12">
-        <TodayCard today={today} now={now} tasks={todays} allTasks={tasks} />
+        <TodayCard today={today} now={now} tasks={todays} allTasks={tasks} name={cloud.user?.name.split(" ")[0] ?? ""} />
         {goal ? (
           <CountdownCard goal={goal} today={today} tasks={tasks} routines={routines} poolGoals={pool.map((p) => p.goal)} />
         ) : cloud.status === "starting" || cloud.status === "syncing" ? (
-          <div className="card h-72 animate-pulse lg:col-span-5" aria-label="Loading your countdowns" />
+          <div className="card shimmer h-72 lg:col-span-5" aria-label="Loading your countdowns" />
         ) : (
           <WelcomeCard today={today} onStart={setNewGoal} />
         )}
       </div>
 
+      {isNewYearWeek(today) && nySeen !== fromJdn(today).y && (
+        <NewYearCard year={fromJdn(today).y} onOpen={() => setYearReview(fromJdn(today).y - 1)} onDismiss={() => setNySeen(fromJdn(today).y)} />
+      )}
+
       <DateReminders today={today} events={events} onOpen={setOpenDay} />
+
+      <LifeNudges
+        today={today}
+        onOpen={(t) => {
+          setTab(t);
+          window.scrollTo({ top: 0 });
+        }}
+      />
 
       <StuckTasks today={today} tasks={tasks} />
 
@@ -119,13 +139,13 @@ function Main({ today, now }: { today: number; now: number }) {
         />
       )}
 
-      <QuoteCard today={today} tasks={tasks} logs={logs} expenses={expenses} streak={streak} />
+      <Reveal><QuoteCard today={today} tasks={tasks} logs={logs} expenses={expenses} streak={streak} /></Reveal>
 
       <EndOfDayCard today={today} now={now} tasks={tasks} routines={routines} logs={logs} />
 
       <CloudNotice />
 
-      <ScreenDashboard today={today} logs={logs} tasks={tasks} onLogToday={() => setOpenDay(today)} />
+      <Reveal><ScreenDashboard today={today} logs={logs} tasks={tasks} onLogToday={() => setOpenDay(today)} /></Reveal>
 
       {goal && (
         <>
@@ -148,12 +168,25 @@ function Main({ today, now }: { today: number; now: number }) {
 
   return (
     <>
+      <Aurora />
       <TopBar today={today} tab={tab} setTab={setTab} onSettings={() => setSettings(true)} />
       <main className={`mx-auto grid max-w-6xl gap-6 pb-32 pt-5 sm:gap-8 sm:pb-24 ${gutter}`}>
-        {tab === "today" && today_}
-        {tab === "pool" && <PoolTab today={today} tasks={tasks} routines={routines} />}
-        {tab === "calendar" && <CalendarTab today={today} tasks={tasks} routines={routines} onOpen={setOpenDay} />}
-        {tab === "money" && <Money today={today} />}
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={tab}
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            className="grid min-w-0 grid-cols-1 gap-6 sm:gap-8"
+          >
+            {tab === "today" && today_}
+            {tab === "pool" && <PoolTab today={today} tasks={tasks} routines={routines} />}
+            {tab === "calendar" && <CalendarTab today={today} tasks={tasks} routines={routines} onOpen={setOpenDay} />}
+            {tab === "money" && <Money today={today} />}
+            {tab === "life" && <LifeTab today={today} tasks={tasks} routines={routines} />}
+          </motion.div>
+        </AnimatePresence>
 
         <footer className="grid gap-1 border-t border-line pt-6 text-xs text-muted">
           <p>
@@ -169,6 +202,7 @@ function Main({ today, now }: { today: number; now: number }) {
         </footer>
       </main>
       <BottomTabs tab={tab} setTab={setTab} />
+      <FocusBar />
 
       <Sheet open={openDay != null} onClose={() => setOpenDay(null)} label="Day details">
         {openDay != null && (
@@ -188,6 +222,9 @@ function Main({ today, now }: { today: number; now: number }) {
           />
         )}
       </Sheet>
+      <Sheet open={yearReview != null} onClose={() => setYearReview(null)} label="Year in review">
+        {yearReview != null && <YearReview year={yearReview} today={today} tasks={tasks} routines={routines} />}
+      </Sheet>
       <Sheet open={settings} onClose={() => setSettings(false)} label="Settings">
         {settings && <Settings today={today} routines={routines} />}
       </Sheet>
@@ -197,15 +234,17 @@ function Main({ today, now }: { today: number; now: number }) {
 
 /* ---------- Top bar ---------- */
 
-type Tab = "today" | "pool" | "calendar" | "money";
+type Tab = "today" | "pool" | "calendar" | "money" | "life";
 const TABS: [Tab, string, typeof ListChecks][] = [
   ["today", "Today", ListChecks],
   ["pool", "Pool", Inbox],
   ["calendar", "Calendar", CalendarDays],
   ["money", "Money", Wallet],
+  ["life", "Life", Mountain],
 ];
 
 function TopTabs({ tab, setTab }: { tab: Tab; setTab: (t: Tab) => void }) {
+  const t = useT();
   return (
     <nav aria-label="Sections" className="hidden rounded-full border border-line bg-surface p-1 text-sm font-semibold sm:flex">
       {TABS.map(([k, label, Icon]) => (
@@ -217,9 +256,14 @@ function TopTabs({ tab, setTab }: { tab: Tab; setTab: (t: Tab) => void }) {
             setTab(k);
             window.scrollTo({ top: 0 });
           }}
-          className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 transition ${tab === k ? "bg-ink text-bg" : "text-muted hover:text-ink"}`}
+          className={`relative inline-flex items-center gap-1.5 rounded-full px-3 py-1 transition-colors ${tab === k ? "text-bg" : "text-muted hover:text-ink"}`}
         >
-          <Icon size={15} /> {label}
+          {tab === k && (
+            <motion.span layoutId="top-tab" className="absolute inset-0 rounded-full bg-ink" transition={{ type: "spring", stiffness: 420, damping: 34 }} />
+          )}
+          <span className="relative inline-flex items-center gap-1.5">
+            <Icon size={15} /> {t(label)}
+          </span>
         </button>
       ))}
     </nav>
@@ -228,12 +272,13 @@ function TopTabs({ tab, setTab }: { tab: Tab; setTab: (t: Tab) => void }) {
 
 /** Phone navigation, pinned to the bottom like a native app. */
 function BottomTabs({ tab, setTab }: { tab: Tab; setTab: (t: Tab) => void }) {
+  const t = useT();
   return (
     <nav
       aria-label="Sections"
       className="glass fixed inset-x-0 bottom-0 z-40 border-t border-line/70 pb-[env(safe-area-inset-bottom)] sm:hidden"
     >
-      <div className="grid grid-cols-4">
+      <div className="grid grid-cols-5">
         {TABS.map(([k, label, Icon]) => (
           <button
             key={k}
@@ -243,10 +288,19 @@ function BottomTabs({ tab, setTab }: { tab: Tab; setTab: (t: Tab) => void }) {
               setTab(k);
               window.scrollTo({ top: 0 });
             }}
-            className={`flex flex-col items-center gap-0.5 pb-2 pt-2.5 text-[11px] font-semibold transition ${tab === k ? "text-green" : "text-muted"}`}
+            className={`relative flex flex-col items-center gap-0.5 pb-2 pt-2.5 text-[11px] font-semibold transition-colors ${tab === k ? "text-green" : "text-muted"}`}
           >
-            <Icon size={22} strokeWidth={tab === k ? 2.4 : 1.8} />
-            {label}
+            {tab === k && (
+              <motion.span
+                layoutId="bottom-tab"
+                className="absolute inset-x-2 top-1 bottom-1 rounded-2xl bg-green-soft/80"
+                transition={{ type: "spring", stiffness: 420, damping: 34 }}
+              />
+            )}
+            <motion.span className="relative" animate={{ y: tab === k ? -1 : 0, scale: tab === k ? 1.08 : 1 }}>
+              <Icon size={22} strokeWidth={tab === k ? 2.4 : 1.8} />
+            </motion.span>
+            <span className="relative truncate">{t(label)}</span>
           </button>
         ))}
       </div>
@@ -262,7 +316,14 @@ function TopBar({
     <header className="glass sticky top-0 z-40 border-b border-line/70 pt-[env(safe-area-inset-top)]">
       <div className={`mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 ${gutter}`}>
         <div className="flex items-center gap-2 font-display text-lg font-extrabold tracking-tight">
-          <span className="grid size-8 place-items-center rounded-xl bg-ink text-base text-bg">✕</span>
+          <motion.span
+            className="grid size-8 place-items-center rounded-xl bg-gradient-to-br from-ink to-green text-base text-bg shadow-md"
+            whileHover={{ rotate: 90 }}
+            whileTap={{ scale: 0.85, rotate: 180 }}
+            transition={{ type: "spring", stiffness: 300, damping: 14 }}
+          >
+            ✕
+          </motion.span>
           Kutir
           <span lang="am" className="hidden text-sm font-semibold text-muted lg:inline">ቁጥር</span>
         </div>
@@ -314,8 +375,12 @@ function ThemeToggle() {
 
 /* ---------- Hero ---------- */
 
-function TodayCard({ today, now, tasks, allTasks }: { today: number; now: number; tasks: Task[]; allTasks: Task[] }) {
+function TodayCard({ today, now, tasks, allTasks, name }: { today: number; now: number; tasks: Task[]; allTasks: Task[]; name: string }) {
+  const t = useT();
   const e = fromJdn(today);
+  const sky = partOfDay(now);
+  const greeting = t(sky === "morning" ? "Good morning" : sky === "day" ? "Good afternoon" : "Good evening");
+  const fasts = useFasts();
   const od = orthodoxDay(today);
   const done = tasks.filter((t) => t.done).length;
   const pct = tasks.length ? done / tasks.length : 0;
@@ -323,17 +388,41 @@ function TodayCard({ today, now, tasks, allTasks }: { today: number; now: number
   const [pulling, setPulling] = useState(false);
   const [hidden, setHidden] = useStored<number>("kutir-cleared-hidden", 0);
   const planned = tasks.filter((t) => !t.done).reduce((a, t) => a + (t.mins ?? 0), 0);
+  // Confetti the moment the last task of the day is ticked (not on load).
+  const [fire, setFire] = useState(0);
+  const [wasCleared, setWasCleared] = useState(cleared);
+  if (cleared !== wasCleared) {
+    setWasCleared(cleared);
+    if (cleared) setFire(fire + 1);
+  }
 
   return (
     <motion.section
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="card relative overflow-hidden p-5 sm:p-7 lg:col-span-7"
+      className={`card sky-${sky} relative overflow-clip p-5 sm:p-7 lg:col-span-7`}
     >
-      <div aria-hidden className="pointer-events-none absolute -right-16 -top-24 size-72 rounded-full bg-green/10 blur-3xl" />
+      <Burst fire={fire} />
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute -right-16 -top-24 size-72 rounded-full bg-green/10 blur-3xl"
+        animate={{ scale: [1, 1.15, 1], opacity: [0.7, 1, 0.7] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <div className="relative mb-3 flex items-center gap-2 text-sm font-semibold text-muted">
+        <span aria-hidden>{sky === "morning" ? "☀️" : sky === "day" ? "🌤️" : "🌙"}</span>
+        {greeting}{name ? `, ${name}` : ""}
+      </div>
       <div className="relative flex flex-wrap items-end justify-between gap-4">
         <div className="flex items-end gap-4">
-          <span className="font-display text-7xl font-extrabold leading-[0.8] tracking-tight tabular-nums sm:text-8xl">{e.d}</span>
+          <motion.span
+            initial={{ opacity: 0, scale: 0.8, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ type: "spring", stiffness: 200, damping: 16 }}
+            className="ink-gradient font-display text-7xl font-extrabold leading-[0.8] tracking-tight tabular-nums sm:text-8xl"
+          >
+            {e.d}
+          </motion.span>
           <div className="pb-0.5">
             <div className="font-display text-2xl font-bold leading-tight">{MONTHS[e.m - 1]}</div>
             <div lang="am" className="font-semibold text-green">
@@ -347,22 +436,29 @@ function TodayCard({ today, now, tasks, allTasks }: { today: number; now: number
         {tasks.length > 0 && (
           <div className="text-right">
             <div className="font-display text-3xl font-extrabold tabular-nums">
-              {done}
+              <Counter value={done} />
               <span className="text-lg text-muted">/{tasks.length}</span>
             </div>
-            <div className="text-xs font-semibold uppercase tracking-[0.1em] text-muted">done today</div>
+            <div className="text-xs font-semibold uppercase tracking-[0.1em] text-muted">
+              {cleared ? <span className="inline-flex items-center gap-1 text-green"><PartyPopper size={12} /> all done</span> : t("done today")}
+            </div>
           </div>
         )}
       </div>
 
       <div className="relative mt-4 h-1.5 overflow-hidden rounded-full bg-surface-2">
-        <motion.div className="h-full rounded-full bg-green" animate={{ width: `${pct * 100}%` }} transition={{ type: "spring", damping: 25 }} />
+        <motion.div
+          className="h-full rounded-full bg-gradient-to-r from-green to-[color-mix(in_oklab,var(--green)_60%,var(--gold))]"
+          initial={{ width: 0 }}
+          animate={{ width: `${pct * 100}%` }}
+          transition={{ type: "spring", damping: 25 }}
+        />
       </div>
 
       <div className="relative mt-4">
         <div className="mb-1 flex items-center justify-between gap-2">
           <h2 className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-muted">
-            <ListChecks size={15} /> Today&apos;s tasks
+            <ListChecks size={15} /> {t("Today's tasks")}
             {planned > 0 && (
               <span className="inline-flex items-center gap-1 font-semibold normal-case tracking-normal">
                 · <Clock size={12} /> {minsLabel(planned)} left
@@ -376,7 +472,7 @@ function TodayCard({ today, now, tasks, allTasks }: { today: number; now: number
               aria-expanded={pulling}
               className="inline-flex items-center gap-1 rounded-full border border-line px-2.5 py-1 text-xs font-semibold text-muted hover:text-ink"
             >
-              <Inbox size={13} /> From the pool
+              <Inbox size={13} /> {t("From the pool")}
             </button>
           )}
         </div>
@@ -404,8 +500,9 @@ function TodayCard({ today, now, tasks, allTasks }: { today: number; now: number
           </span>
         ))}
         {od.fast && (
-          <span className="flex items-center gap-1.5">
+          <span className="flex flex-wrap items-center gap-1.5">
             <Leaf size={14} className="text-green" /> {od.fast.en}
+            <FastToggle day={today} value={fasts.get(today)} />
           </span>
         )}
       </div>
@@ -421,12 +518,13 @@ function CountdownCard({
   const linkedDone = linked.filter((t) => t.done).length;
   const linkedAll = linked.length + poolGoals.filter((g) => g === goal.id).length;
   const R = 54, C = 2 * Math.PI * R;
+  const t = useT();
   return (
     <motion.section
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.05 }}
-      className="card flex flex-col gap-5 p-5 sm:p-7 lg:col-span-5"
+      className="card card-hover flex flex-col gap-5 p-5 sm:p-7 lg:col-span-5"
     >
       <div className="flex items-center justify-between gap-2">
         <h2 className="truncate font-display text-lg font-bold">{goal.name}</h2>
@@ -440,6 +538,7 @@ function CountdownCard({
             <circle cx="64" cy="64" r={R} fill="none" stroke="var(--surface-2)" strokeWidth="12" />
             <motion.circle
               cx="64" cy="64" r={R} fill="none" stroke="var(--marker)" strokeWidth="12" strokeLinecap="round"
+              style={{ filter: "drop-shadow(0 0 6px color-mix(in oklab, var(--marker) 45%, transparent))" }}
               strokeDasharray={C}
               initial={{ strokeDashoffset: C }}
               animate={{ strokeDashoffset: C * (1 - s.passed / goal.days) }}
@@ -447,8 +546,8 @@ function CountdownCard({
             />
           </svg>
           <div className="absolute inset-0 grid place-content-center text-center">
-            <div className="font-display text-4xl font-extrabold tabular-nums text-marker">{s.left}</div>
-            <div className="text-xs text-muted">days left</div>
+            <div className="font-display text-4xl font-extrabold tabular-nums text-marker"><Counter value={s.left} /></div>
+            <div className="text-xs text-muted">{t("days left")}</div>
           </div>
         </div>
         <dl className="grid flex-1 grid-cols-2 gap-x-4 gap-y-3 text-sm">
@@ -477,8 +576,16 @@ function CountdownCard({
         <div className="flex h-3 gap-[2px]" aria-hidden>
           {Array.from({ length: goal.days }, (_, i) => {
             const j = goal.start + i;
-            const c = j < today ? "bg-marker" : j === today ? "bg-gold" : "bg-surface-2";
-            return <i key={j} className={`min-w-0 flex-1 rounded-[2px] ${c}`} />;
+            const c = j < today ? "bg-marker" : j === today ? "bg-gold animate-pulse" : "bg-surface-2";
+            return (
+              <motion.i
+                key={j}
+                initial={{ scaleY: 0 }}
+                animate={{ scaleY: 1 }}
+                transition={{ delay: Math.min(i, 120) * 0.004 }}
+                className={`min-w-0 flex-1 origin-bottom rounded-[2px] ${c}`}
+              />
+            );
           })}
         </div>
       </div>
@@ -494,7 +601,7 @@ function WelcomeCard({ today, onStart }: { today: number; onStart: (preset: { na
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.05 }}
-      className="card relative flex flex-col justify-between gap-5 overflow-hidden p-5 sm:p-7 lg:col-span-5"
+      className="card relative flex flex-col justify-between gap-5 overflow-clip p-5 sm:p-7 lg:col-span-5"
     >
       <div aria-hidden className="pointer-events-none absolute -bottom-10 -right-6 hidden grid-cols-5 gap-1.5 opacity-60 sm:grid">
         {Array.from({ length: 15 }, (_, i) => (
@@ -546,6 +653,37 @@ function Stat({ label, value }: { label: string; value: React.ReactNode }) {
       <dt className="text-[11px] font-bold uppercase tracking-[0.1em] text-muted">{label}</dt>
       <dd className="font-display text-xl font-bold tabular-nums">{value}</dd>
     </div>
+  );
+}
+
+/** On Enkutatash week: a look back at the year that just ended. */
+function NewYearCard({ year, onOpen, onDismiss }: { year: number; onOpen: () => void; onDismiss: () => void }) {
+  return (
+    <motion.section
+      initial={{ opacity: 0, scale: 0.97 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="card sky-morning relative overflow-clip p-5 sm:p-6"
+    >
+      <motion.span
+        aria-hidden
+        className="pointer-events-none absolute -right-4 -top-6 text-8xl"
+        animate={{ rotate: [-6, 6, -6], y: [0, -4, 0] }}
+        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+      >
+        🌼
+      </motion.span>
+      <button type="button" onClick={onDismiss} aria-label="Dismiss" className="absolute right-3 top-3 grid size-8 place-items-center rounded-full bg-surface/70 text-muted hover:text-ink">
+        <X size={16} />
+      </button>
+      <div className="relative max-w-lg">
+        <div lang="am" className="font-semibold text-gold">እንቁጣጣሽ · መልካም አዲስ ዓመት</div>
+        <h2 className="mt-1 font-display text-2xl font-extrabold">Happy {year}! Here&apos;s how {year - 1} went.</h2>
+        <p className="mt-1 text-sm text-muted">Tasks done, goals reached, money in and out, and the days you&apos;re proudest of. Then set your big goals for {year}.</p>
+        <button type="button" onClick={onOpen} className="mt-4 inline-flex items-center gap-2 rounded-full bg-ink px-4 py-2 text-sm font-semibold text-bg transition active:scale-95">
+          <Sparkles size={15} /> See my {year - 1}
+        </button>
+      </div>
+    </motion.section>
   );
 }
 
@@ -728,7 +866,7 @@ function Football({ now, today, onOpen }: { now: number; today: number; onOpen: 
   const shown = more ? list : list.slice(0, 6);
 
   return (
-    <section className="card overflow-hidden">
+    <section className="card overflow-clip">
       <button
         type="button"
         onClick={() => setOpen(!open)}
@@ -798,10 +936,10 @@ function Skeleton() {
   return (
     <div className={`mx-auto grid max-w-6xl gap-4 pt-20 ${gutter}`} aria-busy="true" aria-label="Loading your calendar">
       <div className="grid gap-4 lg:grid-cols-12">
-        <div className="card h-72 animate-pulse lg:col-span-7" />
-        <div className="card h-72 animate-pulse lg:col-span-5" />
+        <div className="card shimmer h-72 lg:col-span-7" />
+        <div className="card shimmer h-72 lg:col-span-5" />
       </div>
-      <div className="card h-96 animate-pulse" />
+      <div className="card shimmer h-96" />
     </div>
   );
 }

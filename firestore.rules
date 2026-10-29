@@ -10,7 +10,8 @@ service cloud.firestore {
         && request.auth.uid == uid
         && request.resource.data.keys().hasOnly(
              ['goals', 'tasks', 'routines', 'screen', 'expenses', 'pool', 'areas', 'income', 'events', 'notes',
-              'updated', 'reminder', 'lastReminder'])
+              'aims', 'budgets', 'equbs', 'debts', 'people', 'fasts',
+              'updated', 'reminder', 'lastReminder', 'telegram'])
         && (!('goals' in request.resource.data) || request.resource.data.goals.size() <= 200)
         && (!('tasks' in request.resource.data) || request.resource.data.tasks.size() <= 5000)
         && (!('routines' in request.resource.data) || request.resource.data.routines.size() <= 200)
@@ -20,7 +21,17 @@ service cloud.firestore {
         && (!('areas' in request.resource.data) || request.resource.data.areas.size() <= 300)
         && (!('income' in request.resource.data) || request.resource.data.income.size() <= 5000)
         && (!('events' in request.resource.data) || request.resource.data.events.size() <= 1000)
-        && (!('notes' in request.resource.data) || request.resource.data.notes.size() <= 2000);
+        && (!('notes' in request.resource.data) || request.resource.data.notes.size() <= 2000)
+        && (!('aims' in request.resource.data) || request.resource.data.aims.size() <= 300)
+        && (!('budgets' in request.resource.data) || request.resource.data.budgets.size() <= 100)
+        && (!('equbs' in request.resource.data) || request.resource.data.equbs.size() <= 100)
+        && (!('debts' in request.resource.data) || request.resource.data.debts.size() <= 1000)
+        && (!('people' in request.resource.data) || request.resource.data.people.size() <= 500)
+        && (!('fasts' in request.resource.data) || request.resource.data.fasts.size() <= 2000)
+        // The page may only set a link code; the bot job (admin key) fills in the chat.
+        && (!('telegram' in request.resource.data)
+            || request.resource.data.telegram == resource.data.get('telegram', null)
+            || request.resource.data.telegram.keys().hasOnly(['code']));
     }
   }
 }

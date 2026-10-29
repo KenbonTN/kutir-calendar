@@ -32,6 +32,7 @@ jobs:
         run: npm run build
         env:
           PAGES_BASE_PATH: /kutir-calendar
+          NEXT_PUBLIC_TELEGRAM_BOT: ${{ vars.TELEGRAM_BOT }}
       - uses: actions/upload-pages-artifact@v4
         with:
           path: out

@@ -21,6 +21,8 @@ self.addEventListener("fetch", (event) => {
   const req = event.request;
   const url = new URL(req.url);
   if (req.method !== "GET" || url.origin !== self.location.origin || !url.pathname.startsWith(SCOPE)) return;
+  // The dev server reuses file names between edits, so caching there serves stale code.
+  if (self.location.hostname === "localhost") return;
 
   // Pages: fresh from the network when online (asking the server, not the phone's
   // 10-minute HTTP cache, so updates show up straight away), the saved copy when offline.

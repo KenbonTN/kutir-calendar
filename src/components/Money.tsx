@@ -12,6 +12,8 @@ import {
   addIncome, bySource, deleteIncome, ownSources, SOURCES, sourceOf, useIncome, type Income, type SourceKey,
 } from "@/lib/income";
 import { periodLabel, periodRange, type Period } from "@/lib/screen";
+import { Counter, Reveal } from "./Motion";
+import { Budgets, Debts, Equbs, ProfitTrend } from "./MoneyPlans";
 
 const PERIODS: [Period, string][] = [["day", "Today"], ["week", "Week"], ["month", "Month"], ["year", "Year"]];
 
@@ -108,8 +110,18 @@ export function Money({ today }: { today: number }) {
       </section>
 
       <div className="grid items-start gap-4 lg:grid-cols-2">
-        <IncomeCard rows={earned.rows} total={earned.total} />
-        <ByBusiness expenses={expenses} income={income} from={from} to={to} />
+        <Reveal><Budgets today={today} expenses={expenses} /></Reveal>
+        <Reveal delay={0.05}><ProfitTrend today={today} income={income} expenses={expenses} /></Reveal>
+      </div>
+
+      <div className="grid items-start gap-4 lg:grid-cols-2">
+        <Reveal><IncomeCard rows={earned.rows} total={earned.total} /></Reveal>
+        <Reveal delay={0.05}><ByBusiness expenses={expenses} income={income} from={from} to={to} /></Reveal>
+      </div>
+
+      <div className="grid items-start gap-4 lg:grid-cols-2">
+        <Reveal><Equbs today={today} /></Reveal>
+        <Reveal delay={0.05}><Debts today={today} /></Reveal>
       </div>
 
       <History
@@ -123,9 +135,9 @@ export function Money({ today }: { today: number }) {
 
 function Tile({ label, value, tone, sub }: { label: string; value: number; tone: string; sub?: string }) {
   return (
-    <div className="card min-w-0 p-3 sm:p-5">
+    <div className="card card-hover min-w-0 p-3 sm:p-5">
       <div className="truncate text-[11px] font-bold uppercase tracking-[0.1em] text-muted">{label}</div>
-      <div className={`truncate font-display text-lg font-extrabold tabular-nums sm:text-3xl ${tone}`}>{birrFmt(value)}</div>
+      <div className={`truncate font-display text-lg font-extrabold tabular-nums sm:text-3xl ${tone}`}><Counter value={value} /></div>
       <div className="truncate text-xs text-muted">{sub ?? "Birr"}</div>
     </div>
   );

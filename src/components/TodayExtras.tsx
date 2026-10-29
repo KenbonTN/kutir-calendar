@@ -1,11 +1,14 @@
 "use client";
 
-import { Bell, Hourglass, Scissors } from "lucide-react";
+import { motion } from "motion/react";
+import { Bell, ChevronRight, Hourglass, Phone, Scissors } from "lucide-react";
 import { useState } from "react";
 import { formatEt, formatGShort, WEEKDAYS, weekday } from "@/lib/ethiopian";
 import { dueReminders, kind, whenLabel, type DateEvent } from "@/lib/events";
 import { backToPool } from "@/lib/pool";
 import { addTask, deleteTask, isStuck, moveTask, updateTask, type Task } from "@/lib/tasks";
+import { equbStatus, left, useDebts, useEqubs } from "@/lib/money-plans";
+import { dueIn, touched, usePeople } from "@/lib/people";
 
 const btn = "rounded-full border border-line bg-surface px-3 py-1.5 text-sm font-semibold transition hover:border-muted";
 
@@ -123,5 +126,52 @@ export function DateReminders({ today, events, onOpen }: { today: number; events
         ))}
       </ul>
     </section>
+  );
+}
+
+/** Small nudges from the Life and Money plans: people to call, equb rounds and debts that are due. */
+export function LifeNudges({ today, onOpen }: { today: number; onOpen: (tab: "life" | "money") => void }) {
+  const people = usePeople(today).filter((p) => dueIn(p, today) <= 0);
+  const equbs = useEqubs().flatMap((e) => {
+    const s = equbStatus(e, today);
+    return s.unpaid.length ? [{ id: e.id, text: `${e.name} equb: ${s.unpaid.length} round${s.unpaid.length > 1 ? "s" : ""} to pay` }] : [];
+  });
+  const debts = useDebts().filter((d) => left(d) > 0 && d.due != null && d.due <= today);
+  if (!people.length && !equbs.length && !debts.length) return null;
+  return (
+    <motion.section initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="card grid gap-2 p-4 sm:p-5">
+      <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 py-0.5">
+        {people.slice(0, 4).map((p) => (
+          <span key={p.id} className="inline-flex shrink-0 items-center gap-2 rounded-full bg-marker/10 py-1 pl-1 pr-1.5 text-sm">
+            <span className="grid size-7 place-items-center rounded-full bg-surface font-display text-xs font-extrabold text-marker">{p.name[0]?.toUpperCase()}</span>
+            <span className="font-semibold">Call {p.name}</span>
+            <span className="text-xs text-muted">{today - p.last}d</span>
+            {p.phone && (
+              <a href={`tel:${p.phone}`} aria-label={`Call ${p.name}`} className="grid size-7 place-items-center rounded-full bg-surface text-green">
+                <Phone size={13} />
+              </a>
+            )}
+            <button type="button" onClick={() => touched(p, today)} className="rounded-full bg-green px-2.5 py-1 text-xs font-bold text-on-green">
+              Done
+            </button>
+          </span>
+        ))}
+        {equbs.map((e) => (
+          <button key={e.id} type="button" onClick={() => onOpen("money")} className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-gold-soft px-3 py-1.5 text-sm font-semibold text-gold">
+            🪙 {e.text}
+          </button>
+        ))}
+        {debts.map((d) => (
+          <span key={d.id} className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-surface-2 px-3 py-1.5 text-sm font-semibold">
+            💸 {d.dir === "owe" ? `Pay ${d.person} back` : `${d.person} owes you`} · {Math.round(left(d)).toLocaleString("en")} Birr
+          </span>
+        ))}
+        {people.length > 4 && (
+          <button type="button" onClick={() => onOpen("life")} className="inline-flex shrink-0 items-center gap-1 rounded-full border border-line px-3 py-1.5 text-sm font-semibold text-muted">
+            {people.length - 4} more <ChevronRight size={14} />
+          </button>
+        )}
+      </div>
+    </motion.section>
   );
 }

@@ -29,7 +29,7 @@ export function QuoteCard({
   const { quote, why } = quoteFor(today, signals, skip);
 
   return (
-    <section className="card relative overflow-hidden p-5 sm:p-7">
+    <section className="card relative overflow-clip p-5 sm:p-7">
       <QuoteIcon aria-hidden size={88} className="pointer-events-none absolute -right-2 -top-3 text-gold/15" fill="currentColor" />
       <div className="relative flex items-center justify-between gap-3">
         <h2 className="text-xs font-bold uppercase tracking-[0.14em] text-muted">Quote of the day</h2>

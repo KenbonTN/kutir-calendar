@@ -1,0 +1,33 @@
+name: Telegram quick-add
+
+on:
+  schedule:
+    # Every 5 minutes. GitHub may start scheduled runs a few minutes late.
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: telegram
+  cancel-in-progress: false
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: scripts/reminders/package-lock.json
+      - run: npm ci
+        working-directory: scripts/reminders
+      - run: node telegram.mjs
+        working-directory: scripts/reminders
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}

@@ -34,6 +34,8 @@ export type Task = {
   mins?: number;
   /** how many misses the person had already seen when they chose to keep a stuck task */
   kept?: number;
+  /** minutes actually spent, from the focus timer */
+  spent?: number;
   created: number;
   deleted?: boolean;
   u: number;

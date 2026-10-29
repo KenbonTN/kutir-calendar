@@ -71,6 +71,24 @@ function dateLines(events) {
   return out.sort((a, b) => a.d - b.d).map((x) => x.text);
 }
 
+/** People you're overdue to call, equb rounds due, and debts due tomorrow. */
+function lifeLines(data) {
+  const out = [];
+  const people = (data.people ?? []).filter((p) => !p.deleted && p.last + p.every <= today);
+  if (people.length)
+    out.push(`Time to call ${people.slice(0, 2).map((p) => p.name).join(" and ")}${people.length > 2 ? ` and ${people.length - 2} more` : ""}.`);
+  for (const e of data.equbs ?? []) {
+    if (e.deleted) continue;
+    const next = Math.floor((today + 1 - e.start) / e.every) + 1;
+    if (next >= 1 && next <= e.rounds && e.start + (next - 1) * e.every === today + 1 && !(e.paid ?? []).includes(next))
+      out.push(`${e.name} equb payment is due tomorrow.`);
+  }
+  for (const d of data.debts ?? [])
+    if (!d.deleted && d.due === today + 1 && d.repaid < d.amount)
+      out.push(d.dir === "owe" ? `You're due to pay ${d.person} back tomorrow.` : `${d.person} is due to pay you back tomorrow.`);
+  return out;
+}
+
 function message(data) {
   const tasks = (data.tasks ?? []).filter((t) => !t.deleted);
   const open = tasks.filter((t) => !t.done && (t.date === today || (!t.routine && t.date < today)));
@@ -84,7 +102,7 @@ function message(data) {
   const title = open.length
     ? `${open.length} task${open.length === 1 ? "" : "s"} left today`
     : "Every task done today ✕";
-  const parts = [...dateLines(data.events)];
+  const parts = [...dateLines(data.events), ...lifeLines(data)];
   if (open.length) parts.push(`${names}. Unfinished tasks move to tomorrow at midnight.`);
   if (!logged) parts.push("Log today's TikTok, Instagram and YouTube time.");
   if (!parts.length) parts.push("Great day. See you tomorrow.");

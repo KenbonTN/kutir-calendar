@@ -1,9 +1,10 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { Check, Clock, Inbox, MoreHorizontal, Plus, Repeat, Star, Target, Trash2 } from "lucide-react";
+import { Check, Clock, Inbox, MoreHorizontal, Play, Plus, Repeat, Star, Target, Timer, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { formatEt, WEEKDAYS, weekday } from "@/lib/ethiopian";
+import { startFocus, useFocus } from "@/lib/focus";
 import { useGoals } from "@/lib/goals";
 import { backToPool, ESTIMATES, minsLabel } from "@/lib/pool";
 import {
@@ -52,6 +53,8 @@ function TaskRow({
   const [menu, setMenu] = useState(false);
   const editable = !readOnly && !preview;
   const isToday = t.date === today;
+  const focus = useFocus();
+  const timing = focus?.task === t.id;
 
   return (
     <motion.div
@@ -72,18 +75,27 @@ function TaskRow({
             t.done ? "border-green bg-green text-on-green" : "border-line hover:border-green"
           } ${readOnly && !t.done ? "border-marker/50" : ""} disabled:cursor-default`}
         >
-          {t.done && <Check size={15} strokeWidth={3} />}
+          {t.done && (
+            <motion.span initial={{ scale: 0, rotate: -45 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: "spring", stiffness: 500, damping: 15 }}>
+              <Check size={15} strokeWidth={3} />
+            </motion.span>
+          )}
         </button>
         <div className="min-w-0 flex-1">
           <div className={`break-words text-[15px] leading-snug ${t.done ? "text-muted line-through decoration-2" : ""}`}>
             {t.title}
           </div>
-          {(late > 0 || early > 0 || t.routine || t.area || t.mins || goal || (readOnly && !t.done)) && (
+          {(late > 0 || early > 0 || t.routine || t.area || t.mins || t.spent || goal || (readOnly && !t.done)) && (
             <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs">
               {t.area && <AreaTag id={t.area} />}
               {t.mins ? (
                 <span className="inline-flex items-center gap-1 text-muted">
                   <Clock size={11} /> {minsLabel(t.mins)}
+                </span>
+              ) : null}
+              {t.spent ? (
+                <span className={`inline-flex items-center gap-1 ${t.mins && t.spent > t.mins * 1.25 ? "text-gold" : "text-green"}`} title="Time spent, from the focus timer">
+                  <Timer size={11} /> {minsLabel(t.spent)}{t.mins ? ` of ${minsLabel(t.mins)}` : ""}
                 </span>
               ) : null}
               {goal && (
@@ -110,6 +122,18 @@ function TaskRow({
             </div>
           )}
         </div>
+        {editable && isToday && !t.done && (
+          <button
+            type="button"
+            onClick={() => startFocus(t)}
+            disabled={timing}
+            aria-label={timing ? `Timing ${t.title}` : `Start a focus timer for ${t.title}`}
+            title={timing ? "Timing now" : "Focus on this"}
+            className={`shrink-0 rounded-lg p-1 transition ${timing ? "animate-pulse text-green" : "text-muted opacity-60 hover:text-green sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100"}`}
+          >
+            {timing ? <Timer size={16} /> : <Play size={16} />}
+          </button>
+        )}
         {editable && isToday && !t.done && (canStar || t.top) && (
           <button
             type="button"

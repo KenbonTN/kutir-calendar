@@ -17,6 +17,8 @@ export type Goal = {
   /** manual crosses from the first versions; kept so old data still loads */
   done: number[];
   created: number;
+  /** the big goal for the year it serves (see aims.ts) */
+  aim?: string;
   deleted?: boolean;
   u?: number;
 };
@@ -73,6 +75,18 @@ export function addGoal(goal: Pick<Goal, "name" | "start" | "days">) {
 
 export function removeGoal(id: string) {
   writeStored(GOALS_KEY, savedGoals().map((g) => (g.id === id ? { ...g, deleted: true, u: Date.now() } : g)));
+}
+
+/** Links a countdown to a big goal, or unlinks it (empty id). */
+export function linkGoal(id: string, aim: string) {
+  writeStored(
+    GOALS_KEY,
+    savedGoals().map((g) => {
+      if (g.id !== id) return g;
+      const { aim: _old, ...rest } = g; // eslint-disable-line @typescript-eslint/no-unused-vars
+      return aim ? { ...rest, aim, u: Date.now() } : { ...rest, u: Date.now() };
+    }),
+  );
 }
 
 export function goalStats(goal: Goal, today: number, tasks: Task[], routines: Routine[]) {

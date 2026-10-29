@@ -4,19 +4,23 @@
 //
 // Each person has one document, users/{uid}, holding their goals, tasks,
 // repeating tasks, task pool, life areas, screen-time logs, expenses, income,
-// important dates and daily notes, plus their reminder settings. The
+// important dates, daily notes, big goals, budgets, equbs, debts, people to keep
+// in touch with and fast days, plus their reminder and Telegram settings. The
 // device keeps its own copy in localStorage, so the app works offline and for
 // people who never sign in. Every record carries a change time (`u`), so when
 // both sides changed, the newer version of each record wins.
 
 import { useSyncExternalStore } from "react";
 import { firebaseConfig } from "./firebase-config";
+import { AIMS_KEY } from "./aims";
 import { AREAS_KEY } from "./areas";
 import { EVENTS_KEY } from "./events";
 import { EXPENSES_KEY } from "./expenses";
 import { GOALS_KEY } from "./goals";
 import { INCOME_KEY } from "./income";
+import { BUDGETS_KEY, DEBTS_KEY, EQUBS_KEY } from "./money-plans";
 import { NOTES_KEY } from "./notes";
+import { FASTS_KEY, PEOPLE_KEY } from "./people";
 import { POOL_KEY } from "./pool";
 import { SCREEN_KEY } from "./screen";
 import { ROUTINES_KEY, TASKS_KEY } from "./tasks";
@@ -116,9 +120,11 @@ export async function signOut() {
 
 type Rec = { id: string; u?: number; deleted?: boolean; draft?: boolean };
 type Data = Record<Field, Rec[]>;
-type Field = "goals" | "tasks" | "routines" | "screen" | "expenses" | "pool" | "areas" | "income" | "events" | "notes";
+export type Field =
+  | "goals" | "tasks" | "routines" | "screen" | "expenses" | "pool" | "areas" | "income" | "events" | "notes"
+  | "aims" | "budgets" | "equbs" | "debts" | "people" | "fasts";
 
-const FIELDS: Record<Field, string> = {
+export const FIELDS: Record<Field, string> = {
   goals: GOALS_KEY,
   tasks: TASKS_KEY,
   routines: ROUTINES_KEY,
@@ -129,6 +135,12 @@ const FIELDS: Record<Field, string> = {
   income: INCOME_KEY,
   events: EVENTS_KEY,
   notes: NOTES_KEY,
+  aims: AIMS_KEY,
+  budgets: BUDGETS_KEY,
+  equbs: EQUBS_KEY,
+  debts: DEBTS_KEY,
+  people: PEOPLE_KEY,
+  fasts: FASTS_KEY,
 };
 const KEEP_DELETED_MS = 90 * 864e5; // long enough for every device to hear about a deletion
 
@@ -137,7 +149,7 @@ const tidy = (list: Rec[]) =>
     .filter((r) => !r.draft && !(r.deleted && Date.now() - (r.u ?? 0) > KEEP_DELETED_MS))
     .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
 
-const readLocal = (): Data =>
+export const readLocal = (): Data =>
   Object.fromEntries(
     (Object.keys(FIELDS) as Field[]).map((f) => {
       const v = readStored<Rec[]>(FIELDS[f], []);
@@ -182,6 +194,26 @@ export async function saveReminder(change: (r: Reminder) => Reminder) {
   return next;
 }
 export const currentReminder = () => latestReminder;
+
+/* Telegram quick-add: the page saves a one-time code; the bot job links the chat that sends it. */
+export type Telegram = { code?: string; chat?: number; name?: string };
+let latestTelegram: Telegram | null = null;
+const tgSubs = new Set<() => void>();
+export function useTelegram() {
+  return useSyncExternalStore(
+    (fn) => {
+      tgSubs.add(fn);
+      return () => tgSubs.delete(fn);
+    },
+    () => latestTelegram,
+    () => null,
+  );
+}
+export async function saveTelegram(t: Telegram | null) {
+  if (!docRef) throw new Error("not signed in");
+  const { fs } = await firebase();
+  await fs.setDoc(docRef as never, { telegram: t ?? fs.deleteField() }, { merge: true });
+}
 
 function startSync(uid: string) {
   let cancelled = false;
@@ -237,8 +269,10 @@ function startSync(uid: string) {
       (snap) => {
         // Only act on the server's confirmed copy, never on our own unconfirmed write or a stale cache.
         if (snap.metadata.fromCache || snap.metadata.hasPendingWrites) return;
-        const raw = (snap.data() ?? {}) as Partial<Data> & { reminder?: Reminder };
+        const raw = (snap.data() ?? {}) as Partial<Data> & { reminder?: Reminder; telegram?: Telegram };
         latestReminder = raw.reminder ?? null;
+        latestTelegram = raw.telegram ?? null;
+        tgSubs.forEach((fn) => fn());
         const fields = Object.keys(FIELDS) as Field[];
         const empty = Object.fromEntries(fields.map((f) => [f, []])) as unknown as Data;
         const cloud = merge(empty, Object.fromEntries(fields.map((f) => [f, raw[f] ?? []])) as unknown as Data);
@@ -266,6 +300,8 @@ function startSync(uid: string) {
       cancelled = true;
       docRef = null;
       latestReminder = null;
+      latestTelegram = null;
+      tgSubs.forEach((fn) => fn());
       unsubSnap();
       unsubs.forEach((u) => u());
       clearTimeout(timer);
