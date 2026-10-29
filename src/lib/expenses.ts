@@ -28,6 +28,8 @@ export type Expense = {
   amount: number;
   category: CategoryKey;
   note: string;
+  /** business or organization it was spent for */
+  area?: string;
   /** the day it was spent, as a JDN */
   day: number;
   created: number;
@@ -43,7 +45,8 @@ export function useExpenses() {
   return useMemo(() => all.filter((e) => !e.deleted).sort((a, b) => b.day - a.day || b.created - a.created), [all]);
 }
 
-export function addExpense(e: Pick<Expense, "amount" | "category" | "note" | "day">) {
+export function addExpense(e: Pick<Expense, "amount" | "category" | "note" | "day" | "area">) {
+  if (!e.area) delete e.area;
   const rec: Expense = { ...e, id: Math.random().toString(36).slice(2, 10), created: Date.now(), u: Date.now() };
   writeStored(EXPENSES_KEY, [...readStored<Expense[]>(EXPENSES_KEY, NONE), rec]);
 }

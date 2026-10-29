@@ -25,6 +25,52 @@ const today = Math.floor(addisNow.getTime() / 864e5) + 2440588; // JDN of the Ad
 const nowMin = addisNow.getUTCHours() * 60 + addisNow.getUTCMinutes();
 const weekday = (j) => ((j % 7) + 7) % 7; // 0 = Monday, as in the app
 
+// Ethiopian calendar math, as in src/lib/ethiopian.ts and src/lib/events.ts.
+const toJdn = (y, m, d) => 1724221 + 365 * (y - 1) + Math.floor(y / 4) + 30 * (m - 1) + d - 1;
+function fromJdn(j) {
+  const c = j - 1723856;
+  const r = ((c % 1461) + 1461) % 1461;
+  const n = (r % 365) + 365 * Math.floor(r / 1460);
+  return { y: 4 * Math.floor(c / 1461) + Math.floor(r / 365) - Math.floor(r / 1460), m: Math.floor(n / 30) + 1, d: (n % 30) + 1 };
+}
+const monthLength = (y, m) => (m < 13 ? 30 : y % 4 === 3 ? 6 : 5);
+const gToJdn = (y, m, d) => Math.floor(Date.UTC(y, m - 1, d) / 864e5) + 2440588;
+const jdnToDate = (j) => new Date((j - 2440588) * 864e5);
+
+/** The next day (on or after j) an important date falls on, or null. */
+function nextOn(ev, j) {
+  if (!ev.yearly) return ev.date >= j ? ev.date : null;
+  const eth = ev.cal === "ethiopian";
+  const y = eth ? fromJdn(j).y : jdnToDate(j).getUTCFullYear();
+  for (const yy of [y - 1, y, y + 1]) {
+    let d;
+    if (eth) {
+      const e = fromJdn(ev.date);
+      d = toJdn(yy, e.m, Math.min(e.d, monthLength(yy, e.m)));
+    } else {
+      const g = jdnToDate(ev.date);
+      const m = g.getUTCMonth() + 1;
+      d = gToJdn(yy, m, Math.min(g.getUTCDate(), new Date(Date.UTC(yy, m, 0)).getUTCDate()));
+    }
+    if (d >= j && d >= ev.date) return d;
+  }
+  return null;
+}
+
+/** "Mom's birthday is tomorrow." for dates whose reminder window covers tomorrow or today. */
+function dateLines(events) {
+  const out = [];
+  for (const ev of events ?? []) {
+    if (ev.deleted) continue;
+    const d = nextOn(ev, today + 1); // in the evening, today's date has mostly passed: look ahead
+    if (d == null || d - today > Math.max(1, ev.remind ?? 0)) continue;
+    const when = d === today + 1 ? "tomorrow" : `in ${d - today} days`;
+    const what = ev.kind === "birthday" ? `${ev.title}'s birthday` : ev.title;
+    out.push({ d, text: `${what} is ${when}.` });
+  }
+  return out.sort((a, b) => a.d - b.d).map((x) => x.text);
+}
+
 function message(data) {
   const tasks = (data.tasks ?? []).filter((t) => !t.deleted);
   const open = tasks.filter((t) => !t.done && (t.date === today || (!t.routine && t.date < today)));
@@ -38,7 +84,7 @@ function message(data) {
   const title = open.length
     ? `${open.length} task${open.length === 1 ? "" : "s"} left today`
     : "Every task done today ✕";
-  const parts = [];
+  const parts = [...dateLines(data.events)];
   if (open.length) parts.push(`${names}. Unfinished tasks move to tomorrow at midnight.`);
   if (!logged) parts.push("Log today's TikTok, Instagram and YouTube time.");
   if (!parts.length) parts.push("Great day. See you tomorrow.");

@@ -3,15 +3,21 @@
 // Google sign-in and cloud backup through Firebase (Auth + Firestore).
 //
 // Each person has one document, users/{uid}, holding their goals, tasks,
-// repeating tasks, screen-time logs and expenses, plus their reminder settings. The
+// repeating tasks, task pool, life areas, screen-time logs, expenses, income,
+// important dates and daily notes, plus their reminder settings. The
 // device keeps its own copy in localStorage, so the app works offline and for
 // people who never sign in. Every record carries a change time (`u`), so when
 // both sides changed, the newer version of each record wins.
 
 import { useSyncExternalStore } from "react";
 import { firebaseConfig } from "./firebase-config";
+import { AREAS_KEY } from "./areas";
+import { EVENTS_KEY } from "./events";
 import { EXPENSES_KEY } from "./expenses";
 import { GOALS_KEY } from "./goals";
+import { INCOME_KEY } from "./income";
+import { NOTES_KEY } from "./notes";
+import { POOL_KEY } from "./pool";
 import { SCREEN_KEY } from "./screen";
 import { ROUTINES_KEY, TASKS_KEY } from "./tasks";
 import { readStored, subscribeStored, writeStored } from "./storage";
@@ -110,7 +116,7 @@ export async function signOut() {
 
 type Rec = { id: string; u?: number; deleted?: boolean; draft?: boolean };
 type Data = Record<Field, Rec[]>;
-type Field = "goals" | "tasks" | "routines" | "screen" | "expenses";
+type Field = "goals" | "tasks" | "routines" | "screen" | "expenses" | "pool" | "areas" | "income" | "events" | "notes";
 
 const FIELDS: Record<Field, string> = {
   goals: GOALS_KEY,
@@ -118,6 +124,11 @@ const FIELDS: Record<Field, string> = {
   routines: ROUTINES_KEY,
   screen: SCREEN_KEY,
   expenses: EXPENSES_KEY,
+  pool: POOL_KEY,
+  areas: AREAS_KEY,
+  income: INCOME_KEY,
+  events: EVENTS_KEY,
+  notes: NOTES_KEY,
 };
 const KEEP_DELETED_MS = 90 * 864e5; // long enough for every device to hear about a deletion
 
@@ -228,11 +239,9 @@ function startSync(uid: string) {
         if (snap.metadata.fromCache || snap.metadata.hasPendingWrites) return;
         const raw = (snap.data() ?? {}) as Partial<Data> & { reminder?: Reminder };
         latestReminder = raw.reminder ?? null;
-        const empty = { goals: [], tasks: [], routines: [], screen: [], expenses: [] };
-        const cloud = merge(empty, {
-          goals: raw.goals ?? [], tasks: raw.tasks ?? [], routines: raw.routines ?? [], screen: raw.screen ?? [],
-          expenses: raw.expenses ?? [],
-        });
+        const fields = Object.keys(FIELDS) as Field[];
+        const empty = Object.fromEntries(fields.map((f) => [f, []])) as unknown as Data;
+        const cloud = merge(empty, Object.fromEntries(fields.map((f) => [f, raw[f] ?? []])) as unknown as Data);
         cloudJson = json(cloud);
         ready = true;
         const merged = merge(readLocal(), cloud);

@@ -1,8 +1,9 @@
 "use client";
 
-import { ArrowRight, CheckCircle2, Moon, Sunrise } from "lucide-react";
+import { ArrowRight, CheckCircle2, Moon, NotebookPen, Sunrise } from "lucide-react";
 import { useState } from "react";
 import { formatEt } from "@/lib/ethiopian";
+import { saveNote, useNotes } from "@/lib/notes";
 import { fmt, total, type ScreenLog } from "@/lib/screen";
 import { useStored } from "@/lib/storage";
 import { dayScore, type Routine, type Task } from "@/lib/tasks";
@@ -123,6 +124,54 @@ export function EndOfDayCard({
           </div>
         )}
       </div>
+      {evening && <Reflection day={day} />}
     </section>
+  );
+}
+
+/** One line on what went well and one on what got in the way. */
+export function Reflection({ day }: { day: number }) {
+  const notes = useNotes();
+  const note = notes.get(day);
+  const [editing, setEditing] = useState(!note);
+  const [well, setWell] = useState(note?.well ?? "");
+  const [blocked, setBlocked] = useState(note?.blocked ?? "");
+  const field = "w-full rounded-xl border border-line bg-surface-2 px-3 py-2 text-[15px]";
+
+  if (note && !editing)
+    return (
+      <div className="grid gap-1 rounded-2xl bg-surface-2 p-3 text-sm">
+        <div className="flex items-center justify-between gap-2">
+          <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.12em] text-muted">
+            <NotebookPen size={13} /> Reflection
+          </span>
+          <button type="button" onClick={() => setEditing(true)} className="text-xs font-semibold text-green">Edit</button>
+        </div>
+        {note.well && <p><span className="font-semibold text-green">Went well:</span> {note.well}</p>}
+        {note.blocked && <p><span className="font-semibold text-gold">Got in the way:</span> {note.blocked}</p>}
+      </div>
+    );
+
+  return (
+    <form
+      className="grid gap-2"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (!well.trim() && !blocked.trim()) return;
+        saveNote(day, well, blocked);
+        setEditing(false);
+      }}
+    >
+      <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.12em] text-muted">
+        <NotebookPen size={13} /> One line each (optional)
+      </div>
+      <div className="grid gap-2 md:grid-cols-2">
+        <input id={`well-${day}`} aria-label="What went well" value={well} maxLength={200} onChange={(e) => setWell(e.target.value)} placeholder="What went well?" className={field} />
+        <input id={`blocked-${day}`} aria-label="What got in the way" value={blocked} maxLength={200} onChange={(e) => setBlocked(e.target.value)} placeholder="What got in the way?" className={field} />
+      </div>
+      <button type="submit" disabled={!well.trim() && !blocked.trim()} className="w-fit rounded-full bg-ink px-4 py-1.5 text-sm font-semibold text-bg disabled:opacity-40">
+        Save reflection
+      </button>
+    </form>
   );
 }

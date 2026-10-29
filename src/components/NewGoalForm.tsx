@@ -22,7 +22,17 @@ const chip = (on: boolean) =>
 export type Cal = "ethiopian" | "gregorian";
 
 /** A day/month/year picker in either calendar; the value is always a JDN. */
-export function DatePicker({ value, onChange, cal, id }: { value: number; onChange: (j: number) => void; cal: Cal; id: string }) {
+export function DatePicker({
+  value, onChange, cal, id, years = [-1, 2], anchor = value,
+}: { value: number; onChange: (j: number) => void; cal: Cal; id: string; years?: [number, number]; anchor?: number }) {
+  /** Years offered: `years[0]` to `years[1]` around the year of `anchor` (today, for date-of-birth pickers). */
+  const range = (y: number) => {
+    const now = cal === "ethiopian" ? fromJdn(anchor).y : jdnToDate(anchor).getUTCFullYear();
+    const out: number[] = [];
+    for (let x = now + years[1]; x >= now + years[0]; x--) out.push(x);
+    if (!out.includes(y)) out.push(y);
+    return out.sort((a, b) => a - b);
+  };
   if (cal === "ethiopian") {
     const e = fromJdn(value);
     const set = (y: number, m: number, d: number) => onChange(toJdn(y, m, Math.min(d, monthLength(y, m))));
@@ -35,7 +45,7 @@ export function DatePicker({ value, onChange, cal, id }: { value: number; onChan
           {MONTHS.map((mn, i) => <option key={mn} value={i + 1}>{mn} · {MONTHS_AM[i]}</option>)}
         </select>
         <select id={`${id}-y`} aria-label="Year" className={field} value={e.y} onChange={(x) => set(+x.target.value, e.m, e.d)}>
-          {[e.y - 1, e.y, e.y + 1, e.y + 2].map((y) => <option key={y} value={y}>{y}</option>)}
+          {range(e.y).map((y) => <option key={y} value={y}>{y}</option>)}
         </select>
       </div>
     );
@@ -53,7 +63,7 @@ export function DatePicker({ value, onChange, cal, id }: { value: number; onChan
         {Array.from({ length: daysIn(y, m) }, (_, i) => <option key={i} value={i + 1}>{i + 1}</option>)}
       </select>
       <select id={`${id}-gy`} aria-label="Year" className={field} value={y} onChange={(x) => set(+x.target.value, m, d)}>
-        {[y - 1, y, y + 1, y + 2].map((yy) => <option key={yy} value={yy}>{yy}</option>)}
+        {range(y).map((yy) => <option key={yy} value={yy}>{yy}</option>)}
       </select>
     </div>
   );

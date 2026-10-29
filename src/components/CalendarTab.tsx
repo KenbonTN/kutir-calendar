@@ -6,9 +6,12 @@ import {
   fromJdn, geez, gregorianToJdn, jdnToDate, monthLength, MONTHS, MONTHS_AM, toJdn, weekday, WEEKDAYS,
   WEEKDAYS_AM_SHORT, formatEt, formatG,
 } from "@/lib/ethiopian";
+import { between, kind, type DateEvent, type Occurrence, useEvents } from "@/lib/events";
 import { orthodoxDay } from "@/lib/orthodox";
 import { useStored } from "@/lib/storage";
 import { tasksOn, type Routine, type Task } from "@/lib/tasks";
+import { EventForm, ImportantDates } from "./Dates";
+import { Sheet } from "./Sheet";
 
 type Mode = "ethiopian" | "gregorian";
 const G_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -21,9 +24,16 @@ export function CalendarTab({
   const [offset, setOffset] = useState(0); // months away from the current one
 
   const month = useMemo(() => monthOf(mode, today, offset), [mode, today, offset]);
+  const events = useEvents();
+  const [form, setForm] = useState<{ ev?: DateEvent } | null>(null);
+  const dated = useMemo(() => {
+    const m = new Map<number, Occurrence[]>();
+    for (const o of between(events, month.first, month.first + month.length - 1)) m.set(o.day, [...(m.get(o.day) ?? []), o]);
+    return m;
+  }, [events, month]);
 
   return (
-    <div className="grid gap-6 lg:grid-cols-12">
+    <div className="grid items-start gap-6 lg:grid-cols-12">
       <section className="card grid content-start gap-4 p-3 sm:p-5 lg:col-span-8">
         <div className="flex flex-wrap items-center justify-between gap-3 px-1">
           <div className="flex rounded-full border border-line bg-surface-2 p-1 text-sm font-semibold">
@@ -76,7 +86,7 @@ export function CalendarTab({
           ))}
           {Array.from({ length: month.length }, (_, i) => {
             const j = month.first + i;
-            return <Cell key={j} j={j} mode={mode} today={today} tasks={tasks} routines={routines} onOpen={onOpen} />;
+            return <Cell key={j} j={j} mode={mode} today={today} tasks={tasks} routines={routines} dates={dated.get(j)} onOpen={onOpen} />;
           })}
         </div>
         <p className="px-1 text-xs text-muted">
@@ -85,7 +95,19 @@ export function CalendarTab({
         </p>
       </section>
 
-      <ComingUp today={today} onOpen={onOpen} />
+      <div className="grid content-start gap-6 lg:col-span-4">
+        <ImportantDates today={today} onAdd={() => setForm({})} onEdit={(ev) => setForm({ ev })} />
+        <ComingUp today={today} onOpen={onOpen} />
+      </div>
+
+      <Sheet open={form != null} onClose={() => setForm(null)} label={form?.ev ? "Edit date" : "Add a date"}>
+        {form && (
+          <div className="grid gap-4">
+            <h2 className="pr-10 font-display text-2xl font-extrabold">{form.ev ? "Edit date" : "Add a birthday or date"}</h2>
+            <EventForm today={today} existing={form.ev} onDone={() => setForm(null)} />
+          </div>
+        )}
+      </Sheet>
     </div>
   );
 }
@@ -125,8 +147,8 @@ function monthOf(mode: Mode, today: number, offset: number) {
 }
 
 function Cell({
-  j, mode, today, tasks, routines, onOpen,
-}: { j: number; mode: Mode; today: number; tasks: Task[]; routines: Routine[]; onOpen: (j: number) => void }) {
+  j, mode, today, tasks, routines, dates, onOpen,
+}: { j: number; mode: Mode; today: number; tasks: Task[]; routines: Routine[]; dates?: Occurrence[]; onOpen: (j: number) => void }) {
   const e = fromJdn(j);
   const g = jdnToDate(j);
   const od = orthodoxDay(j);
@@ -143,7 +165,7 @@ function Cell({
     <button
       type="button"
       onClick={() => onOpen(j)}
-      aria-label={`${formatEt(j)}, ${formatG(j)}${feast ? `, ${feast.en}` : ""}${isToday ? ", today" : ""}`}
+      aria-label={`${formatEt(j)}, ${formatG(j)}${feast ? `, ${feast.en}` : ""}${dates ? `, ${dates.map((o) => o.ev.title).join(", ")}` : ""}${isToday ? ", today" : ""}`}
       className={[
         "relative flex aspect-square min-w-0 flex-col justify-between gap-0.5 overflow-hidden rounded-xl border p-1 text-left transition hover:border-green sm:aspect-auto sm:min-h-[5.75rem] sm:rounded-2xl sm:p-2",
         isToday ? "border-gold ring-2 ring-gold/40" : "border-line",
@@ -155,7 +177,12 @@ function Cell({
         <span className="min-w-0 truncate font-mono text-[9px] leading-none text-muted sm:text-[10.5px]">{small}</span>
       </div>
       <span className="hidden min-w-0 text-[10.5px] leading-tight sm:line-clamp-2">
-        {feast ? (
+        {dates ? (
+          <span className="font-semibold text-marker">
+            {kind(dates[0].ev.kind).emoji} {dates[0].ev.title}
+            {dates.length > 1 ? ` +${dates.length - 1}` : ""}
+          </span>
+        ) : feast ? (
           <span className={`font-semibold ${feast.kind === "national" ? "text-green" : "text-gold"}`}>
             {feast.kind === "major" && <Star size={9} className="mr-0.5 inline -translate-y-px" fill="currentColor" />}
             {feast.en.split(" · ")[0]}
@@ -169,7 +196,8 @@ function Cell({
           {mode === "ethiopian" ? geez(e.d) : ""}
         </span>
         <span className="ml-auto flex items-center gap-1">
-          {feast && <span className="size-1.5 rounded-full bg-gold sm:hidden" />}
+          {dates && <span className="text-[10px] leading-none sm:hidden">{kind(dates[0].ev.kind).emoji}</span>}
+          {feast && !dates && <span className="size-1.5 rounded-full bg-gold sm:hidden" />}
           {planned > 0 && (
             <span className="rounded-md bg-surface-2 px-1 font-mono text-[9px] font-bold text-muted sm:text-[10px]">{planned}</span>
           )}
@@ -198,7 +226,7 @@ function ComingUp({ today, onOpen }: { today: number; onOpen: (j: number) => voi
   const shown = more ? items : items.slice(0, 10);
 
   return (
-    <section className="card grid content-start gap-2 p-5 sm:p-6 lg:col-span-4">
+    <section className="card grid content-start gap-2 p-5 sm:p-6">
       <h2 className="font-display text-xl font-extrabold">Coming up</h2>
       <p className="text-xs text-muted">Orthodox feasts, fasting seasons and national holidays in the next four months.</p>
       <ul className="divide-y divide-line">

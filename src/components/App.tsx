@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import {
-  CalendarDays, ChevronDown, Church, Flame, Leaf, ListChecks, Monitor, Moon, Plus,
+  CalendarDays, ChevronDown, Church, Clock, Flame, Inbox, Leaf, ListChecks, Monitor, Moon, Plus,
   Settings as SettingsIcon, Sparkles, Star, Sun, Target, Trash2, Trophy, Wallet,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -10,12 +10,15 @@ import {
   addisJdn, addisTime, formatEt, formatG, fromJdn, geez, MONTHS, MONTHS_AM, WEEKDAYS, WEEKDAYS_AM, weekday,
 } from "@/lib/ethiopian";
 import { startCloud, useCloud } from "@/lib/cloud";
+import { useEvents } from "@/lib/events";
 import { EXPENSES_KEY, useExpenses } from "@/lib/expenses";
 import { FIXTURES_UPDATED, MATCHES, type Match } from "@/lib/fixtures";
 import { addGoal, goalStats, keepLegacyGoal, removeGoal, useGoals, type Goal } from "@/lib/goals";
 import { monthsCovering, type Cal } from "@/lib/months";
 import { orthodoxDay } from "@/lib/orthodox";
+import { minsLabel } from "@/lib/pool";
 import { registerServiceWorker } from "@/lib/push";
+import { weekOf } from "@/lib/review";
 import { SCREEN_KEY, useScreen } from "@/lib/screen";
 import { useStored } from "@/lib/storage";
 import {
@@ -28,6 +31,8 @@ import { DaySheet } from "./DaySheet";
 import { MatchRow } from "./MatchRow";
 import { MonthGrid, type DayInfo, type Layers } from "./MonthGrid";
 import { Money } from "./Money";
+import { PoolTab, PullFromPool, usePool, WeekReview } from "./PoolTab";
+import { DateReminders, StuckTasks } from "./TodayExtras";
 import { CalSwitch, DateBoth, NewGoalForm } from "./NewGoalForm";
 import { QuoteCard } from "./QuoteCard";
 import { ScreenDashboard } from "./ScreenTime";
@@ -62,6 +67,12 @@ function Main({ today, now }: { today: number; now: number }) {
   const [settings, setSettings] = useState(false);
   const [tab, setTab] = useStored<Tab>("kutir-tab", "today");
   const expenses = useExpenses();
+  const events = useEvents();
+  const pool = usePool();
+  // Sunday: review this week. Monday: last week's review, until dismissed.
+  const [reviewSeen, setReviewSeen] = useStored<number>("kutir-review-seen", 0);
+  const wd = weekday(today);
+  const reviewWeek = wd === 6 ? weekOf(today)[0] : wd === 0 ? weekOf(today - 7)[0] : null;
 
   // Devices that used Kutir before countdowns had to be created keep the old "My 3 months".
   useEffect(() => keepLegacyGoal([TASKS_KEY, ROUTINES_KEY, SCREEN_KEY, EXPENSES_KEY]), []);
@@ -80,15 +91,33 @@ function Main({ today, now }: { today: number; now: number }) {
   const today_ = (
     <>
       <div className="grid gap-4 lg:grid-cols-12">
-        <TodayCard today={today} tasks={todays} />
+        <TodayCard today={today} now={now} tasks={todays} allTasks={tasks} />
         {goal ? (
-          <CountdownCard goal={goal} today={today} tasks={tasks} routines={routines} />
+          <CountdownCard goal={goal} today={today} tasks={tasks} routines={routines} poolGoals={pool.map((p) => p.goal)} />
         ) : cloud.status === "starting" || cloud.status === "syncing" ? (
           <div className="card h-72 animate-pulse lg:col-span-5" aria-label="Loading your countdowns" />
         ) : (
           <WelcomeCard today={today} onStart={setNewGoal} />
         )}
       </div>
+
+      <DateReminders today={today} events={events} onOpen={setOpenDay} />
+
+      <StuckTasks today={today} tasks={tasks} />
+
+      {reviewWeek != null && reviewSeen !== reviewWeek && (
+        <WeekReview
+          today={today}
+          tasks={tasks}
+          routines={routines}
+          last={wd === 0}
+          onPlan={() => {
+            setTab("pool");
+            window.scrollTo({ top: 0 });
+          }}
+          onDismiss={() => setReviewSeen(reviewWeek)}
+        />
+      )}
 
       <QuoteCard today={today} tasks={tasks} logs={logs} expenses={expenses} streak={streak} />
 
@@ -122,6 +151,7 @@ function Main({ today, now }: { today: number; now: number }) {
       <TopBar today={today} tab={tab} setTab={setTab} onSettings={() => setSettings(true)} />
       <main className={`mx-auto grid max-w-6xl gap-6 pb-32 pt-5 sm:gap-8 sm:pb-24 ${gutter}`}>
         {tab === "today" && today_}
+        {tab === "pool" && <PoolTab today={today} tasks={tasks} routines={routines} />}
         {tab === "calendar" && <CalendarTab today={today} tasks={tasks} routines={routines} onOpen={setOpenDay} />}
         {tab === "money" && <Money today={today} />}
 
@@ -167,9 +197,10 @@ function Main({ today, now }: { today: number; now: number }) {
 
 /* ---------- Top bar ---------- */
 
-type Tab = "today" | "calendar" | "money";
+type Tab = "today" | "pool" | "calendar" | "money";
 const TABS: [Tab, string, typeof ListChecks][] = [
   ["today", "Today", ListChecks],
+  ["pool", "Pool", Inbox],
   ["calendar", "Calendar", CalendarDays],
   ["money", "Money", Wallet],
 ];
@@ -202,7 +233,7 @@ function BottomTabs({ tab, setTab }: { tab: Tab; setTab: (t: Tab) => void }) {
       aria-label="Sections"
       className="glass fixed inset-x-0 bottom-0 z-40 border-t border-line/70 pb-[env(safe-area-inset-bottom)] sm:hidden"
     >
-      <div className="grid grid-cols-3">
+      <div className="grid grid-cols-4">
         {TABS.map(([k, label, Icon]) => (
           <button
             key={k}
@@ -283,11 +314,15 @@ function ThemeToggle() {
 
 /* ---------- Hero ---------- */
 
-function TodayCard({ today, tasks }: { today: number; tasks: Task[] }) {
+function TodayCard({ today, now, tasks, allTasks }: { today: number; now: number; tasks: Task[]; allTasks: Task[] }) {
   const e = fromJdn(today);
   const od = orthodoxDay(today);
   const done = tasks.filter((t) => t.done).length;
   const pct = tasks.length ? done / tasks.length : 0;
+  const cleared = tasks.length > 0 && done === tasks.length;
+  const [pulling, setPulling] = useState(false);
+  const [hidden, setHidden] = useStored<number>("kutir-cleared-hidden", 0);
+  const planned = tasks.filter((t) => !t.done).reduce((a, t) => a + (t.mins ?? 0), 0);
 
   return (
     <motion.section
@@ -325,10 +360,38 @@ function TodayCard({ today, tasks }: { today: number; tasks: Task[] }) {
       </div>
 
       <div className="relative mt-4">
-        <h2 className="mb-1 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-muted">
-          <ListChecks size={15} /> Today&apos;s tasks
-        </h2>
+        <div className="mb-1 flex items-center justify-between gap-2">
+          <h2 className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-muted">
+            <ListChecks size={15} /> Today&apos;s tasks
+            {planned > 0 && (
+              <span className="inline-flex items-center gap-1 font-semibold normal-case tracking-normal">
+                · <Clock size={12} /> {minsLabel(planned)} left
+              </span>
+            )}
+          </h2>
+          {!cleared && (
+            <button
+              type="button"
+              onClick={() => setPulling(!pulling)}
+              aria-expanded={pulling}
+              className="inline-flex items-center gap-1 rounded-full border border-line px-2.5 py-1 text-xs font-semibold text-muted hover:text-ink"
+            >
+              <Inbox size={13} /> From the pool
+            </button>
+          )}
+        </div>
         <TaskList day={today} today={today} tasks={tasks} compact />
+        {((cleared && hidden !== today) || (!cleared && pulling)) && (
+          <div className="mt-3">
+            <PullFromPool
+              today={today}
+              now={now}
+              tasks={allTasks}
+              cleared={cleared}
+              onClose={() => (cleared ? setHidden(today) : setPulling(false))}
+            />
+          </div>
+        )}
       </div>
 
       <div className="relative mt-4 flex flex-wrap gap-x-4 gap-y-1 border-t border-line pt-3 text-sm text-muted">
@@ -350,8 +413,13 @@ function TodayCard({ today, tasks }: { today: number; tasks: Task[] }) {
   );
 }
 
-function CountdownCard({ goal, today, tasks, routines }: { goal: Goal; today: number; tasks: Task[]; routines: Routine[] }) {
+function CountdownCard({
+  goal, today, tasks, routines, poolGoals,
+}: { goal: Goal; today: number; tasks: Task[]; routines: Routine[]; poolGoals: (string | undefined)[] }) {
   const s = useMemo(() => goalStats(goal, today, tasks, routines), [goal, today, tasks, routines]);
+  const linked = tasks.filter((t) => t.goal === goal.id);
+  const linkedDone = linked.filter((t) => t.done).length;
+  const linkedAll = linked.length + poolGoals.filter((g) => g === goal.id).length;
   const R = 54, C = 2 * Math.PI * R;
   return (
     <motion.section
@@ -390,6 +458,17 @@ function CountdownCard({ goal, today, tasks, routines }: { goal: Goal; today: nu
           <Stat label="Streak" value={<span className="inline-flex items-center gap-1"><Flame size={16} className="text-gold" />{s.streak}</span>} />
         </dl>
       </div>
+      {linkedAll > 0 && (
+        <div className="grid gap-1.5">
+          <div className="flex justify-between text-sm">
+            <span className="font-semibold">Tasks for this countdown</span>
+            <span className="tabular-nums text-muted">{linkedDone} of {linkedAll} done</span>
+          </div>
+          <div className="h-2 overflow-hidden rounded-full bg-surface-2">
+            <motion.div className="h-full rounded-full bg-green" animate={{ width: `${(linkedDone / linkedAll) * 100}%` }} />
+          </div>
+        </div>
+      )}
       <div>
         <div className="mb-3 grid grid-cols-2 gap-3 text-sm">
           <DateBoth j={goal.start} title="Started" />

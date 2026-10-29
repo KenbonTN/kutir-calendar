@@ -1,9 +1,11 @@
 "use client";
 
-import { Church, Hourglass, Leaf, ListChecks, Star, Trophy } from "lucide-react";
+import { Church, Gift, Hourglass, Leaf, ListChecks, NotebookPen, Plus, Star, Trophy } from "lucide-react";
+import { useState } from "react";
 import {
   formatEt, formatEtAm, formatGLong, fromJdn, geez, MONTHS_AM, WEEKDAYS, WEEKDAYS_AM, weekday,
 } from "@/lib/ethiopian";
+import { between, useEvents } from "@/lib/events";
 import { matchesOn } from "@/lib/fixtures";
 import { orthodoxDay } from "@/lib/orthodox";
 import type { Goal } from "@/lib/goals";
@@ -11,7 +13,8 @@ import { fmt, total, type ScreenLog } from "@/lib/screen";
 import { tasksOn, type Routine, type Task } from "@/lib/tasks";
 import { MatchRow } from "./MatchRow";
 import { ScreenLogForm } from "./ScreenTime";
-import { DaySummary } from "./Summary";
+import { EventForm, EventRow } from "./Dates";
+import { DaySummary, Reflection } from "./Summary";
 import { TaskList } from "./TaskList";
 
 type Props = {
@@ -34,6 +37,8 @@ export function DaySheet({ j, today, now, goal, tasks, routines, log }: Props) {
   const inPlan = !!goal && j >= goal.start && j <= end;
   const list = tasksOn(j, tasks, routines, today);
   const rel = j === today ? "Today" : j === today + 1 ? "Tomorrow" : j === today - 1 ? "Yesterday" : null;
+  const dates = between(useEvents(), j, j);
+  const [adding, setAdding] = useState(false);
 
   return (
     <div className="grid gap-5">
@@ -59,6 +64,29 @@ export function DaySheet({ j, today, now, goal, tasks, routines, log }: Props) {
         </div>
       )}
 
+      <section className="grid gap-1">
+        <div className="flex items-center justify-between gap-2">
+          <h3 className={heading}>
+            <Gift size={14} /> Birthdays & dates
+          </h3>
+          {!adding && (
+            <button type="button" onClick={() => setAdding(true)} className="inline-flex items-center gap-1 text-sm font-semibold text-green">
+              <Plus size={14} /> Add a date
+            </button>
+          )}
+        </div>
+        {dates.length > 0 && (
+          <div className="divide-y divide-line">
+            {dates.map((o) => <EventRow key={o.ev.id} ev={o.ev} day={o.day} years={o.years} today={today} />)}
+          </div>
+        )}
+        {adding && (
+          <div className="mt-2 rounded-2xl border border-line p-3">
+            <EventForm today={today} day={j} onDone={() => setAdding(false)} />
+          </div>
+        )}
+      </section>
+
       <section className="grid gap-2">
         <h3 className={heading}>
           <ListChecks size={14} /> Tasks
@@ -66,6 +94,15 @@ export function DaySheet({ j, today, now, goal, tasks, routines, log }: Props) {
         {j < today && <DaySummary day={j} today={today} tasks={tasks} routines={routines} log={log} />}
         <TaskList day={j} today={today} tasks={list} />
       </section>
+
+      {j <= today && (
+        <section className="grid gap-2">
+          <h3 className={heading}>
+            <NotebookPen size={14} /> Reflection
+          </h3>
+          <Reflection key={j} day={j} />
+        </section>
+      )}
 
       {j <= today && (
         <section className="grid gap-2">

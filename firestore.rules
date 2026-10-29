@@ -9,12 +9,18 @@ service cloud.firestore {
       allow create, update: if request.auth != null
         && request.auth.uid == uid
         && request.resource.data.keys().hasOnly(
-             ['goals', 'tasks', 'routines', 'screen', 'expenses', 'updated', 'reminder', 'lastReminder'])
+             ['goals', 'tasks', 'routines', 'screen', 'expenses', 'pool', 'areas', 'income', 'events', 'notes',
+              'updated', 'reminder', 'lastReminder'])
         && (!('goals' in request.resource.data) || request.resource.data.goals.size() <= 200)
         && (!('tasks' in request.resource.data) || request.resource.data.tasks.size() <= 5000)
         && (!('routines' in request.resource.data) || request.resource.data.routines.size() <= 200)
         && (!('screen' in request.resource.data) || request.resource.data.screen.size() <= 2000)
-        && (!('expenses' in request.resource.data) || request.resource.data.expenses.size() <= 5000);
+        && (!('expenses' in request.resource.data) || request.resource.data.expenses.size() <= 5000)
+        && (!('pool' in request.resource.data) || request.resource.data.pool.size() <= 2000)
+        && (!('areas' in request.resource.data) || request.resource.data.areas.size() <= 300)
+        && (!('income' in request.resource.data) || request.resource.data.income.size() <= 5000)
+        && (!('events' in request.resource.data) || request.resource.data.events.size() <= 1000)
+        && (!('notes' in request.resource.data) || request.resource.data.notes.size() <= 2000);
     }
   }
 }

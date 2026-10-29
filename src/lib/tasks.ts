@@ -24,6 +24,16 @@ export type Task = {
   missed: number[];
   /** set on tasks created by a repeating task */
   routine?: string;
+  /** life area or sub-group id (see areas.ts) */
+  area?: string;
+  /** countdown it counts towards */
+  goal?: string;
+  /** one of today's top 3 */
+  top?: boolean;
+  /** estimated minutes */
+  mins?: number;
+  /** how many misses the person had already seen when they chose to keep a stuck task */
+  kept?: number;
   created: number;
   deleted?: boolean;
   u: number;
@@ -63,10 +73,25 @@ const saveTasks = (list: Task[]) => writeStored(TASKS_KEY, list);
 const patchTask = (id: string, patch: Partial<Task>) =>
   saveTasks(allTasks().map((t) => (t.id === id ? { ...t, ...patch, u: now() } : t)));
 
-export function addTask(title: string, date: number) {
-  const t: Task = { id: uid(), title, date, origin: date, done: false, missed: [], created: now(), u: now() };
+export type TaskExtras = Partial<Pick<Task, "area" | "goal" | "mins">>;
+
+export function addTask(title: string, date: number, extras: TaskExtras = {}) {
+  const t: Task = { id: uid(), title, date, origin: date, done: false, missed: [], ...clean(extras), created: now(), u: now() };
   saveTasks([...allTasks(), t]);
+  return t;
 }
+
+/** Drops empty optional fields so they aren't stored as undefined (Firestore refuses those). */
+export const clean = <T extends object>(o: T) =>
+  Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined && v !== "" && v !== 0)) as T;
+
+export const updateTask = (t: Task, patch: Partial<Task>) => patchTask(t.id, patch);
+
+/** Planned again for another day on purpose: it starts fresh there (no longer "late"). */
+export const moveTask = (t: Task, day: number) => patchTask(t.id, { date: day, origin: day });
+
+/** Taken from a later day onto today: keeps its planned day, so it shows as done early. */
+export const pullForward = (t: Task, today: number) => patchTask(t.id, { date: today });
 
 export const toggleTask = (t: Task) => patchTask(t.id, { done: !t.done });
 export const renameTask = (t: Task, title: string) => patchTask(t.id, { title });
@@ -134,7 +159,7 @@ export function tasksOn(day: number, tasks: Task[], routines: Routine[], today: 
           missed: [], routine: r.id, created: 0, u: 0,
         });
   }
-  return list.sort((a, b) => Number(a.done) - Number(b.done) || a.created - b.created);
+  return list.sort((a, b) => Number(a.done) - Number(b.done) || Number(!!b.top) - Number(!!a.top) || a.created - b.created);
 }
 
 /**
@@ -157,3 +182,10 @@ export function dayScore(day: number, tasks: Task[], routines: Routine[] = []) {
 
 /** "2 days late" style label for a task that was postponed. */
 export const lateBy = (t: Task) => (t.routine ? 0 : t.date - t.origin);
+
+/** Days ahead of plan, for tasks pulled forward from a later day. */
+export const earlyBy = (t: Task) => (t.routine ? 0 : Math.max(0, t.origin - t.date));
+
+/** A one-off task that keeps moving: 5 misses, and 5 more each time the person chooses to keep it. */
+export const isStuck = (t: Task, today: number) =>
+  !t.done && !t.routine && t.date === today && t.missed.length >= (t.kept ?? 0) + 5;
