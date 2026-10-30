@@ -7,7 +7,7 @@ import type { Goal } from "./goals";
 import type { Income } from "./income";
 import type { DayNote } from "./notes";
 import type { ScreenLog } from "./screen";
-import { dayScore, type Routine, type Task } from "./tasks";
+import { dayScorer, type Routine, type Task } from "./tasks";
 
 /* ---------- Habits ---------- */
 
@@ -58,9 +58,10 @@ export function yearReview(
   const [from, last] = yearRange(y);
   const to = Math.min(last, today - 1);
   let done = 0, due = 0, perfect = 0, bestDay = 0, bestCount = 0;
+  const score = dayScorer(d.tasks, d.routines);
   const byMonth = Array.from({ length: 13 }, () => ({ done: 0, due: 0 }));
   for (let j = from; j <= to; j++) {
-    const s = dayScore(j, d.tasks, d.routines);
+    const s = score(j);
     done += s.done;
     due += s.due;
     const m = fromJdn(j).m - 1;

@@ -302,13 +302,11 @@ function HabitRow({ r, today, tasks }: { r: Routine; today: number; tasks: Task[
         {weeks.map((w, i) => (
           <div key={i} className="grid shrink-0 grid-rows-7 gap-[3px]">
             {w.map((c, k) => (
-              <motion.i
+              <i
                 key={c.day}
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: (i * 7 + k) * 0.002 }}
                 title={`${formatEt(c.day)}: ${c.state}`}
-                className={`block size-[11px] rounded-[3px] ${CELL[c.state]} ${c.day === today ? "ring-1 ring-gold" : ""}`}
+                style={{ animationDelay: `${(i * 7 + k) * 2}ms` }}
+                className={`pop-in block size-[11px] rounded-[3px] ${CELL[c.state]} ${c.day === today ? "ring-1 ring-gold" : ""}`}
               />
             ))}
           </div>

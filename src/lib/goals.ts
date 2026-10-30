@@ -6,7 +6,7 @@
 import { useMemo } from "react";
 import { toJdn } from "./ethiopian";
 import { readStored, useStored, writeStored } from "./storage";
-import { dayScore, type Routine, type Task } from "./tasks";
+import { dayScorer, type Routine, type Task } from "./tasks";
 
 export type Goal = {
   id: string;
@@ -96,8 +96,9 @@ export function goalStats(goal: Goal, today: number, tasks: Task[], routines: Ro
 
   let tasksDone = 0, tasksDue = 0, perfect = 0, streak = 0;
   const scores = new Map<number, { done: number; due: number }>();
+  const score = dayScorer(tasks, routines);
   for (let d = goal.start; d <= lastEnded; d++) {
-    const s = dayScore(d, tasks, routines);
+    const s = score(d);
     scores.set(d, s);
     tasksDone += s.done;
     tasksDue += s.due;

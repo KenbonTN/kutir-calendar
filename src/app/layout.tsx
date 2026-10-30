@@ -4,8 +4,10 @@ import "./globals.css";
 
 const bricolage = Bricolage_Grotesque({ variable: "--font-bricolage", subsets: ["latin"] });
 const figtree = Figtree({ variable: "--font-figtree", subsets: ["latin"] });
-const ethiopic = Noto_Sans_Ethiopic({ variable: "--font-ethiopic", subsets: ["ethiopic"] });
-const jetbrains = JetBrains_Mono({ variable: "--font-jetbrains", subsets: ["latin"] });
+// Not preloaded: the Ethiopic font is ~200 KB, and phones already have one to show until it arrives.
+// The mono font is only used for small numbers, so it waits too.
+const ethiopic = Noto_Sans_Ethiopic({ variable: "--font-ethiopic", subsets: ["ethiopic"], preload: false, display: "swap" });
+const jetbrains = JetBrains_Mono({ variable: "--font-jetbrains", subsets: ["latin"], preload: false, display: "swap" });
 
 const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 

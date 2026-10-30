@@ -25,7 +25,7 @@ import { weekOf } from "@/lib/review";
 import { SCREEN_KEY, useScreen } from "@/lib/screen";
 import { useStored } from "@/lib/storage";
 import {
-  dayScore, ensureRoutineTasks, rollOver, ROUTINES_KEY, tasksOn, TASKS_KEY, useTasks, type Routine, type Task,
+  dayScorer, ensureRoutineTasks, rollOver, ROUTINES_KEY, tasksOn, TASKS_KEY, useTasks, type Routine, type Task,
 } from "@/lib/tasks";
 import { countdown, useToday } from "@/lib/useToday";
 import { AccountButton, CloudNotice } from "./Account";
@@ -94,14 +94,16 @@ function Main({ today, now }: { today: number; now: number }) {
 
   const goal = goals.find((g) => g.id === activeId) ?? goals[0] ?? null;
   const todays = tasksOn(today, tasks, routines, today);
-  const streak = useMemo(() => (goal ? goalStats(goal, today, tasks, routines).streak : 0), [goal, today, tasks, routines]);
+  // Worked out once here, for both the countdown card and the quote's streak.
+  const stats = useMemo(() => (goal ? goalStats(goal, today, tasks, routines) : null), [goal, today, tasks, routines]);
+  const streak = stats?.streak ?? 0;
 
   const today_ = (
     <>
       <div className="grid gap-4 lg:grid-cols-12">
         <TodayCard today={today} now={now} tasks={todays} allTasks={tasks} name={cloud.user?.name.split(" ")[0] ?? ""} />
         {goal ? (
-          <CountdownCard goal={goal} today={today} tasks={tasks} routines={routines} poolGoals={pool.map((p) => p.goal)} />
+          <CountdownCard goal={goal} s={stats!} today={today} tasks={tasks} poolGoals={pool.map((p) => p.goal)} />
         ) : cloud.status === "starting" || cloud.status === "syncing" ? (
           <div className="card shimmer h-72 lg:col-span-5" aria-label="Loading your countdowns" />
         ) : (
@@ -511,9 +513,8 @@ function TodayCard({ today, now, tasks, allTasks, name }: { today: number; now: 
 }
 
 function CountdownCard({
-  goal, today, tasks, routines, poolGoals,
-}: { goal: Goal; today: number; tasks: Task[]; routines: Routine[]; poolGoals: (string | undefined)[] }) {
-  const s = useMemo(() => goalStats(goal, today, tasks, routines), [goal, today, tasks, routines]);
+  goal, s, today, tasks, poolGoals,
+}: { goal: Goal; s: ReturnType<typeof goalStats>; today: number; tasks: Task[]; poolGoals: (string | undefined)[] }) {
   const linked = tasks.filter((t) => t.goal === goal.id);
   const linkedDone = linked.filter((t) => t.done).length;
   const linkedAll = linked.length + poolGoals.filter((g) => g === goal.id).length;
@@ -578,13 +579,7 @@ function CountdownCard({
             const j = goal.start + i;
             const c = j < today ? "bg-marker" : j === today ? "bg-gold animate-pulse" : "bg-surface-2";
             return (
-              <motion.i
-                key={j}
-                initial={{ scaleY: 0 }}
-                animate={{ scaleY: 1 }}
-                transition={{ delay: Math.min(i, 120) * 0.004 }}
-                className={`min-w-0 flex-1 origin-bottom rounded-[2px] ${c}`}
-              />
+              <i key={j} className={`grow-in min-w-0 flex-1 rounded-[2px] ${c}`} style={{ animationDelay: `${Math.min(i, 120) * 4}ms` }} />
             );
           })}
         </div>
@@ -763,9 +758,10 @@ function Calendar({
 
   const info: DayInfo = useMemo(() => {
     const map: DayInfo = new Map();
+    const score = dayScorer(tasks, routines);
     for (const { first, length } of months) {
       for (let j = first; j < first + length; j++) {
-        if (j < today) map.set(j, dayScore(j, tasks, routines));
+        if (j < today) map.set(j, score(j));
         else {
           const list = tasksOn(j, tasks, routines, today);
           map.set(j, { done: list.filter((x) => x.done).length, due: list.length });

@@ -121,7 +121,10 @@ body {
     radial-gradient(34vmax 28vmax at 88% 18%, color-mix(in oklab, var(--gold) 24%, transparent), transparent 70%),
     radial-gradient(30vmax 26vmax at 70% 92%, color-mix(in oklab, var(--marker) 14%, transparent), transparent 70%),
     radial-gradient(36vmax 30vmax at 8% 88%, color-mix(in oklab, var(--ucl) 12%, transparent), transparent 70%);
-  filter: blur(20px);
+  /* No blur filter: the gradients are already soft, and blurring a layer this size
+     every frame makes scrolling stutter on cheaper phones. Only the transform moves. */
+  will-change: transform;
+  contain: strict;
   animation: drift 36s ease-in-out infinite alternate;
 }
 :root[data-theme="dark"] .aurora {
@@ -204,6 +207,21 @@ body {
 }
 @keyframes shimmer {
   to { background-position: -150% 0; }
+}
+
+/* Light entrance animations for long rows of small squares (cheaper than one animated element each). */
+.grow-in {
+  transform-origin: bottom;
+  animation: grow-in 0.35s ease-out both;
+}
+@keyframes grow-in {
+  from { transform: scaleY(0); }
+}
+.pop-in {
+  animation: pop-in 0.3s ease-out both;
+}
+@keyframes pop-in {
+  from { transform: scale(0); }
 }
 
 @keyframes pulse-ring {

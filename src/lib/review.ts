@@ -2,7 +2,7 @@
 
 import type { Areas } from "./areas";
 import { weekday } from "./ethiopian";
-import { dayScore, type Routine, type Task } from "./tasks";
+import { dayScorer, type Routine, type Task } from "./tasks";
 
 /** Monday to Sunday of the week that contains `day`. */
 export const weekOf = (day: number): [number, number] => [day - weekday(day), day - weekday(day) + 6];
@@ -12,8 +12,9 @@ const CORE = ["spirit", "family", "health"];
 
 export function review(from: number, to: number, tasks: Task[], routines: Routine[], areas: Areas) {
   let done = 0, due = 0;
+  const score = dayScorer(tasks, routines);
   for (let d = from; d <= to; d++) {
-    const s = dayScore(d, tasks, routines);
+    const s = score(d);
     done += s.done;
     due += s.due;
   }

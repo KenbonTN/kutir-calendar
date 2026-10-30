@@ -173,6 +173,8 @@ export function merge(a: Data, b: Data): Data {
 }
 
 const json = (d: Data) => JSON.stringify(d);
+const fieldJson = (d: Data) =>
+  Object.fromEntries((Object.keys(FIELDS) as Field[]).map((f) => [f, JSON.stringify(d[f])])) as Record<Field, string>;
 
 let stop: (() => void) | null = null;
 const stopSync = () => {
@@ -226,7 +228,8 @@ function startSync(uid: string) {
     const ref = fs.doc(db, "users", uid);
     docRef = ref;
     let ready = false;
-    let cloudJson = "";
+    // The server's copy of each field, as JSON, so only fields that changed get uploaded.
+    let cloudF = {} as Record<Field, string>;
     let timer: ReturnType<typeof setTimeout> | undefined;
     let writing = false;
     let again = false;
@@ -244,14 +247,17 @@ function startSync(uid: string) {
         return;
       }
       const data = readLocal();
-      const j = json(data);
-      if (j === cloudJson) return set({ status: navigator.onLine ? "synced" : "offline" });
+      const local = fieldJson(data);
+      const changed = (Object.keys(FIELDS) as Field[]).filter((f) => local[f] !== cloudF[f]);
+      if (!changed.length) return set({ status: navigator.onLine ? "synced" : "offline" });
       writing = true;
       set({ status: navigator.onLine ? "saving" : "offline" });
       try {
-        // merge: true leaves the reminder settings alone. Resolves once the server has it.
-        await fs.setDoc(ref, { ...data, updated: fs.serverTimestamp() }, { merge: true });
-        cloudJson = j;
+        // Only the changed fields; merge: true leaves the rest (and the reminder settings) alone.
+        // Resolves once the server has it.
+        const patch = Object.fromEntries(changed.map((f) => [f, data[f]]));
+        await fs.setDoc(ref, { ...patch, updated: fs.serverTimestamp() }, { merge: true });
+        for (const f of changed) cloudF[f] = local[f];
         set({ status: "synced", message: null });
       } catch {
         set({ status: "error", message: "Couldn't save to your account. Everything is still saved on this device." });
@@ -276,11 +282,11 @@ function startSync(uid: string) {
         const fields = Object.keys(FIELDS) as Field[];
         const empty = Object.fromEntries(fields.map((f) => [f, []])) as unknown as Data;
         const cloud = merge(empty, Object.fromEntries(fields.map((f) => [f, raw[f] ?? []])) as unknown as Data);
-        cloudJson = json(cloud);
+        cloudF = fieldJson(cloud);
         ready = true;
         const merged = merge(readLocal(), cloud);
         applyLocal(merged);
-        if (json(merged) !== cloudJson) push();
+        if (json(merged) !== json(cloud)) push();
         else if (!writing) set({ status: "synced" });
       },
       () => set({ status: "error", message: "Couldn't load your saved data. Check your connection." }),

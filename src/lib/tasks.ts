@@ -182,6 +182,33 @@ export function dayScore(day: number, tasks: Task[], routines: Routine[] = []) {
   return { done, due };
 }
 
+/**
+ * dayScore for many days at once: one pass over the tasks indexes them by day,
+ * so scoring a month or a year doesn't look through every task for every day.
+ */
+export function dayScorer(tasks: Task[], routines: Routine[] = []) {
+  const byDay = new Map<number, { done: number; due: number }>();
+  const ids = new Set<string>();
+  const bump = (day: number, done: boolean) => {
+    const s = byDay.get(day) ?? { done: 0, due: 0 };
+    s.due++;
+    if (done) s.done++;
+    byDay.set(day, s);
+  };
+  for (const t of tasks) {
+    ids.add(t.id);
+    bump(t.date, t.done);
+    for (const m of t.missed) if (m !== t.date) bump(m, false);
+  }
+  return (day: number) => {
+    const s = byDay.get(day);
+    const done = s?.done ?? 0;
+    let due = s?.due ?? 0;
+    for (const r of routines) if (appliesOn(r, day) && !ids.has(routineTaskId(r, day))) due++;
+    return { done, due };
+  };
+}
+
 /** "2 days late" style label for a task that was postponed. */
 export const lateBy = (t: Task) => (t.routine ? 0 : t.date - t.origin);
 
