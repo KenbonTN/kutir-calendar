@@ -3,7 +3,8 @@
 import { AnimatePresence, motion } from "motion/react";
 import { Check, Clock, Inbox, MoreHorizontal, Play, Plus, Repeat, Star, Target, Timer, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { formatEt, WEEKDAYS, weekday } from "@/lib/ethiopian";
+import { formatClock, formatEt, WEEKDAYS, weekday } from "@/lib/ethiopian";
+import { monthKey, TIMES, useOutcomes } from "@/lib/plan";
 import { startFocus, useFocus } from "@/lib/focus";
 import { useGoals } from "@/lib/goals";
 import { backToPool, ESTIMATES, minsLabel } from "@/lib/pool";
@@ -85,8 +86,10 @@ function TaskRow({
           <div className={`break-words text-[15px] leading-snug ${t.done ? "text-muted line-through decoration-2" : ""}`}>
             {t.title}
           </div>
-          {(late > 0 || early > 0 || t.routine || t.area || t.mins || t.spent || goal || (readOnly && !t.done)) && (
+          {(late > 0 || early > 0 || t.routine || t.area || t.mins || t.spent || t.at || t.rock || goal || (readOnly && !t.done)) && (
             <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs">
+              {t.at && <span className="font-semibold text-ucl">{formatClock(t.at)}</span>}
+              {t.rock && <span className="font-semibold text-ucl">💎 Big rock</span>}
               {t.area && <AreaTag id={t.area} />}
               {t.mins ? (
                 <span className="inline-flex items-center gap-1 text-muted">
@@ -167,6 +170,7 @@ const menuBtn = "inline-flex items-center gap-1.5 rounded-full border border-lin
 
 function TaskMenu({ t, today, onDone }: { t: Task; today: number; onDone: () => void }) {
   const goals = useGoals();
+  const outcomes = useOutcomes(monthKey(t.date));
   const days = Array.from({ length: 60 }, (_, i) => today + i).filter((d) => d !== t.date);
   return (
     <div className="ml-9 mt-2 grid gap-2 rounded-2xl bg-surface-2 p-3">
@@ -225,6 +229,40 @@ function TaskMenu({ t, today, onDone }: { t: Task; today: number; onDone: () => 
           >
             <option value="">No countdown</option>
             {goals.map((g) => <option key={g.id} value={g.id}>For: {g.name}</option>)}
+          </select>
+        )}
+      </div>
+      <div className="flex flex-wrap items-center gap-1.5">
+        <select
+          id={`at-menu-${t.id}`}
+          aria-label="When"
+          value={t.at ?? ""}
+          onChange={(e) => updateTask(t, { at: e.target.value || undefined })}
+          className="rounded-full border border-line bg-surface px-3 py-1.5 text-xs"
+        >
+          <option value="">Any time</option>
+          {TIMES.map((x) => <option key={x} value={x}>At {formatClock(x)}</option>)}
+        </select>
+        {!t.routine && (
+          <button
+            type="button"
+            aria-pressed={!!t.rock}
+            onClick={() => updateTask(t, { rock: t.rock ? undefined : true })}
+            className={`${menuBtn} ${t.rock ? "border-ucl bg-ucl-soft text-ucl" : ""}`}
+          >
+            💎 {t.rock ? "Big rock" : "Make it a big rock"}
+          </button>
+        )}
+        {outcomes.length > 0 && (
+          <select
+            id={`outcome-${t.id}`}
+            aria-label="Monthly outcome"
+            value={t.outcome ?? ""}
+            onChange={(e) => updateTask(t, { outcome: e.target.value || undefined })}
+            className="max-w-[14rem] rounded-full border border-line bg-surface px-3 py-1.5 text-xs"
+          >
+            <option value="">No monthly outcome</option>
+            {outcomes.map((o) => <option key={o.id} value={o.id}>🎯 {o.title}</option>)}
           </select>
         )}
       </div>

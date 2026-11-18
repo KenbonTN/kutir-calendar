@@ -9,6 +9,8 @@
 - **Countdowns:** set a goal and a deadline. Each day that passes gets a big red ✕, and you see days left, perfect days and your streak.
 - **Tasks:** plan each day. Unfinished tasks move to the next day and show how late they are. Repeating tasks cover habits, and you can star a top 3 for the day.
 - **Focus timer:** time a task, then compare the time it took with your estimate.
+- **Plan (month → week → day):** set a few outcomes for each life area each month, list their tasks, choose the week's big rocks and give tasks a day, then pick a Top 3 with times each morning. Dashboards for the day, week and month show what got done, how the time fitted, mood and energy, and the balance across life areas. A planning coach nudges you based on planning research.
+- **Evening journal:** rate the day, mood and energy; note wins, what got in the way, gratitude and a lesson; decide what happens to unfinished tasks; and write tomorrow's Top 3.
 - **Task pool:** a list of everything you want to do, grouped by life area (faith, family, health, work, each of your businesses…). Plan items onto days. If you finish early, pull more from the pool and they move to today.
 - **Weekly review:** planned vs. done, how evenly your time went across life areas, and what keeps slipping. Each evening you can add a one-line reflection.
 - **Life:** big goals for the year that countdowns and tasks link up to, a grid of squares for each habit, reminders to call the people you care about, and a log of the fast days you kept. On Enkutatash, a review of the year that just ended.

@@ -11,6 +11,7 @@ export type Lang = "en" | "am";
 const AM: Record<string, string> = {
   Today: "ዛሬ",
   Pool: "ማከማቻ",
+  Plan: "ዕቅድ",
   Calendar: "ቀን መቁጠሪያ",
   Money: "ገንዘብ",
   Life: "ሕይወት",

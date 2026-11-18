@@ -11,6 +11,8 @@ export type PoolItem = Rec & {
   area?: string;
   goal?: string;
   mins?: number;
+  /** the month's outcome it belongs to (see plan.ts) */
+  outcome?: string;
   created: number;
 };
 
@@ -24,12 +26,12 @@ export const updatePoolItem = (id: string, p: Partial<PoolItem>) => poolStore.pa
 export const deletePoolItem = (id: string) => poolStore.remove(id);
 
 export function planPoolItem(item: PoolItem, day: number) {
-  addTask(item.title, day, { area: item.area, goal: item.goal, mins: item.mins });
+  addTask(item.title, day, { area: item.area, goal: item.goal, mins: item.mins, outcome: item.outcome });
   poolStore.remove(item.id);
 }
 
 export function backToPool(t: Task) {
-  addToPool(t.title, { area: t.area, goal: t.goal, mins: t.mins });
+  addToPool(t.title, { area: t.area, goal: t.goal, mins: t.mins, outcome: t.outcome });
   deleteTask(t);
 }
 

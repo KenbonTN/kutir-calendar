@@ -36,6 +36,12 @@ export type Task = {
   kept?: number;
   /** minutes actually spent, from the focus timer */
   spent?: number;
+  /** the month's outcome it moves forward (see plan.ts) */
+  outcome?: string;
+  /** one of the week's big rocks */
+  rock?: boolean;
+  /** when you'll do it, "HH:MM" */
+  at?: string;
   created: number;
   deleted?: boolean;
   u: number;
@@ -72,10 +78,17 @@ export function useTasks() {
 }
 
 const saveTasks = (list: Task[]) => writeStored(TASKS_KEY, list);
+/** Changes a task; a field set to undefined is removed (Firestore refuses undefined values). */
 const patchTask = (id: string, patch: Partial<Task>) =>
-  saveTasks(allTasks().map((t) => (t.id === id ? { ...t, ...patch, u: now() } : t)));
+  saveTasks(
+    allTasks().map((t) =>
+      t.id === id
+        ? (Object.fromEntries(Object.entries({ ...t, ...patch, u: now() }).filter(([, v]) => v !== undefined)) as Task)
+        : t,
+    ),
+  );
 
-export type TaskExtras = Partial<Pick<Task, "area" | "goal" | "mins">>;
+export type TaskExtras = Partial<Pick<Task, "area" | "goal" | "mins" | "outcome" | "rock" | "at" | "top">>;
 
 export function addTask(title: string, date: number, extras: TaskExtras = {}) {
   const t: Task = { id: uid(), title, date, origin: date, done: false, missed: [], ...clean(extras), created: now(), u: now() };
@@ -85,7 +98,7 @@ export function addTask(title: string, date: number, extras: TaskExtras = {}) {
 
 /** Drops empty optional fields so they aren't stored as undefined (Firestore refuses those). */
 export const clean = <T extends object>(o: T) =>
-  Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined && v !== "" && v !== 0)) as T;
+  Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined && v !== "" && v !== 0 && v !== false)) as T;
 
 export const updateTask = (t: Task, patch: Partial<Task>) => patchTask(t.id, patch);
 

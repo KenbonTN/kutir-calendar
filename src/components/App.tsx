@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import {
-  CalendarDays, ChevronDown, Church, Clock, Flame, Inbox, Leaf, ListChecks, Monitor, Moon, Mountain, PartyPopper, Plus,
+  CalendarDays, ChevronDown, Church, Compass, Clock, Flame, Inbox, Leaf, ListChecks, Monitor, Moon, Mountain, PartyPopper, Plus,
   Settings as SettingsIcon, Sparkles, Star, Sun, Target, Trash2, Trophy, Wallet, X,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -34,7 +34,8 @@ import { DaySheet } from "./DaySheet";
 import { MatchRow } from "./MatchRow";
 import { MonthGrid, type DayInfo, type Layers } from "./MonthGrid";
 import { Money } from "./Money";
-import { PoolTab, PullFromPool, usePool, WeekReview } from "./PoolTab";
+import { PullFromPool, usePool, WeekReview } from "./PoolTab";
+import { CoachCard, PlanTab, useCoach, usePlanView, type PlanView } from "./PlanTab";
 import { DateReminders, LifeNudges, StuckTasks } from "./TodayExtras";
 import { CalSwitch, DateBoth, NewGoalForm } from "./NewGoalForm";
 import { QuoteCard } from "./QuoteCard";
@@ -80,6 +81,14 @@ function Main({ today, now }: { today: number; now: number }) {
   const wd = weekday(today);
   const reviewWeek = wd === 6 ? weekOf(today)[0] : wd === 0 ? weekOf(today - 7)[0] : null;
   const [nySeen, setNySeen] = useStored<number>("kutir-newyear-seen", 0);
+  const [, setPlanView] = usePlanView();
+  const tips = useCoach(today, now, tasks);
+  const openPlan = (v: PlanView, journal = false) => {
+    setPlanView(v);
+    setTab("pool");
+    if (journal) setTimeout(() => document.getElementById("journal")?.scrollIntoView({ behavior: "smooth" }), 400);
+    else window.scrollTo({ top: 0 });
+  };
   const [yearReview, setYearReview] = useState<number | null>(null);
 
   // Devices that used Kutir before countdowns had to be created keep the old "My 3 months".
@@ -115,6 +124,8 @@ function Main({ today, now }: { today: number; now: number }) {
         <NewYearCard year={fromJdn(today).y} onOpen={() => setYearReview(fromJdn(today).y - 1)} onDismiss={() => setNySeen(fromJdn(today).y)} />
       )}
 
+      <CoachCard tips={tips} onAction={(to) => openPlan(to === "journal" ? "day" : to, to === "journal")} />
+
       <DateReminders today={today} events={events} onOpen={setOpenDay} />
 
       <LifeNudges
@@ -133,17 +144,14 @@ function Main({ today, now }: { today: number; now: number }) {
           tasks={tasks}
           routines={routines}
           last={wd === 0}
-          onPlan={() => {
-            setTab("pool");
-            window.scrollTo({ top: 0 });
-          }}
+          onPlan={() => openPlan("week")}
           onDismiss={() => setReviewSeen(reviewWeek)}
         />
       )}
 
       <Reveal><QuoteCard today={today} tasks={tasks} logs={logs} expenses={expenses} streak={streak} /></Reveal>
 
-      <EndOfDayCard today={today} now={now} tasks={tasks} routines={routines} logs={logs} />
+      <EndOfDayCard today={today} now={now} tasks={tasks} routines={routines} logs={logs} onJournal={() => openPlan("day", true)} />
 
       <CloudNotice />
 
@@ -183,7 +191,7 @@ function Main({ today, now }: { today: number; now: number }) {
             className="grid min-w-0 grid-cols-1 gap-6 sm:gap-8"
           >
             {tab === "today" && today_}
-            {tab === "pool" && <PoolTab today={today} tasks={tasks} routines={routines} />}
+            {tab === "pool" && <PlanTab today={today} now={now} tasks={tasks} routines={routines} />}
             {tab === "calendar" && <CalendarTab today={today} tasks={tasks} routines={routines} onOpen={setOpenDay} />}
             {tab === "money" && <Money today={today} />}
             {tab === "life" && <LifeTab today={today} tasks={tasks} routines={routines} />}
@@ -239,7 +247,7 @@ function Main({ today, now }: { today: number; now: number }) {
 type Tab = "today" | "pool" | "calendar" | "money" | "life";
 const TABS: [Tab, string, typeof ListChecks][] = [
   ["today", "Today", ListChecks],
-  ["pool", "Pool", Inbox],
+  ["pool", "Plan", Compass],
   ["calendar", "Calendar", CalendarDays],
   ["money", "Money", Wallet],
   ["life", "Life", Mountain],

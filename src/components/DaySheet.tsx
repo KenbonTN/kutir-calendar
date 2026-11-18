@@ -1,6 +1,6 @@
 "use client";
 
-import { Church, Gift, Hourglass, Leaf, ListChecks, NotebookPen, Plus, Star, Trophy } from "lucide-react";
+import { Church, Gift, Hourglass, Leaf, ListChecks, Plus, Star, Trophy } from "lucide-react";
 import { useState } from "react";
 import {
   formatEt, formatEtAm, formatGLong, fromJdn, geez, MONTHS_AM, WEEKDAYS, WEEKDAYS_AM, weekday,
@@ -14,7 +14,8 @@ import { tasksOn, type Routine, type Task } from "@/lib/tasks";
 import { MatchRow } from "./MatchRow";
 import { ScreenLogForm } from "./ScreenTime";
 import { EventForm, EventRow } from "./Dates";
-import { DaySummary, Reflection } from "./Summary";
+import { Journal } from "./Journal";
+import { DaySummary } from "./Summary";
 import { TaskList } from "./TaskList";
 
 type Props = {
@@ -95,14 +96,7 @@ export function DaySheet({ j, today, now, goal, tasks, routines, log }: Props) {
         <TaskList day={j} today={today} tasks={list} />
       </section>
 
-      {j <= today && (
-        <section className="grid gap-2">
-          <h3 className={heading}>
-            <NotebookPen size={14} /> Reflection
-          </h3>
-          <Reflection key={j} day={j} />
-        </section>
-      )}
+      {j <= today && <Journal key={j} day={j} today={today} tasks={tasks} />}
 
       {j <= today && (
         <section className="grid gap-2">
