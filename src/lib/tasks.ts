@@ -53,6 +53,10 @@ export type Routine = {
   /** weekdays it repeats on, 0 = Monday … 6 = Sunday */
   days: number[];
   start: number;
+  /** the countdown it counts towards */
+  goal?: string;
+  /** the big goal for the year it serves */
+  aim?: string;
   deleted?: boolean;
   u: number;
 };
@@ -119,10 +123,29 @@ export const routineLabel = (days: number[]) =>
       ? "Weekdays"
       : days.map((d) => ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][d]).join(", ");
 
-export function addRoutine(title: string, days: number[], start: number) {
-  const r: Routine = { id: uid(), title, days: [...days].sort(), start, u: now() };
+export function addRoutine(title: string, days: number[], start: number, link: Pick<Routine, "goal" | "aim"> = {}) {
+  const r: Routine = { id: uid(), title, days: [...days].sort(), start, ...clean(link), u: now() };
   writeStored(ROUTINES_KEY, [...allRoutines(), r]);
   ensureRoutineTasks(start);
+}
+
+/**
+ * Renames a repeating task, changes its days or what it counts towards. Today's and
+ * future copies that aren't done follow the new name; days it no longer repeats on
+ * lose their unfinished future copies.
+ */
+export function updateRoutine(r: Routine, patch: Partial<Pick<Routine, "title" | "days" | "goal" | "aim">>, today: number) {
+  const next = Object.fromEntries(Object.entries({ ...r, ...patch, u: now() }).filter(([, v]) => v !== undefined && v !== "")) as Routine;
+  if (patch.days) next.days = [...patch.days].sort();
+  writeStored(ROUTINES_KEY, allRoutines().map((x) => (x.id === r.id ? next : x)));
+  saveTasks(
+    allTasks().map((t) => {
+      if (t.routine !== r.id || t.done || t.date < today) return t;
+      if (t.date > today && !next.days.includes(weekday(t.date))) return { ...t, deleted: true, u: now() };
+      return patch.title ? { ...t, title: next.title, u: now() } : t;
+    }),
+  );
+  ensureRoutineTasks(today);
 }
 
 /** Stops a repeating task from today on; days already passed keep their record. */

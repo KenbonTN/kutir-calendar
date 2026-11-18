@@ -445,6 +445,25 @@ export function ProfitTrend({ today, income, expenses }: { today: number; income
   }, [income, expenses, today, pick]);
   const max = Math.max(1, ...months.flatMap((m) => [m.inc, m.out]));
   const total = months.reduce((a, m) => a + m.profit, 0);
+  // Each business and organization over the same six months; tap one to see only its bars.
+  const perBiz = useMemo(() => {
+    const from = months[0].from, to = months[months.length - 1].to;
+    const m = new Map<string, { inc: number; out: number }>();
+    const add = (id: string | undefined, day: number, k: "inc" | "out", n: number) => {
+      if (!id || day < from || day > to) return;
+      const r = m.get(id) ?? { inc: 0, out: 0 };
+      r[k] += n;
+      m.set(id, r);
+    };
+    for (const i of income) add(i.area, i.day, "inc", i.amount);
+    for (const e of expenses) add(e.area, e.day, "out", e.amount);
+    return [...m.entries()]
+      .map(([id, v]) => {
+        const a = areas.info(id);
+        return { id, ...v, label: a?.label ?? "Removed", emoji: a?.emoji ?? "💼", color: a?.color ?? "#78716c" };
+      })
+      .sort((a, b) => b.inc + b.out - (a.inc + a.out));
+  }, [months, income, expenses, areas]);
 
   return (
     <section className="card grid content-start gap-4 p-5 sm:p-6">
@@ -482,6 +501,31 @@ export function ProfitTrend({ today, income, expenses }: { today: number; income
         <span className="inline-flex items-center gap-1.5"><span className="size-2.5 rounded-sm bg-green" /> In</span>
         <span className="inline-flex items-center gap-1.5"><span className="size-2.5 rounded-sm bg-marker/70" /> Out</span>
       </div>
+      {perBiz.length > 0 && (
+        <ul className="divide-y divide-line border-t border-line">
+          {perBiz.map((r) => (
+            <li key={r.id}>
+              <button
+                type="button"
+                onClick={() => setPick(pick === r.id ? "all" : r.id)}
+                aria-pressed={pick === r.id}
+                className={`flex w-full items-center gap-3 py-2.5 text-left ${pick === r.id ? "font-semibold" : ""}`}
+              >
+                <span className="grid size-8 shrink-0 place-items-center rounded-xl text-base" style={{ background: `${r.color}22` }}>{r.emoji}</span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm">{r.label}</span>
+                  <span className="text-xs tabular-nums text-muted">
+                    <span className="text-green">+{n0(r.inc)}</span> in · <span className="text-marker">−{n0(r.out)}</span> out
+                  </span>
+                </span>
+                <span className={`shrink-0 font-display font-extrabold tabular-nums ${r.inc - r.out >= 0 ? "text-green" : "text-marker"}`}>
+                  {r.inc - r.out >= 0 ? "+" : "−"}{n0(Math.abs(r.inc - r.out))}
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }

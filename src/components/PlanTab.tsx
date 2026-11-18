@@ -2,13 +2,12 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import {
-  AlertTriangle, ArrowRight, CalendarDays, CalendarRange, Check, ChevronLeft, ChevronRight, Clock, Compass, Gem,
-  Inbox, Lightbulb, Plus, Sparkles, Star, Sun, Target, ThumbsUp, Trash2,
+  CalendarDays, CalendarRange, Check, ChevronLeft, ChevronRight, Clock, Compass, Gem,
+  Inbox, Plus, Star, Sun, Target, Trash2,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useAims } from "@/lib/aims";
 import { useAreas } from "@/lib/areas";
-import { coach, type Tip } from "@/lib/coach";
 import { formatClock, formatEt, fromJdn, MONTHS, MONTHS_AM, WEEKDAYS, weekday } from "@/lib/ethiopian";
 import { useExpenses } from "@/lib/expenses";
 import { useIncome } from "@/lib/income";
@@ -19,16 +18,16 @@ import {
 } from "@/lib/plan";
 import { addToPool, deletePoolItem, ESTIMATES, minsLabel, planPoolItem, type PoolItem } from "@/lib/pool";
 import { review, weekOf } from "@/lib/review";
-import { useStored } from "@/lib/storage";
 import { addTask, dayScorer, moveTask, tasksOn, toggleTask, updateTask, type Routine, type Task } from "@/lib/tasks";
 import { AreaSelect, AreaTag } from "./AreaBits";
+import { Deadline } from "./Deadline";
 import { Journal } from "./Journal";
 import { Counter, Reveal } from "./Motion";
-import { PoolTab, usePool, WeekReview } from "./PoolTab";
+import { CoachCard, useCoach, usePlanView, type PlanView } from "./Coach";
+import { PoolTab, WeekReview } from "./PoolTab";
+import { usePool } from "./PullFromPool";
 import { TaskList } from "./TaskList";
 
-export type PlanView = "day" | "week" | "month" | "pool";
-export const usePlanView = () => useStored<PlanView>("kutir-plan-view", "day");
 
 const label = "text-xs font-bold uppercase tracking-[0.12em] text-muted";
 const pill = "rounded-full border border-line bg-surface px-3 py-1.5 text-sm";
@@ -77,68 +76,10 @@ export function PlanTab({ today, now, tasks, routines }: { today: number; now: n
           {view === "day" && <DayPlan today={today} now={now} tasks={tasks} routines={routines} />}
           {view === "week" && <WeekPlan today={today} tasks={tasks} routines={routines} />}
           {view === "month" && <MonthPlan today={today} tasks={tasks} routines={routines} />}
-          {view === "pool" && <PoolTab today={today} tasks={tasks} routines={routines} />}
+          {view === "pool" && <PoolTab today={today} tasks={tasks} />}
         </motion.div>
       </AnimatePresence>
     </>
-  );
-}
-
-/* ====================================================================== */
-/* Coach                                                                   */
-/* ====================================================================== */
-
-export function useCoach(today: number, now: number, tasks: Task[]) {
-  const notes = useNotes();
-  const areas = useAreas();
-  const outcomes = useOutcomes();
-  const [capacity] = useCapacity();
-  const hour = new Date(now + 3 * 3600e3).getUTCHours();
-  return useMemo(
-    () => coach({ today, hour, tasks, outcomes, notes, areas, capacity, pace: paceFactor(tasks) }),
-    [today, hour, tasks, outcomes, notes, areas, capacity],
-  );
-}
-
-const TONE: Record<Tip["tone"], { icon: typeof Lightbulb; cls: string }> = {
-  warn: { icon: AlertTriangle, cls: "bg-gold-soft/70 text-gold" },
-  tip: { icon: Lightbulb, cls: "bg-green-soft/70 text-green" },
-  good: { icon: ThumbsUp, cls: "bg-ucl-soft text-ucl" },
-};
-
-/** The coach's nudges; actions jump to the right plan view. */
-export function CoachCard({ tips, onAction, max = 3, title = "Your planning coach" }: { tips: Tip[]; onAction: (to: NonNullable<Tip["action"]>["to"]) => void; max?: number; title?: string }) {
-  const [hidden, setHidden] = useStored<string[]>("kutir-coach-hidden", []);
-  const [day] = useState(() => Math.floor(Date.now() / 864e5));
-  const shown = tips.filter((t) => !hidden.includes(`${day}:${t.id}`)).slice(0, max);
-  if (!shown.length) return null;
-  return (
-    <section className="card grid gap-2 p-4 sm:p-5">
-      <h2 className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-muted">
-        <Sparkles size={14} className="text-gold" /> {title}
-      </h2>
-      <AnimatePresence initial={false}>
-        {shown.map((t) => {
-          const { icon: Icon, cls } = TONE[t.tone];
-          return (
-            <motion.div key={t.id} layout initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, height: 0 }} className="flex items-start gap-3 rounded-2xl bg-surface-2/70 p-3">
-              <span className={`grid size-8 shrink-0 place-items-center rounded-xl ${cls}`}><Icon size={16} /></span>
-              <p className="min-w-0 flex-1 text-sm leading-snug">{t.text}</p>
-              <div className="flex shrink-0 flex-col items-end gap-1">
-                {t.action && (
-                  <button type="button" onClick={() => onAction(t.action!.to)} className="inline-flex items-center gap-1 rounded-full bg-ink px-3 py-1 text-xs font-semibold text-bg transition active:scale-95">
-                    {t.action.label} <ArrowRight size={12} />
-                  </button>
-                )}
-                <button type="button" onClick={() => setHidden([...hidden.filter((h) => h.startsWith(`${day}:`)), `${day}:${t.id}`])} className="text-[11px] text-muted hover:text-ink">
-                  Not today
-                </button>
-              </div>
-            </motion.div>
-          );
-        })}
-      </AnimatePresence>
-    </section>
   );
 }
 
@@ -827,6 +768,7 @@ function OutcomeCard({ o, month, today, tasks, pool }: { o: Outcome; month: numb
         </button>
         <span className="font-display text-xl font-extrabold tabular-nums text-green">{Math.round(p.pct * 100)}%</span>
       </div>
+      {today <= mTo && <Deadline start={mFrom} end={mTo} today={today} />}
       <div className="h-2 overflow-hidden rounded-full bg-surface-2">
         <motion.div className={`h-full rounded-full ${o.achieved ? "bg-gold" : "bg-green"}`} initial={{ width: 0 }} animate={{ width: `${p.pct * 100}%` }} transition={{ type: "spring", damping: 22 }} />
       </div>

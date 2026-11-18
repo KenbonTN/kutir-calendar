@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  Bell, BellOff, CalendarPlus, Check, Copy, Download, FileDown, FileUp, Languages, Repeat, Send, Share, SquarePlus, Trash2,
+  Bell, BellOff, CalendarPlus, Check, Copy, Download, FileDown, FileUp, Languages, Repeat, Send, Share, SquarePlus,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { exportBackup, exportCalendar, importBackup } from "@/lib/backup";
@@ -9,12 +9,11 @@ import { currentReminder, saveTelegram, useCloud, useTelegram } from "@/lib/clou
 import { useEvents } from "@/lib/events";
 import { useLang, useT } from "@/lib/i18n";
 import { useTasks } from "@/lib/tasks";
-import { formatClock, formatEt } from "@/lib/ethiopian";
+import { formatClock } from "@/lib/ethiopian";
 import {
   canPromptInstall, isInstalled, isIOS, promptInstall, pushSupported, reminderOnHere, setReminderTime,
   turnOffReminder, turnOnReminder,
 } from "@/lib/push";
-import { deleteRoutine, routineLabel, type Routine } from "@/lib/tasks";
 
 const heading = "flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-muted";
 const TIMES = Array.from({ length: 14 }, (_, i) => {
@@ -22,7 +21,7 @@ const TIMES = Array.from({ length: 14 }, (_, i) => {
   return `${String(Math.floor(mins / 60)).padStart(2, "0")}:${mins % 60 ? "30" : "00"}`;
 });
 
-export function Settings({ today, routines }: { today: number; routines: Routine[] }) {
+export function Settings({ today }: { today: number }) {
   const t = useT();
   return (
     <div className="grid gap-6">
@@ -32,36 +31,9 @@ export function Settings({ today, routines }: { today: number; routines: Routine
       <Reminder />
       <TelegramLink />
       <Backup today={today} />
-      <section className="grid gap-2">
-        <h3 className={heading}>
-          <Repeat size={14} /> {t("Repeating tasks")}
-        </h3>
-        {routines.length === 0 ? (
-          <p className="text-sm text-muted">
-            None yet. When you add a task, choose &quot;Every day&quot;, &quot;Weekdays&quot; or &quot;Pick days&quot; to make it repeat.
-          </p>
-        ) : (
-          <ul className="divide-y divide-line rounded-2xl border border-line">
-            {routines.map((r) => (
-              <li key={r.id} className="flex items-center gap-3 px-3 py-2.5">
-                <div className="min-w-0 flex-1">
-                  <div className="truncate font-semibold">{r.title}</div>
-                  <div className="text-xs text-muted">
-                    {routineLabel(r.days)} · since {formatEt(r.start)}
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => deleteRoutine(r, today)}
-                  className="inline-flex items-center gap-1 text-sm text-muted hover:text-marker"
-                >
-                  <Trash2 size={14} /> Stop
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      <p className="flex items-center gap-2 rounded-2xl bg-surface-2 p-3 text-sm text-muted">
+        <Repeat size={14} /> Repeating tasks now live in <b className="text-ink">Life → Habits</b>, next to the grid of days you did them.
+      </p>
     </div>
   );
 }

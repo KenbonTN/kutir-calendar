@@ -9,16 +9,9 @@ import { startFocus, useFocus } from "@/lib/focus";
 import { useGoals } from "@/lib/goals";
 import { backToPool, ESTIMATES, minsLabel } from "@/lib/pool";
 import {
-  addRoutine, addTask, deleteTask, earlyBy, lateBy, moveTask, routineLabel, toggleTask, updateTask, type Task,
+  addTask, deleteTask, earlyBy, lateBy, moveTask, toggleTask, updateTask, type Task,
 } from "@/lib/tasks";
 import { AreaSelect, AreaTag } from "./AreaBits";
-
-const REPEATS: [string, number[] | null][] = [
-  ["Once", null],
-  ["Every day", [0, 1, 2, 3, 4, 5, 6]],
-  ["Weekdays", [0, 1, 2, 3, 4]],
-  ["Pick days", []],
-];
 
 const dayName = (j: number, today: number) =>
   j === today ? "today" : j === today + 1 ? "tomorrow" : `${WEEKDAYS[weekday(j)].slice(0, 3)}, ${formatEt(j)}`;
@@ -273,8 +266,6 @@ function TaskMenu({ t, today, onDone }: { t: Task; today: number; onDone: () => 
 function AddTask({ day, compact }: { day: number; compact: boolean }) {
   const goals = useGoals();
   const [title, setTitle] = useState("");
-  const [repeat, setRepeat] = useState(0);
-  const [days, setDays] = useState<number[]>([]);
   const [open, setOpen] = useState(false);
   const [area, setArea] = useState("");
   const [mins, setMins] = useState(0);
@@ -283,16 +274,10 @@ function AddTask({ day, compact }: { day: number; compact: boolean }) {
   const submit = () => {
     const name = title.trim();
     if (!name) return;
-    const r = REPEATS[repeat][1];
-    if (r === null) addTask(name, day, { area, mins, goal });
-    else addRoutine(name, repeat === 3 ? days : r, day);
+    addTask(name, day, { area, mins, goal });
     setTitle("");
-    setRepeat(0); // back to a one-off task, so the next one doesn't repeat by accident
-    setDays([]);
     setMins(0);
   };
-  const pickDays = repeat === 3;
-  const canAdd = title.trim() && (!pickDays || days.length);
   const small = "rounded-full border border-line bg-surface px-2.5 py-1 text-xs";
 
   return (
@@ -300,7 +285,7 @@ function AddTask({ day, compact }: { day: number; compact: boolean }) {
       className="mt-1 grid gap-2"
       onSubmit={(e) => {
         e.preventDefault();
-        if (canAdd) submit();
+        submit();
       }}
     >
       <div className="flex items-center gap-2 rounded-xl border border-line bg-surface-2 px-3 focus-within:border-green">
@@ -315,30 +300,12 @@ function AddTask({ day, compact }: { day: number; compact: boolean }) {
           className="min-w-0 flex-1 bg-transparent py-2.5 text-[15px] outline-none focus-visible:outline-none"
         />
         {title.trim() && (
-          <button type="submit" disabled={!canAdd} className="rounded-lg bg-green px-3 py-1 text-sm font-semibold text-on-green disabled:opacity-40">
+          <button type="submit" className="rounded-lg bg-green px-3 py-1 text-sm font-semibold text-on-green">
             Add
           </button>
         )}
       </div>
       {(open || !compact) && (
-        <div className="flex flex-wrap items-center gap-1.5 text-xs">
-          <Repeat size={13} className="text-muted" />
-          {REPEATS.map(([label], i) => (
-            <button
-              key={label}
-              type="button"
-              aria-pressed={repeat === i}
-              onClick={() => setRepeat(i)}
-              className={`rounded-full border px-2.5 py-1 font-semibold transition ${
-                repeat === i ? "border-green bg-green-soft text-green" : "border-line text-muted"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      )}
-      {(open || !compact) && repeat === 0 && (
         <div className="flex flex-wrap items-center gap-1.5">
           <AreaSelect id={`add-area-${day}`} value={area} onChange={setArea} className="!px-2.5 !py-1 text-xs" />
           <select id={`add-mins-${day}`} aria-label="Time it takes" value={mins} onChange={(e) => setMins(+e.target.value)} className={small}>
@@ -351,24 +318,9 @@ function AddTask({ day, compact }: { day: number; compact: boolean }) {
               {goals.map((g) => <option key={g.id} value={g.id}>For: {g.name}</option>)}
             </select>
           )}
-        </div>
-      )}
-      {pickDays && (
-        <div className="flex flex-wrap gap-1.5">
-          {WEEKDAYS.map((w, i) => (
-            <button
-              key={w}
-              type="button"
-              aria-pressed={days.includes(i)}
-              onClick={() => setDays(days.includes(i) ? days.filter((d) => d !== i) : [...days, i])}
-              className={`rounded-lg border px-2 py-1 text-xs font-semibold ${
-                days.includes(i) ? "border-green bg-green-soft text-green" : "border-line text-muted"
-              }`}
-            >
-              {w.slice(0, 3)}
-            </button>
-          ))}
-          {days.length > 0 && <span className="self-center text-xs text-muted">{routineLabel([...days].sort())}</span>}
+          <span className="inline-flex items-center gap-1 text-xs text-muted">
+            <Repeat size={12} /> Repeats? Add it as a habit in Life.
+          </span>
         </div>
       )}
     </form>

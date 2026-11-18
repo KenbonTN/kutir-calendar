@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowDownLeft, ArrowUpRight, Briefcase, Plus, Trash2, Wallet } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, Plus, Trash2, Wallet } from "lucide-react";
 import { useMemo, useState } from "react";
 import { formatEt, formatGShort, WEEKDAYS, weekday } from "@/lib/ethiopian";
 import {
@@ -13,6 +13,7 @@ import {
 } from "@/lib/income";
 import { periodLabel, periodRange, type Period } from "@/lib/screen";
 import { Counter, Reveal } from "./Motion";
+import { useEqubs } from "@/lib/money-plans";
 import { Budgets, Debts, Equbs, ProfitTrend } from "./MoneyPlans";
 
 const PERIODS: [Period, string][] = [["day", "Today"], ["week", "Week"], ["month", "Month"], ["year", "Year"]];
@@ -28,6 +29,8 @@ export function Money({ today }: { today: number }) {
   const len = to - from + 1;
   const prev = useMemo(() => byCategory(expenses, from - len, from - 1).total, [expenses, from, len]);
   const net = earned.total - total;
+  const equbs = useEqubs();
+  const [showEqub, setShowEqub] = useState(false);
 
   return (
     <div className="grid gap-6">
@@ -116,13 +119,16 @@ export function Money({ today }: { today: number }) {
 
       <div className="grid items-start gap-4 lg:grid-cols-2">
         <Reveal><IncomeCard rows={earned.rows} total={earned.total} /></Reveal>
-        <Reveal delay={0.05}><ByBusiness expenses={expenses} income={income} from={from} to={to} /></Reveal>
-      </div>
-
-      <div className="grid items-start gap-4 lg:grid-cols-2">
-        <Reveal><Equbs today={today} /></Reveal>
         <Reveal delay={0.05}><Debts today={today} /></Reveal>
       </div>
+
+      {equbs.length > 0 || showEqub ? (
+        <Reveal><Equbs today={today} /></Reveal>
+      ) : (
+        <button type="button" onClick={() => setShowEqub(true)} className="justify-self-start text-sm font-semibold text-muted hover:text-ink">
+          🪙 + Track an equb
+        </button>
+      )}
 
       <History
         expenses={expenses.filter((e) => e.day >= from && e.day <= to)}
@@ -168,59 +174,6 @@ function IncomeCard({ rows, total }: { rows: { key: string; name: string; color:
           </div>
         </div>
       ))}
-    </section>
-  );
-}
-
-/** In, out and what's left for each business and organization money was tagged with. */
-function ByBusiness({ expenses, income, from, to }: { expenses: Expense[]; income: Income[]; from: number; to: number }) {
-  const areas = useAreas();
-  const rows = useMemo(() => {
-    const m = new Map<string, { in: number; out: number }>();
-    for (const e of expenses) if (e.area && e.day >= from && e.day <= to) {
-      const r = m.get(e.area) ?? { in: 0, out: 0 };
-      r.out += e.amount;
-      m.set(e.area, r);
-    }
-    for (const i of income) if (i.area && i.day >= from && i.day <= to) {
-      const r = m.get(i.area) ?? { in: 0, out: 0 };
-      r.in += i.amount;
-      m.set(i.area, r);
-    }
-    return [...m.entries()].map(([id, v]) => ({ ...areas.info(id), id, ...v })).sort((a, b) => b.in + b.out - (a.in + a.out));
-  }, [expenses, income, from, to, areas]);
-
-  return (
-    <section className="card grid content-start gap-3 p-5 sm:p-6">
-      <h2 className="flex items-center gap-2 font-display text-xl font-extrabold">
-        <Briefcase size={20} className="text-green" /> By business & work
-      </h2>
-      {rows.length === 0 ? (
-        <p className="text-sm text-muted">
-          Choose a business or organization when you add money in or out, and see what each one brings in and costs.
-          Add your businesses under Pool → Life areas.
-        </p>
-      ) : (
-        <ul className="divide-y divide-line">
-          {rows.map((r) => {
-            const net = r.in - r.out;
-            return (
-              <li key={r.id} className="flex items-center gap-3 py-2.5">
-                <span className="grid size-9 shrink-0 place-items-center rounded-xl text-lg" style={{ background: `${r.color ?? "#78716c"}22` }}>{r.emoji ?? "💼"}</span>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate font-semibold">{r.label ?? "Removed"}</div>
-                  <div className="text-xs text-muted tabular-nums">
-                    <span className="text-green">+{birrFmt(r.in)}</span> in · <span className="text-marker">−{birrFmt(r.out)}</span> out
-                  </div>
-                </div>
-                <span className={`shrink-0 font-display font-extrabold tabular-nums ${net >= 0 ? "text-green" : "text-marker"}`}>
-                  {net >= 0 ? "+" : "−"}{birrFmt(Math.abs(net))}
-                </span>
-              </li>
-            );
-          })}
-        </ul>
-      )}
     </section>
   );
 }

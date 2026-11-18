@@ -2,25 +2,28 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import {
-  Award, Check, Flame, HeartHandshake, Leaf, Mountain, Phone, Plus, Repeat, Sparkles, Target, Trash2, Trophy,
+  Award, Check, Flame, Pencil, HeartHandshake, Leaf, Mountain, Phone, Plus, Repeat, Sparkles, Target, Trash2, Trophy,
 } from "lucide-react";
 import { useMemo, useState } from "react";
-import { addAim, aimProgress, deleteAim, updateAim, useAims, type Aim } from "@/lib/aims";
+import { addAim, aimProgress, aimSpan, deleteAim, updateAim, useAims, type Aim } from "@/lib/aims";
+import { useOutcomes } from "@/lib/plan";
 import { useAreas } from "@/lib/areas";
-import { formatEt, fromJdn, MONTHS, toJdn } from "@/lib/ethiopian";
+import { formatEt, fromJdn, monthLength, MONTHS, toJdn } from "@/lib/ethiopian";
 import { birr, useExpenses } from "@/lib/expenses";
 import { linkGoal, useGoals } from "@/lib/goals";
 import { useT } from "@/lib/i18n";
 import { useIncome } from "@/lib/income";
-import { habitGrid, yearRange, yearReview } from "@/lib/insights";
+import { habitDays, habitGrid, yearRange, yearReview } from "@/lib/insights";
 import { useNotes } from "@/lib/notes";
 import { orthodoxDay } from "@/lib/orthodox";
 import { addPerson, deletePerson, dueIn, EVERY, logFast, touched, useFasts, usePeople, type Person } from "@/lib/people";
 import { minsLabel } from "@/lib/pool";
 import { useScreen } from "@/lib/screen";
-import { routineLabel, type Routine, type Task } from "@/lib/tasks";
+import { addRoutine, deleteRoutine, routineLabel, updateRoutine, type Routine, type Task } from "@/lib/tasks";
 import { AreaSelect, AreaTag } from "./AreaBits";
+import { Deadline } from "./Deadline";
 import { Counter, Reveal } from "./Motion";
+import { FastToggle } from "./TodayExtras";
 import { Sheet } from "./Sheet";
 
 const label = "text-xs font-bold uppercase tracking-[0.12em] text-muted";
@@ -71,7 +74,7 @@ export function LifeTab({ today, tasks, routines }: { today: number; tasks: Task
         </header>
       </Reveal>
 
-      <Reveal><Aims today={today} tasks={tasks} /></Reveal>
+      <Reveal><Aims today={today} tasks={tasks} routines={routines} /></Reveal>
       <div className="grid gap-6 lg:grid-cols-2">
         <Reveal><Habits today={today} tasks={tasks} routines={routines} /></Reveal>
         <Reveal delay={0.05}><People today={today} /></Reveal>
@@ -87,7 +90,7 @@ export function LifeTab({ today, tasks, routines }: { today: number; tasks: Task
 
 /* ---------- Big goals ---------- */
 
-function Aims({ today, tasks }: { today: number; tasks: Task[] }) {
+function Aims({ today, tasks, routines }: { today: number; tasks: Task[]; routines: Routine[] }) {
   const t = useT();
   const year = fromJdn(today).y;
   const aims = useAims().filter((a) => a.year >= year - 1);
@@ -134,7 +137,7 @@ function Aims({ today, tasks }: { today: number; tasks: Task[] }) {
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {aims.map((a, i) => (
             <motion.div key={a.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-              <AimCard aim={a} goals={goals} tasks={tasks} />
+              <AimCard aim={a} goals={goals} tasks={tasks} routines={routines} today={today} />
             </motion.div>
           ))}
         </div>
@@ -148,13 +151,15 @@ function AddAim({ year, onDone }: { year: number; onDone: () => void }) {
   const [area, setArea] = useState("");
   const [why, setWhy] = useState("");
   const [y, setY] = useState(year);
+  const [deadline, setDeadline] = useState(0);
+  const monthEnds = Array.from({ length: 13 }, (_, i) => toJdn(y, i + 1, i < 12 ? 30 : monthLength(y, 13)));
   return (
     <form
       className="card grid gap-3 p-5"
       onSubmit={(e) => {
         e.preventDefault();
         if (!title.trim()) return;
-        addAim({ title: title.trim(), year: y, area, why });
+        addAim({ title: title.trim(), year: y, area, why, deadline: deadline || undefined });
         onDone();
       }}
     >
@@ -165,6 +170,10 @@ function AddAim({ year, onDone }: { year: number; onDone: () => void }) {
         <select id="aim-year" aria-label="Year" value={y} onChange={(e) => setY(+e.target.value)} className="rounded-full border border-line bg-surface px-3 py-1.5 text-sm">
           {[year, year + 1].map((v) => <option key={v} value={v}>{v} E.C.</option>)}
         </select>
+        <select id="aim-deadline" aria-label="Deadline" value={deadline} onChange={(e) => setDeadline(+e.target.value)} className="rounded-full border border-line bg-surface px-3 py-1.5 text-sm">
+          <option value={0}>By the end of {y}</option>
+          {monthEnds.map((d) => <option key={d} value={d}>By {formatEt(d)}</option>)}
+        </select>
         <button type="submit" disabled={!title.trim()} className="ml-auto rounded-full bg-green px-4 py-2 text-sm font-semibold text-on-green disabled:opacity-40">
           Add goal
         </button>
@@ -173,8 +182,13 @@ function AddAim({ year, onDone }: { year: number; onDone: () => void }) {
   );
 }
 
-function AimCard({ aim, goals, tasks }: { aim: Aim; goals: ReturnType<typeof useGoals>; tasks: Task[] }) {
-  const p = aimProgress(aim, goals, tasks);
+function AimCard({ aim, goals, tasks, routines, today }: { aim: Aim; goals: ReturnType<typeof useGoals>; tasks: Task[]; routines: Routine[]; today: number }) {
+  const outcomes = useOutcomes();
+  const p = aimProgress(aim, goals, tasks, outcomes);
+  const span = aimSpan(aim);
+  const habits = routines
+    .filter((r) => r.aim === aim.id || (r.goal && goals.some((g) => g.id === r.goal && g.aim === aim.id)))
+    .map((r) => ({ id: r.id, title: r.title, ...habitDays(r, tasks, span.start, span.end, today) }));
   const free = goals.filter((g) => !g.aim);
   const [armed, setArmed] = useState(false);
   const R = 30, C = 2 * Math.PI * R;
@@ -202,6 +216,7 @@ function AimCard({ aim, goals, tasks }: { aim: Aim; goals: ReturnType<typeof use
           {aim.why && <p className="mt-1.5 text-sm italic text-muted">“{aim.why}”</p>}
         </div>
       </div>
+      <Deadline start={span.start} end={span.end} today={today} habits={habits} />
       <div className="text-sm text-muted">
         {p.total ? `${p.done} of ${p.total} linked tasks done` : p.linked.length ? "No tasks linked to its countdowns yet." : "Link a countdown to start tracking."}
       </div>
@@ -257,20 +272,80 @@ function AimCard({ aim, goals, tasks }: { aim: Aim; goals: ReturnType<typeof use
 
 function Habits({ today, tasks, routines }: { today: number; tasks: Task[]; routines: Routine[] }) {
   const t = useT();
+  const [adding, setAdding] = useState(false);
   return (
     <section className="card grid content-start gap-4 p-5 sm:p-6">
-      <h2 className="flex items-center gap-2 font-display text-xl font-extrabold">
-        <Repeat size={20} className="text-green" /> {t("Habits")}
-      </h2>
-      {routines.length === 0 ? (
+      <div className="flex items-center justify-between gap-2">
+        <h2 className="flex items-center gap-2 font-display text-xl font-extrabold">
+          <Repeat size={20} className="text-green" /> {t("Habits")}
+        </h2>
+        <button type="button" onClick={() => setAdding(!adding)} className="inline-flex items-center gap-1 rounded-full bg-green px-3 py-1.5 text-sm font-semibold text-on-green">
+          <Plus size={15} /> Habit
+        </button>
+      </div>
+      {adding && <HabitForm today={today} onDone={() => setAdding(false)} />}
+      {routines.length === 0 && !adding ? (
         <p className="text-sm text-muted">
-          Repeating tasks show up here as a grid of squares, one for each day. Add a task on the Today tab and choose
-          &quot;Every day&quot; or &quot;Weekdays&quot;.
+          Things you do on a schedule: prayer, the gym, reading, calling home. Each gets a task on its days and a grid of
+          squares showing when you did it.
         </p>
       ) : (
         routines.map((r) => <HabitRow key={r.id} r={r} today={today} tasks={tasks} />)
       )}
     </section>
+  );
+}
+
+const REPEATS: [string, number[]][] = [["Every day", [0, 1, 2, 3, 4, 5, 6]], ["Weekdays", [0, 1, 2, 3, 4]], ["Weekends", [5, 6]]];
+
+/** New habit, or edit an existing one: name, days, and the countdown or big goal it counts towards. */
+function HabitForm({ today, r, onDone }: { today: number; r?: Routine; onDone: () => void }) {
+  const goals = useGoals();
+  const aims = useAims().filter((a) => a.year >= fromJdn(today).y);
+  const [title, setTitle] = useState(r?.title ?? "");
+  const [days, setDays] = useState<number[]>(r?.days ?? [0, 1, 2, 3, 4, 5, 6]);
+  const [link, setLink] = useState(r?.goal ? `g:${r.goal}` : r?.aim ? `a:${r.aim}` : "");
+  const ok = title.trim() && days.length;
+  return (
+    <form
+      className="grid gap-2 rounded-2xl bg-surface-2 p-3"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (!ok) return;
+        const l = { goal: link.startsWith("g:") ? link.slice(2) : undefined, aim: link.startsWith("a:") ? link.slice(2) : undefined };
+        if (r) updateRoutine(r, { title: title.trim(), days, goal: l.goal ?? "", aim: l.aim ?? "" }, today);
+        else addRoutine(title.trim(), days, today, l);
+        onDone();
+      }}
+    >
+      <input id={`habit-title-${r?.id ?? "new"}`} autoFocus value={title} maxLength={80} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Morning prayer, Gym, Read 20 pages" className={`${input} bg-surface`} />
+      <div className="flex flex-wrap gap-1.5">
+        {REPEATS.map(([l, d]) => (
+          <button key={l} type="button" aria-pressed={days.join() === d.join()} onClick={() => setDays(d)} className={`rounded-full border px-3 py-1 text-xs font-semibold ${days.join() === d.join() ? "border-green bg-green-soft text-green" : "border-line text-muted"}`}>
+            {l}
+          </button>
+        ))}
+        <span className="mx-1 h-6 w-px bg-line" />
+        {["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((w, i) => (
+          <button key={w} type="button" aria-pressed={days.includes(i)} onClick={() => setDays(days.includes(i) ? days.filter((x) => x !== i) : [...days, i].sort())} className={`size-7 rounded-lg border text-[11px] font-bold ${days.includes(i) ? "border-green bg-green-soft text-green" : "border-line text-muted"}`}>
+            {w}
+          </button>
+        ))}
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        {(goals.length > 0 || aims.length > 0) && (
+          <select id={`habit-link-${r?.id ?? "new"}`} aria-label="Counts towards" value={link} onChange={(e) => setLink(e.target.value)} className="min-w-0 flex-1 rounded-full border border-line bg-surface px-3 py-1.5 text-sm">
+            <option value="">Not linked to a goal</option>
+            {goals.map((g) => <option key={g.id} value={`g:${g.id}`}>⏳ {g.name}</option>)}
+            {aims.map((a) => <option key={a.id} value={`a:${a.id}`}>🏔 {a.title}</option>)}
+          </select>
+        )}
+        <button type="button" onClick={onDone} className="text-sm text-muted">Cancel</button>
+        <button type="submit" disabled={!ok} className="rounded-full bg-green px-4 py-1.5 text-sm font-semibold text-on-green disabled:opacity-40">
+          {r ? "Save" : "Add habit"}
+        </button>
+      </div>
+    </form>
   );
 }
 
@@ -285,17 +360,39 @@ const CELL: Record<string, string> = {
 function HabitRow({ r, today, tasks }: { r: Routine; today: number; tasks: Task[] }) {
   const g = useMemo(() => habitGrid(r, tasks, today, 26), [r, tasks, today]);
   const weeks = Array.from({ length: g.cells.length / 7 }, (_, w) => g.cells.slice(w * 7, w * 7 + 7));
+  const goals = useGoals();
+  const aims = useAims();
+  const goal = r.goal ? goals.find((x) => x.id === r.goal) : undefined;
+  const aim = r.aim ? aims.find((x) => x.id === r.aim) : undefined;
+  const [editing, setEditing] = useState(false);
+  const [armed, setArmed] = useState(false);
+  // Days done since the countdown started.
+  const since = goal ? habitDays(r, tasks, goal.start, goal.start + goal.days - 1, today) : null;
+  if (editing) return <HabitForm today={today} r={r} onDone={() => setEditing(false)} />;
   return (
-    <div className="grid gap-2">
+    <div className="group grid gap-2">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <div className="min-w-0">
           <div className="truncate font-semibold">{r.title}</div>
-          <div className="text-xs text-muted">{routineLabel(r.days)}</div>
+          <div className="text-xs text-muted">
+            {routineLabel(r.days)}
+            {goal && <> · ⏳ {goal.name}{since && since.due ? ` · ${since.done} of ${since.due} days` : ""}</>}
+            {aim && <> · 🏔 {aim.title}</>}
+          </div>
         </div>
         <div className="flex items-center gap-3 text-xs text-muted">
           <span className="inline-flex items-center gap-1 font-bold text-gold"><Flame size={13} /> {g.streak}</span>
           <span>best {g.best}</span>
           <span className="font-bold text-ink">{g.rate == null ? "—" : `${Math.round(g.rate * 100)}%`}</span>
+          <button type="button" onClick={() => setEditing(true)} aria-label={`Edit ${r.title}`} className="p-1 text-muted hover:text-ink"><Pencil size={13} /></button>
+          <button
+            type="button"
+            onClick={() => (armed ? deleteRoutine(r, today) : (setArmed(true), setTimeout(() => setArmed(false), 3000)))}
+            aria-label={armed ? `Tap again to stop ${r.title}` : `Stop ${r.title}`}
+            className={armed ? "font-semibold text-marker" : "p-1 text-muted hover:text-marker"}
+          >
+            {armed ? "Stop?" : <Trash2 size={13} />}
+          </button>
         </div>
       </div>
       <div className="no-scrollbar flex gap-[3px] overflow-x-auto pb-1" role="img" aria-label={`${r.title}: done on ${g.rate == null ? 0 : Math.round(g.rate * 100)}% of its days over the last 26 weeks`}>
@@ -493,30 +590,6 @@ function Fasting({ today }: { today: number }) {
         </div>
       )}
     </section>
-  );
-}
-
-export function FastToggle({ day, value }: { day: number; value: boolean | undefined }) {
-  const t = useT();
-  return (
-    <div className="flex gap-1.5">
-      <button
-        type="button"
-        aria-pressed={value === true}
-        onClick={() => logFast(day, value === true ? null : true)}
-        className={`rounded-full px-3 py-1 text-xs font-bold transition active:scale-95 ${value === true ? "bg-green text-on-green" : "border border-line bg-surface"}`}
-      >
-        🌿 {t("Kept the fast")}
-      </button>
-      <button
-        type="button"
-        aria-pressed={value === false}
-        onClick={() => logFast(day, value === false ? null : false)}
-        className={`rounded-full px-3 py-1 text-xs font-bold transition active:scale-95 ${value === false ? "bg-marker text-white" : "border border-line bg-surface text-muted"}`}
-      >
-        {t("Didn't fast")}
-      </button>
-    </div>
   );
 }
 

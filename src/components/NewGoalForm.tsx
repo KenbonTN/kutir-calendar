@@ -3,9 +3,10 @@
 import { ArrowRight, CalendarRange, Flag } from "lucide-react";
 import { useState } from "react";
 import {
-  formatEt, formatG, fromJdn, gregorianToJdn, jdnToDate, monthLength, MONTHS, MONTHS_AM, toJdn,
+  fromJdn, gregorianToJdn, jdnToDate, monthLength, MONTHS, MONTHS_AM, toJdn,
 } from "@/lib/ethiopian";
 import { useStored } from "@/lib/storage";
+import { DateBoth } from "./DateBoth";
 
 const PRESETS: [string, number][] = [
   ["1 week", 7], ["2 weeks", 14], ["30 days", 30], ["60 days", 60], ["90 days", 90],
@@ -221,13 +222,4 @@ export function NewGoalForm({
   );
 }
 
-/** One date in both calendars, Ethiopian first. */
-export function DateBoth({ j, title, align = "left" }: { j: number; title?: string; align?: "left" | "right" }) {
-  return (
-    <div className={`min-w-0 ${align === "right" ? "text-right" : ""}`}>
-      {title && <div className="text-[11px] font-bold uppercase tracking-[0.1em] text-muted">{title}</div>}
-      <div className="font-semibold leading-snug">{formatEt(j)}</div>
-      <div className="text-sm text-muted">{formatG(j)}</div>
-    </div>
-  );
-}
+export { DateBoth };

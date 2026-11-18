@@ -8,7 +8,8 @@ import { dueReminders, kind, whenLabel, type DateEvent } from "@/lib/events";
 import { backToPool } from "@/lib/pool";
 import { addTask, deleteTask, isStuck, moveTask, updateTask, type Task } from "@/lib/tasks";
 import { equbStatus, left, useDebts, useEqubs } from "@/lib/money-plans";
-import { dueIn, touched, usePeople } from "@/lib/people";
+import { useT } from "@/lib/i18n";
+import { dueIn, logFast, touched, usePeople } from "@/lib/people";
 
 const btn = "rounded-full border border-line bg-surface px-3 py-1.5 text-sm font-semibold transition hover:border-muted";
 
@@ -173,5 +174,30 @@ export function LifeNudges({ today, onOpen }: { today: number; onOpen: (tab: "li
         )}
       </div>
     </motion.section>
+  );
+}
+
+/** Kept or didn't keep today's fast. */
+export function FastToggle({ day, value }: { day: number; value: boolean | undefined }) {
+  const t = useT();
+  return (
+    <div className="flex gap-1.5">
+      <button
+        type="button"
+        aria-pressed={value === true}
+        onClick={() => logFast(day, value === true ? null : true)}
+        className={`rounded-full px-3 py-1 text-xs font-bold transition active:scale-95 ${value === true ? "bg-green text-on-green" : "border border-line bg-surface"}`}
+      >
+        🌿 {t("Kept the fast")}
+      </button>
+      <button
+        type="button"
+        aria-pressed={value === false}
+        onClick={() => logFast(day, value === false ? null : false)}
+        className={`rounded-full px-3 py-1 text-xs font-bold transition active:scale-95 ${value === false ? "bg-marker text-white" : "border border-line bg-surface text-muted"}`}
+      >
+        {t("Didn't fast")}
+      </button>
+    </div>
   );
 }

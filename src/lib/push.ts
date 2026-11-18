@@ -1,5 +1,7 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
+
 // The evening reminder. The page subscribes this device for push messages and
 // stores the subscription with the reminder time on the person's document; a
 // scheduled GitHub Actions job (scripts/send-reminders.mjs) sends the message.
@@ -47,6 +49,24 @@ export function registerServiceWorker() {
       });
     })
     .catch(() => {});
+  // The page opens from the saved copy; the service worker says when a newer one has arrived.
+  navigator.serviceWorker.addEventListener("message", (e) => {
+    if (e.data?.type === "kutir-update") markUpdate();
+  });
+  // A tab opened from an older saved page may ask for build files a newer deploy replaced:
+  // reload once to pick up the current version.
+  const chunkFailed = (msg: string) => /chunk|dynamically imported module|module script failed/i.test(msg);
+  const reloadOnce = () => {
+    try {
+      if (sessionStorage.getItem("kutir-chunk-reload")) return;
+      sessionStorage.setItem("kutir-chunk-reload", "1");
+    } catch {}
+    location.reload();
+  };
+  window.addEventListener("unhandledrejection", (e) => chunkFailed(String(e.reason?.message ?? e.reason)) && reloadOnce());
+  window.addEventListener("error", (e) => chunkFailed(String(e.message)) && reloadOnce());
+  // The newer copy may arrive before this page was listening: compare build files once settled.
+  setTimeout(checkSavedVersion, 5000);
   // When a new version takes over, reload once so the page matches it.
   let reloaded = false;
   const hadController = !!navigator.serviceWorker.controller;
@@ -55,6 +75,38 @@ export function registerServiceWorker() {
     reloaded = true;
     location.reload();
   });
+}
+
+/* ---------- "New version ready" ---------- */
+
+let updateReady = false;
+const updateSubs = new Set<() => void>();
+const markUpdate = () => {
+  updateReady = true;
+  updateSubs.forEach((fn) => fn());
+};
+
+/** True once a newer version of Kutir is saved and a refresh would show it. */
+export function useUpdateReady() {
+  return useSyncExternalStore(
+    (fn) => {
+      updateSubs.add(fn);
+      return () => updateSubs.delete(fn);
+    },
+    () => updateReady,
+    () => false,
+  );
+}
+
+/** The saved page lists build files with content-hashed names; any the running page lacks means a newer version. */
+async function checkSavedVersion() {
+  try {
+    const saved = await caches.match(`${BASE}/`);
+    if (!saved) return;
+    const files = (await saved.text()).match(/\/_next\/static\/chunks\/[\w.-]+\.js/g) ?? [];
+    const running = new Set([...document.scripts].map((x) => new URL(x.src || location.href).pathname.replace(BASE, "")));
+    if (files.some((f) => !running.has(f))) markUpdate();
+  } catch {}
 }
 
 const keyBytes = (b64: string) => {

@@ -44,6 +44,18 @@ export function habitGrid(r: Routine, tasks: Task[], today: number, weeks = 26) 
   return { cells, rate: due ? hit / due : null, streak, best };
 }
 
+/** Days a repeating task was done out of the days it was due, from `from` to `to` (today counts once done). */
+export function habitDays(r: Routine, tasks: Task[], from: number, to: number, today: number) {
+  const done = new Set(tasks.filter((t) => t.routine === r.id && t.done).map((t) => t.date));
+  let hit = 0, due = 0;
+  for (let d = Math.max(from, r.start); d <= Math.min(to, today); d++) {
+    if (!r.days.includes(weekday(d))) continue;
+    if (done.has(d)) hit++;
+    if (d < today || done.has(d)) due++;
+  }
+  return { done: hit, due };
+}
+
 /* ---------- Ethiopian year in review ---------- */
 
 export function yearRange(y: number): [number, number] {
