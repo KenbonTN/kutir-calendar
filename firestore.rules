@@ -10,8 +10,8 @@ service cloud.firestore {
         && request.auth.uid == uid
         && request.resource.data.keys().hasOnly(
              ['goals', 'tasks', 'routines', 'screen', 'expenses', 'pool', 'areas', 'income', 'events', 'notes',
-              'aims', 'budgets', 'equbs', 'debts', 'people', 'fasts', 'outcomes',
-              'updated', 'reminder', 'lastReminder', 'telegram'])
+              'aims', 'budgets', 'equbs', 'debts', 'people', 'fasts', 'outcomes', 'profile', 'devotion',
+              'updated', 'reminder', 'lastReminder', 'lastPrayer', 'telegram'])
         && (!('goals' in request.resource.data) || request.resource.data.goals.size() <= 200)
         && (!('tasks' in request.resource.data) || request.resource.data.tasks.size() <= 5000)
         && (!('routines' in request.resource.data) || request.resource.data.routines.size() <= 200)
@@ -29,6 +29,8 @@ service cloud.firestore {
         && (!('people' in request.resource.data) || request.resource.data.people.size() <= 500)
         && (!('fasts' in request.resource.data) || request.resource.data.fasts.size() <= 2000)
         && (!('outcomes' in request.resource.data) || request.resource.data.outcomes.size() <= 1000)
+        && (!('profile' in request.resource.data) || request.resource.data.profile.size() <= 5)
+        && (!('devotion' in request.resource.data) || request.resource.data.devotion.size() <= 3000)
         // The page may only set a link code; the bot job (admin key) fills in the chat.
         && (!('telegram' in request.resource.data)
             || request.resource.data.telegram == resource.data.get('telegram', null)

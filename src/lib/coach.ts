@@ -29,8 +29,10 @@ export function coach(d: {
   areas: Areas;
   capacity: Capacity;
   pace: number;
+  /** days with prayer, devotion or a kept fast: they count for Faith & spirit */
+  faithDays?: number[];
 }): Tip[] {
-  const { today, hour, tasks, outcomes, notes, areas, capacity, pace } = d;
+  const { today, hour, tasks, outcomes, notes, areas, capacity, pace, faithDays = [] } = d;
   const tips: Tip[] = [];
   const todays = tasks.filter((t) => t.date === today);
   const open = todays.filter((t) => !t.done);
@@ -72,6 +74,7 @@ export function coach(d: {
       const top = areas.topOf(t.area);
       if (top && (lastDone.get(top) ?? 0) < t.date) lastDone.set(top, t.date);
     }
+  for (const day of faithDays) if ((lastDone.get("spirit") ?? 0) < day) lastDone.set("spirit", day);
   const firstUse = Math.min(...tasks.map((t) => t.created || Infinity));
   const usedForAWeek = Date.now() - firstUse > 7 * 864e5;
   for (const id of watched) {

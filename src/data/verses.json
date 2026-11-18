@@ -1,0 +1,762 @@
+{
+ "fetched": "2026-11-18T12:43:09.514Z",
+ "quran": [
+  {
+   "ref": "103:1-3",
+   "surah": "Al-Asr",
+   "ar": "وَٱلْعَصْرِ ۝ إِنَّ ٱلْإِنسَٰنَ لَفِى خُسْرٍ ۝ إِلَّا ٱلَّذِينَ ءَامَنُوا۟ وَعَمِلُوا۟ ٱلصَّٰلِحَٰتِ وَتَوَاصَوْا۟ بِٱلْحَقِّ وَتَوَاصَوْا۟ بِٱلصَّبْرِ",
+   "en": "By the declining day, Lo! man is a state of loss, Save those who believe and do good works, and exhort one another to truth and exhort one another to endurance.",
+   "theme": "time"
+  },
+  {
+   "ref": "59:18",
+   "surah": "Al-Hashr",
+   "ar": "يَٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوا۟ ٱتَّقُوا۟ ٱللَّهَ وَلْتَنظُرْ نَفْسٌۭ مَّا قَدَّمَتْ لِغَدٍۢ ۖ وَٱتَّقُوا۟ ٱللَّهَ ۚ إِنَّ ٱللَّهَ خَبِيرٌۢ بِمَا تَعْمَلُونَ",
+   "en": "O ye who believe! Observe your duty to Allah. And let every soul look to that which it sendeth on before for the morrow. And observe your duty to Allah. Lo! Allah is Informed of what ye do.",
+   "theme": "purpose"
+  },
+  {
+   "ref": "18:23-24",
+   "surah": "Al-Kahf",
+   "ar": "وَلَا تَقُولَنَّ لِشَا۟ىْءٍ إِنِّى فَاعِلٌۭ ذَٰلِكَ غَدًا ۝ إِلَّآ أَن يَشَآءَ ٱللَّهُ ۚ وَٱذْكُر رَّبَّكَ إِذَا نَسِيتَ وَقُلْ عَسَىٰٓ أَن يَهْدِيَنِ رَبِّى لِأَقْرَبَ مِنْ هَٰذَا رَشَدًۭا",
+   "en": "And say not of anything: Lo! I shall do that tomorrow, Except if Allah will. And remember thy Lord when thou forgettest, and say: It may be that my Lord guideth me unto a nearer way of truth than this.",
+   "theme": "start"
+  },
+  {
+   "ref": "94:5-6",
+   "surah": "Ash-Sharh",
+   "ar": "فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا ۝ إِنَّ مَعَ ٱلْعُسْرِ يُسْرًۭا",
+   "en": "But lo! with hardship goeth ease, Lo! with hardship goeth ease;",
+   "theme": "steady"
+  },
+  {
+   "ref": "94:7-8",
+   "surah": "Ash-Sharh",
+   "ar": "فَإِذَا فَرَغْتَ فَٱنصَبْ ۝ وَإِلَىٰ رَبِّكَ فَٱرْغَب",
+   "en": "So when thou art relieved, still toil And strive to please thy Lord.",
+   "theme": "focus"
+  },
+  {
+   "ref": "2:286",
+   "surah": "Al-Baqara",
+   "ar": "لَا يُكَلِّفُ ٱللَّهُ نَفْسًا إِلَّا وُسْعَهَا ۚ لَهَا مَا كَسَبَتْ وَعَلَيْهَا مَا ٱكْتَسَبَتْ ۗ رَبَّنَا لَا تُؤَاخِذْنَآ إِن نَّسِينَآ أَوْ أَخْطَأْنَا ۚ رَبَّنَا وَلَا تَحْمِلْ عَلَيْنَآ إِصْرًۭا كَمَا حَمَلْتَهُۥ عَلَى ٱلَّذِينَ مِن قَبْلِنَا ۚ رَبَّنَا وَلَا تُحَمِّلْنَا مَا لَا طَاقَةَ لَنَا بِهِۦ ۖ وَٱعْفُ عَنَّا وَٱغْفِرْ لَنَا وَٱرْحَمْنَآ ۚ أَنتَ مَوْلَىٰنَا فَٱنصُرْنَا عَلَى ٱلْقَوْمِ ٱلْكَٰفِرِينَ",
+   "en": "Allah tasketh not a soul beyond its scope. For it (is only) that which it hath earned, and against it (only) that which it hath deserved. Our Lord! Condemn us not if we forget, or miss the mark! Our Lord! Lay not on us such a burden as thou didst lay on those before us! Our Lord! Impose not on us that which we have not the strength to bear! Pardon us, absolve us and have mercy on us, Thou, our Protector, and give us victory over the disbelieving folk.",
+   "theme": "steady"
+  },
+  {
+   "ref": "2:153",
+   "surah": "Al-Baqara",
+   "ar": "يَٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوا۟ ٱسْتَعِينُوا۟ بِٱلصَّبْرِ وَٱلصَّلَوٰةِ ۚ إِنَّ ٱللَّهَ مَعَ ٱلصَّٰبِرِينَ",
+   "en": "O ye who believe! Seek help in steadfastness and prayer. Lo! Allah is with the steadfast.",
+   "theme": "steady"
+  },
+  {
+   "ref": "2:152",
+   "surah": "Al-Baqara",
+   "ar": "فَٱذْكُرُونِىٓ أَذْكُرْكُمْ وَٱشْكُرُوا۟ لِى وَلَا تَكْفُرُونِ",
+   "en": "Therefore remember Me, I will remember you. Give thanks to Me, and reject not Me.",
+   "theme": "purpose"
+  },
+  {
+   "ref": "13:11",
+   "surah": "Ar-Ra'd",
+   "ar": "لَهُۥ مُعَقِّبَٰتٌۭ مِّنۢ بَيْنِ يَدَيْهِ وَمِنْ خَلْفِهِۦ يَحْفَظُونَهُۥ مِنْ أَمْرِ ٱللَّهِ ۗ إِنَّ ٱللَّهَ لَا يُغَيِّرُ مَا بِقَوْمٍ حَتَّىٰ يُغَيِّرُوا۟ مَا بِأَنفُسِهِمْ ۗ وَإِذَآ أَرَادَ ٱللَّهُ بِقَوْمٍۢ سُوٓءًۭا فَلَا مَرَدَّ لَهُۥ ۚ وَمَا لَهُم مِّن دُونِهِۦ مِن وَالٍ",
+   "en": "For him are angels ranged before him and behind him, who guard him by Allah's command. Lo! Allah changeth not the condition of a folk until they (first) change that which is in their hearts; and if Allah willeth misfortune for a folk there is none that can repel it, nor have they a defender beside Him.",
+   "theme": "start"
+  },
+  {
+   "ref": "13:28",
+   "surah": "Ar-Ra'd",
+   "ar": "ٱلَّذِينَ ءَامَنُوا۟ وَتَطْمَئِنُّ قُلُوبُهُم بِذِكْرِ ٱللَّهِ ۗ أَلَا بِذِكْرِ ٱللَّهِ تَطْمَئِنُّ ٱلْقُلُوبُ",
+   "en": "Who have believed and whose hearts have rest in the remembrance of Allah. Verily in the remembrance of Allah do hearts find rest!",
+   "theme": "focus"
+  },
+  {
+   "ref": "3:139",
+   "surah": "Aal-i-Imraan",
+   "ar": "وَلَا تَهِنُوا۟ وَلَا تَحْزَنُوا۟ وَأَنتُمُ ٱلْأَعْلَوْنَ إِن كُنتُم مُّؤْمِنِينَ",
+   "en": "Faint not nor grieve, for ye will overcome them if ye are (indeed) believers.",
+   "theme": "steady"
+  },
+  {
+   "ref": "3:159",
+   "surah": "Aal-i-Imraan",
+   "ar": "فَبِمَا رَحْمَةٍۢ مِّنَ ٱللَّهِ لِنتَ لَهُمْ ۖ وَلَوْ كُنتَ فَظًّا غَلِيظَ ٱلْقَلْبِ لَٱنفَضُّوا۟ مِنْ حَوْلِكَ ۖ فَٱعْفُ عَنْهُمْ وَٱسْتَغْفِرْ لَهُمْ وَشَاوِرْهُمْ فِى ٱلْأَمْرِ ۖ فَإِذَا عَزَمْتَ فَتَوَكَّلْ عَلَى ٱللَّهِ ۚ إِنَّ ٱللَّهَ يُحِبُّ ٱلْمُتَوَكِّلِينَ",
+   "en": "It was by the mercy of Allah that thou wast lenient with them (O Muhammad), for if thou hadst been stern and fierce of heart they would have dispersed from round about thee. So pardon them and ask forgiveness for them and consult with them upon the conduct of affairs. And when thou art resolved, then put thy trust in Allah. Lo! Allah loveth those who put their trust (in Him).",
+   "theme": "start"
+  },
+  {
+   "ref": "3:200",
+   "surah": "Aal-i-Imraan",
+   "ar": "يَٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوا۟ ٱصْبِرُوا۟ وَصَابِرُوا۟ وَرَابِطُوا۟ وَٱتَّقُوا۟ ٱللَّهَ لَعَلَّكُمْ تُفْلِحُونَ",
+   "en": "O ye who believe! Endure, outdo all others in endurance, be ready, and observe your duty to Allah, in order that ye may succeed.",
+   "theme": "steady"
+  },
+  {
+   "ref": "65:2-3",
+   "surah": "At-Talaaq",
+   "ar": "فَإِذَا بَلَغْنَ أَجَلَهُنَّ فَأَمْسِكُوهُنَّ بِمَعْرُوفٍ أَوْ فَارِقُوهُنَّ بِمَعْرُوفٍۢ وَأَشْهِدُوا۟ ذَوَىْ عَدْلٍۢ مِّنكُمْ وَأَقِيمُوا۟ ٱلشَّهَٰدَةَ لِلَّهِ ۚ ذَٰلِكُمْ يُوعَظُ بِهِۦ مَن كَانَ يُؤْمِنُ بِٱللَّهِ وَٱلْيَوْمِ ٱلْءَاخِرِ ۚ وَمَن يَتَّقِ ٱللَّهَ يَجْعَل لَّهُۥ مَخْرَجًۭا ۝ وَيَرْزُقْهُ مِنْ حَيْثُ لَا يَحْتَسِبُ ۚ وَمَن يَتَوَكَّلْ عَلَى ٱللَّهِ فَهُوَ حَسْبُهُۥٓ ۚ إِنَّ ٱللَّهَ بَٰلِغُ أَمْرِهِۦ ۚ قَدْ جَعَلَ ٱللَّهُ لِكُلِّ شَىْءٍۢ قَدْرًۭا",
+   "en": "Then, when they have reached their term, take them back in kindness or part from them in kindness, and call to witness two just men among you, and keep your testimony upright for Allah. Whoso believeth in Allah and the Last Day is exhorted to act thus. And whosoever keepeth his duty to Allah, Allah will appoint a way out for him, And will provide for him from (a quarter) whence he hath no expectation. And whosoever putteth his trust in Allah, He will suffice him. Lo! Allah bringeth His command to pass. Allah hath set a measure for all things.",
+   "theme": "purpose"
+  },
+  {
+   "ref": "39:53",
+   "surah": "Az-Zumar",
+   "ar": "۞ قُلْ يَٰعِبَادِىَ ٱلَّذِينَ أَسْرَفُوا۟ عَلَىٰٓ أَنفُسِهِمْ لَا تَقْنَطُوا۟ مِن رَّحْمَةِ ٱللَّهِ ۚ إِنَّ ٱللَّهَ يَغْفِرُ ٱلذُّنُوبَ جَمِيعًا ۚ إِنَّهُۥ هُوَ ٱلْغَفُورُ ٱلرَّحِيمُ",
+   "en": "Say: O My slaves who have been prodigal to their own hurt! Despair not of the mercy of Allah, Who forgiveth all sins. Lo! He is the Forgiving, the Merciful.",
+   "theme": "start"
+  },
+  {
+   "ref": "29:69",
+   "surah": "Al-Ankaboot",
+   "ar": "وَٱلَّذِينَ جَٰهَدُوا۟ فِينَا لَنَهْدِيَنَّهُمْ سُبُلَنَا ۚ وَإِنَّ ٱللَّهَ لَمَعَ ٱلْمُحْسِنِينَ",
+   "en": "As for those who strive in Us, We surely guide them to Our paths, and lo! Allah is with the good.",
+   "theme": "steady"
+  },
+  {
+   "ref": "53:39-40",
+   "surah": "An-Najm",
+   "ar": "وَأَن لَّيْسَ لِلْإِنسَٰنِ إِلَّا مَا سَعَىٰ ۝ وَأَنَّ سَعْيَهُۥ سَوْفَ يُرَىٰ",
+   "en": "And that man hath only that for which he maketh effort, And that his effort will be seen.",
+   "theme": "start"
+  },
+  {
+   "ref": "8:46",
+   "surah": "Al-Anfaal",
+   "ar": "وَأَطِيعُوا۟ ٱللَّهَ وَرَسُولَهُۥ وَلَا تَنَٰزَعُوا۟ فَتَفْشَلُوا۟ وَتَذْهَبَ رِيحُكُمْ ۖ وَٱصْبِرُوٓا۟ ۚ إِنَّ ٱللَّهَ مَعَ ٱلصَّٰبِرِينَ",
+   "en": "And obey Allah and His messenger, and dispute not one with another lest ye falter and your strength depart from you; but be steadfast! Lo! Allah is with the steadfast.",
+   "theme": "steady"
+  },
+  {
+   "ref": "17:23-24",
+   "surah": "Al-Israa",
+   "ar": "۞ وَقَضَىٰ رَبُّكَ أَلَّا تَعْبُدُوٓا۟ إِلَّآ إِيَّاهُ وَبِٱلْوَٰلِدَيْنِ إِحْسَٰنًا ۚ إِمَّا يَبْلُغَنَّ عِندَكَ ٱلْكِبَرَ أَحَدُهُمَآ أَوْ كِلَاهُمَا فَلَا تَقُل لَّهُمَآ أُفٍّۢ وَلَا تَنْهَرْهُمَا وَقُل لَّهُمَا قَوْلًۭا كَرِيمًۭا ۝ وَٱخْفِضْ لَهُمَا جَنَاحَ ٱلذُّلِّ مِنَ ٱلرَّحْمَةِ وَقُل رَّبِّ ٱرْحَمْهُمَا كَمَا رَبَّيَانِى صَغِيرًۭا",
+   "en": "Thy Lord hath decreed, that ye worship none save Him, and (that ye show) kindness to parents. If one of them or both of them attain old age with thee, say not \"Fie\" unto them nor repulse them, but speak unto them a gracious word. And lower unto them the wing of submission through mercy, and say: My Lord! Have mercy on them both as they did care for me when I was little.",
+   "theme": "purpose"
+  },
+  {
+   "ref": "31:14",
+   "surah": "Luqman",
+   "ar": "وَوَصَّيْنَا ٱلْإِنسَٰنَ بِوَٰلِدَيْهِ حَمَلَتْهُ أُمُّهُۥ وَهْنًا عَلَىٰ وَهْنٍۢ وَفِصَٰلُهُۥ فِى عَامَيْنِ أَنِ ٱشْكُرْ لِى وَلِوَٰلِدَيْكَ إِلَىَّ ٱلْمَصِيرُ",
+   "en": "And We have enjoined upon man concerning his partners - His mother beareth him in weakness upon weakness, and his weaning is in two years - Give thanks unto Me and unto thy parents. Unto Me is the journeying.",
+   "theme": "purpose"
+  },
+  {
+   "ref": "30:21",
+   "surah": "Ar-Room",
+   "ar": "وَمِنْ ءَايَٰتِهِۦٓ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَٰجًۭا لِّتَسْكُنُوٓا۟ إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةًۭ وَرَحْمَةً ۚ إِنَّ فِى ذَٰلِكَ لَءَايَٰتٍۢ لِّقَوْمٍۢ يَتَفَكَّرُونَ",
+   "en": "And of His signs is this: He created for you helpmeets from yourselves that ye might find rest in them, and He ordained between you love and mercy. Lo! herein indeed are portents for folk who reflect.",
+   "theme": "purpose"
+  },
+  {
+   "ref": "49:13",
+   "surah": "Al-Hujuraat",
+   "ar": "يَٰٓأَيُّهَا ٱلنَّاسُ إِنَّا خَلَقْنَٰكُم مِّن ذَكَرٍۢ وَأُنثَىٰ وَجَعَلْنَٰكُمْ شُعُوبًۭا وَقَبَآئِلَ لِتَعَارَفُوٓا۟ ۚ إِنَّ أَكْرَمَكُمْ عِندَ ٱللَّهِ أَتْقَىٰكُمْ ۚ إِنَّ ٱللَّهَ عَلِيمٌ خَبِيرٌۭ",
+   "en": "O mankind! Lo! We have created you male and female, and have made you nations and tribes that ye may know one another. Lo! the noblest of you, in the sight of Allah, is the best in conduct. Lo! Allah is Knower, Aware.",
+   "theme": "purpose"
+  },
+  {
+   "ref": "2:261",
+   "surah": "Al-Baqara",
+   "ar": "مَّثَلُ ٱلَّذِينَ يُنفِقُونَ أَمْوَٰلَهُمْ فِى سَبِيلِ ٱللَّهِ كَمَثَلِ حَبَّةٍ أَنۢبَتَتْ سَبْعَ سَنَابِلَ فِى كُلِّ سُنۢبُلَةٍۢ مِّا۟ئَةُ حَبَّةٍۢ ۗ وَٱللَّهُ يُضَٰعِفُ لِمَن يَشَآءُ ۗ وَٱللَّهُ وَٰسِعٌ عَلِيمٌ",
+   "en": "The likeness of those who spend their wealth in Allah's way is as the likeness of a grain which groweth seven ears, in every ear a hundred grains. Allah giveth increase manifold to whom He will. Allah is All-Embracing, All-Knowing.",
+   "theme": "money"
+  },
+  {
+   "ref": "2:274",
+   "surah": "Al-Baqara",
+   "ar": "ٱلَّذِينَ يُنفِقُونَ أَمْوَٰلَهُم بِٱلَّيْلِ وَٱلنَّهَارِ سِرًّۭا وَعَلَانِيَةًۭ فَلَهُمْ أَجْرُهُمْ عِندَ رَبِّهِمْ وَلَا خَوْفٌ عَلَيْهِمْ وَلَا هُمْ يَحْزَنُونَ",
+   "en": "Those who spend their wealth by night and day, by stealth and openly, verily their reward is with their Lord, and their shall no fear come upon them neither shall they grieve.",
+   "theme": "money"
+  },
+  {
+   "ref": "4:135",
+   "surah": "An-Nisaa",
+   "ar": "۞ يَٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوا۟ كُونُوا۟ قَوَّٰمِينَ بِٱلْقِسْطِ شُهَدَآءَ لِلَّهِ وَلَوْ عَلَىٰٓ أَنفُسِكُمْ أَوِ ٱلْوَٰلِدَيْنِ وَٱلْأَقْرَبِينَ ۚ إِن يَكُنْ غَنِيًّا أَوْ فَقِيرًۭا فَٱللَّهُ أَوْلَىٰ بِهِمَا ۖ فَلَا تَتَّبِعُوا۟ ٱلْهَوَىٰٓ أَن تَعْدِلُوا۟ ۚ وَإِن تَلْوُۥٓا۟ أَوْ تُعْرِضُوا۟ فَإِنَّ ٱللَّهَ كَانَ بِمَا تَعْمَلُونَ خَبِيرًۭا",
+   "en": "O ye who believe! Be ye staunch in justice, witnesses for Allah, even though it be against yourselves or (your) parents or (your) kindred, whether (the case be of) a rich man or a poor man, for Allah is nearer unto both (them ye are). So follow not passion lest ye lapse (from truth) and if ye lapse or fall away, then lo! Allah is ever Informed of what ye do.",
+   "theme": "purpose"
+  },
+  {
+   "ref": "5:8",
+   "surah": "Al-Maaida",
+   "ar": "يَٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوا۟ كُونُوا۟ قَوَّٰمِينَ لِلَّهِ شُهَدَآءَ بِٱلْقِسْطِ ۖ وَلَا يَجْرِمَنَّكُمْ شَنَـَٔانُ قَوْمٍ عَلَىٰٓ أَلَّا تَعْدِلُوا۟ ۚ ٱعْدِلُوا۟ هُوَ أَقْرَبُ لِلتَّقْوَىٰ ۖ وَٱتَّقُوا۟ ٱللَّهَ ۚ إِنَّ ٱللَّهَ خَبِيرٌۢ بِمَا تَعْمَلُونَ",
+   "en": "O ye who believe! Be steadfast witnesses for Allah in equity, and let not hatred of any people seduce you that ye deal not justly. Deal justly, that is nearer to your duty. Observe your duty to Allah. Lo! Allah is Informed of what ye do.",
+   "theme": "purpose"
+  },
+  {
+   "ref": "16:90",
+   "surah": "An-Nahl",
+   "ar": "۞ إِنَّ ٱللَّهَ يَأْمُرُ بِٱلْعَدْلِ وَٱلْإِحْسَٰنِ وَإِيتَآئِ ذِى ٱلْقُرْبَىٰ وَيَنْهَىٰ عَنِ ٱلْفَحْشَآءِ وَٱلْمُنكَرِ وَٱلْبَغْىِ ۚ يَعِظُكُمْ لَعَلَّكُمْ تَذَكَّرُونَ",
+   "en": "Lo! Allah enjoineth justice and kindness, and giving to kinsfolk, and forbiddeth lewdness and abomination and wickedness. He exhorteth you in order that ye may take heed.",
+   "theme": "purpose"
+  },
+  {
+   "ref": "16:97",
+   "surah": "An-Nahl",
+   "ar": "مَنْ عَمِلَ صَٰلِحًۭا مِّن ذَكَرٍ أَوْ أُنثَىٰ وَهُوَ مُؤْمِنٌۭ فَلَنُحْيِيَنَّهُۥ حَيَوٰةًۭ طَيِّبَةًۭ ۖ وَلَنَجْزِيَنَّهُمْ أَجْرَهُم بِأَحْسَنِ مَا كَانُوا۟ يَعْمَلُونَ",
+   "en": "Whosoever doeth right, whether male or female, and is a believer, him verily we shall quicken with good life, and We shall pay them a recompense in proportion to the best of what they used to do.",
+   "theme": "steady"
+  },
+  {
+   "ref": "25:63",
+   "surah": "Al-Furqaan",
+   "ar": "وَعِبَادُ ٱلرَّحْمَٰنِ ٱلَّذِينَ يَمْشُونَ عَلَى ٱلْأَرْضِ هَوْنًۭا وَإِذَا خَاطَبَهُمُ ٱلْجَٰهِلُونَ قَالُوا۟ سَلَٰمًۭا",
+   "en": "The (faithful) slaves of the Beneficent are they who walk upon the earth modestly, and when the foolish ones address them answer: Peace;",
+   "theme": "focus"
+  },
+  {
+   "ref": "31:18-19",
+   "surah": "Luqman",
+   "ar": "وَلَا تُصَعِّرْ خَدَّكَ لِلنَّاسِ وَلَا تَمْشِ فِى ٱلْأَرْضِ مَرَحًا ۖ إِنَّ ٱللَّهَ لَا يُحِبُّ كُلَّ مُخْتَالٍۢ فَخُورٍۢ ۝ وَٱقْصِدْ فِى مَشْيِكَ وَٱغْضُضْ مِن صَوْتِكَ ۚ إِنَّ أَنكَرَ ٱلْأَصْوَٰتِ لَصَوْتُ ٱلْحَمِيرِ",
+   "en": "Turn not thy cheek in scorn toward folk, nor walk with pertness in the land. Lo! Allah loveth not each braggart boaster. Be modest in thy bearing and subdue thy voice. Lo! the harshest of all voices is the voice of the ass.",
+   "theme": "focus"
+  },
+  {
+   "ref": "40:60",
+   "surah": "Ghafir",
+   "ar": "وَقَالَ رَبُّكُمُ ٱدْعُونِىٓ أَسْتَجِبْ لَكُمْ ۚ إِنَّ ٱلَّذِينَ يَسْتَكْبِرُونَ عَنْ عِبَادَتِى سَيَدْخُلُونَ جَهَنَّمَ دَاخِرِينَ",
+   "en": "And your Lord hath said: Pray unto Me and I will hear your prayer. Lo! those who scorn My service, they will enter hell, disgraced.",
+   "theme": "purpose"
+  },
+  {
+   "ref": "2:186",
+   "surah": "Al-Baqara",
+   "ar": "وَإِذَا سَأَلَكَ عِبَادِى عَنِّى فَإِنِّى قَرِيبٌ ۖ أُجِيبُ دَعْوَةَ ٱلدَّاعِ إِذَا دَعَانِ ۖ فَلْيَسْتَجِيبُوا۟ لِى وَلْيُؤْمِنُوا۟ بِى لَعَلَّهُمْ يَرْشُدُونَ",
+   "en": "And when My servants question thee concerning Me, then surely I am nigh. I answer the prayer of the suppliant when he crieth unto Me. So let them hear My call and let them trust in Me, in order that they may be led aright.",
+   "theme": "purpose"
+  },
+  {
+   "ref": "3:8",
+   "surah": "Aal-i-Imraan",
+   "ar": "رَبَّنَا لَا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا وَهَبْ لَنَا مِن لَّدُنكَ رَحْمَةً ۚ إِنَّكَ أَنتَ ٱلْوَهَّابُ",
+   "en": "Our Lord! Cause not our hearts to stray after Thou hast guided us, and bestow upon us mercy from Thy Presence. Lo! Thou, only Thou, art the Bestower.",
+   "theme": "focus"
+  },
+  {
+   "ref": "25:74",
+   "surah": "Al-Furqaan",
+   "ar": "وَٱلَّذِينَ يَقُولُونَ رَبَّنَا هَبْ لَنَا مِنْ أَزْوَٰجِنَا وَذُرِّيَّٰتِنَا قُرَّةَ أَعْيُنٍۢ وَٱجْعَلْنَا لِلْمُتَّقِينَ إِمَامًا",
+   "en": "And who say: Our Lord! Vouchsafe us comfort of our wives and of our offspring, and make us patterns for (all) those who ward off (evil).",
+   "theme": "purpose"
+  },
+  {
+   "ref": "20:114",
+   "surah": "Taa-Haa",
+   "ar": "فَتَعَٰلَى ٱللَّهُ ٱلْمَلِكُ ٱلْحَقُّ ۗ وَلَا تَعْجَلْ بِٱلْقُرْءَانِ مِن قَبْلِ أَن يُقْضَىٰٓ إِلَيْكَ وَحْيُهُۥ ۖ وَقُل رَّبِّ زِدْنِى عِلْمًۭا",
+   "en": "Then exalted be Allah, the True King! And hasten not (O Muhammad) with the Qur'an ere its revelation hath been perfected unto thee, and say: My Lord! Increase me in knowledge.",
+   "theme": "focus"
+  },
+  {
+   "ref": "96:1-5",
+   "surah": "Al-Alaq",
+   "ar": "ٱقْرَأْ بِٱسْمِ رَبِّكَ ٱلَّذِى خَلَقَ ۝ خَلَقَ ٱلْإِنسَٰنَ مِنْ عَلَقٍ ۝ ٱقْرَأْ وَرَبُّكَ ٱلْأَكْرَمُ ۝ ٱلَّذِى عَلَّمَ بِٱلْقَلَمِ ۝ عَلَّمَ ٱلْإِنسَٰنَ مَا لَمْ يَعْلَمْ",
+   "en": "Read: In the name of thy Lord Who createth, Createth man from a clot. Read: And thy Lord is the Most Bounteous, Who teacheth by the pen, Teacheth man that which he knew not.",
+   "theme": "start"
+  },
+  {
+   "ref": "39:10",
+   "surah": "Az-Zumar",
+   "ar": "قُلْ يَٰعِبَادِ ٱلَّذِينَ ءَامَنُوا۟ ٱتَّقُوا۟ رَبَّكُمْ ۚ لِلَّذِينَ أَحْسَنُوا۟ فِى هَٰذِهِ ٱلدُّنْيَا حَسَنَةٌۭ ۗ وَأَرْضُ ٱللَّهِ وَٰسِعَةٌ ۗ إِنَّمَا يُوَفَّى ٱلصَّٰبِرُونَ أَجْرَهُم بِغَيْرِ حِسَابٍۢ",
+   "en": "Say: O My bondmen who believe! Observe your duty to your Lord. For those who do good in this world there is good, and Allah's earth is spacious. Verily the steadfast will be paid their wages without stint.",
+   "theme": "steady"
+  },
+  {
+   "ref": "42:43",
+   "surah": "Ash-Shura",
+   "ar": "وَلَمَن صَبَرَ وَغَفَرَ إِنَّ ذَٰلِكَ لَمِنْ عَزْمِ ٱلْأُمُورِ",
+   "en": "And verily whoso is patient and forgiveth - lo! that, verily, is (of) the steadfast heart of things.",
+   "theme": "steady"
+  },
+  {
+   "ref": "64:16",
+   "surah": "At-Taghaabun",
+   "ar": "فَٱتَّقُوا۟ ٱللَّهَ مَا ٱسْتَطَعْتُمْ وَٱسْمَعُوا۟ وَأَطِيعُوا۟ وَأَنفِقُوا۟ خَيْرًۭا لِّأَنفُسِكُمْ ۗ وَمَن يُوقَ شُحَّ نَفْسِهِۦ فَأُو۟لَٰٓئِكَ هُمُ ٱلْمُفْلِحُونَ",
+   "en": "So keep your duty to Allah as best ye can, and listen, and obey, and spend; that is better for your souls. And whoso is saved from his own greed, such are the successful.",
+   "theme": "start"
+  },
+  {
+   "ref": "62:10",
+   "surah": "Al-Jumu'a",
+   "ar": "فَإِذَا قُضِيَتِ ٱلصَّلَوٰةُ فَٱنتَشِرُوا۟ فِى ٱلْأَرْضِ وَٱبْتَغُوا۟ مِن فَضْلِ ٱللَّهِ وَٱذْكُرُوا۟ ٱللَّهَ كَثِيرًۭا لَّعَلَّكُمْ تُفْلِحُونَ",
+   "en": "And when the prayer is ended, then disperse in the land and seek of Allah's bounty, and remember Allah much, that ye may be successful.",
+   "theme": "money"
+  },
+  {
+   "ref": "9:105",
+   "surah": "At-Tawba",
+   "ar": "وَقُلِ ٱعْمَلُوا۟ فَسَيَرَى ٱللَّهُ عَمَلَكُمْ وَرَسُولُهُۥ وَٱلْمُؤْمِنُونَ ۖ وَسَتُرَدُّونَ إِلَىٰ عَٰلِمِ ٱلْغَيْبِ وَٱلشَّهَٰدَةِ فَيُنَبِّئُكُم بِمَا كُنتُمْ تَعْمَلُونَ",
+   "en": "And say (unto them): Act! Allah will behold your actions, and (so will) His messenger and the believers, and ye will be brought back to the Knower of the Invisible and the Visible, and He will tell you what ye used to do.",
+   "theme": "start"
+  },
+  {
+   "ref": "17:78",
+   "surah": "Al-Israa",
+   "ar": "أَقِمِ ٱلصَّلَوٰةَ لِدُلُوكِ ٱلشَّمْسِ إِلَىٰ غَسَقِ ٱلَّيْلِ وَقُرْءَانَ ٱلْفَجْرِ ۖ إِنَّ قُرْءَانَ ٱلْفَجْرِ كَانَ مَشْهُودًۭا",
+   "en": "Establish worship at the going down of the sun until the dark of night, and (the recital of) the Qur'an at dawn. Lo! (the recital of) the Qur'an at dawn is ever witnessed.",
+   "theme": "time"
+  },
+  {
+   "ref": "11:114",
+   "surah": "Hud",
+   "ar": "وَأَقِمِ ٱلصَّلَوٰةَ طَرَفَىِ ٱلنَّهَارِ وَزُلَفًۭا مِّنَ ٱلَّيْلِ ۚ إِنَّ ٱلْحَسَنَٰتِ يُذْهِبْنَ ٱلسَّيِّـَٔاتِ ۚ ذَٰلِكَ ذِكْرَىٰ لِلذَّٰكِرِينَ",
+   "en": "Establish worship at the two ends of the day and in some watches of the night. Lo! good deeds annul ill-deeds. This is reminder for the mindful.",
+   "theme": "time"
+  },
+  {
+   "ref": "2:45",
+   "surah": "Al-Baqara",
+   "ar": "وَٱسْتَعِينُوا۟ بِٱلصَّبْرِ وَٱلصَّلَوٰةِ ۚ وَإِنَّهَا لَكَبِيرَةٌ إِلَّا عَلَى ٱلْخَٰشِعِينَ",
+   "en": "Seek help in patience and prayer; and truly it is hard save for the humble-minded,",
+   "theme": "steady"
+  },
+  {
+   "ref": "29:45",
+   "surah": "Al-Ankaboot",
+   "ar": "ٱتْلُ مَآ أُوحِىَ إِلَيْكَ مِنَ ٱلْكِتَٰبِ وَأَقِمِ ٱلصَّلَوٰةَ ۖ إِنَّ ٱلصَّلَوٰةَ تَنْهَىٰ عَنِ ٱلْفَحْشَآءِ وَٱلْمُنكَرِ ۗ وَلَذِكْرُ ٱللَّهِ أَكْبَرُ ۗ وَٱللَّهُ يَعْلَمُ مَا تَصْنَعُونَ",
+   "en": "Recite that which hath been inspired in thee of the Scripture, and establish worship. Lo! worship preserveth from lewdness and iniquity, but verily remembrance of Allah is more important. And Allah knoweth what ye do.",
+   "theme": "focus"
+  },
+  {
+   "ref": "2:183",
+   "surah": "Al-Baqara",
+   "ar": "يَٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوا۟ كُتِبَ عَلَيْكُمُ ٱلصِّيَامُ كَمَا كُتِبَ عَلَى ٱلَّذِينَ مِن قَبْلِكُمْ لَعَلَّكُمْ تَتَّقُونَ",
+   "en": "O ye who believe! Fasting is prescribed for you, even as it was prescribed for those before you, that ye may ward off (evil);",
+   "theme": "steady"
+  },
+  {
+   "ref": "67:2",
+   "surah": "Al-Mulk",
+   "ar": "ٱلَّذِى خَلَقَ ٱلْمَوْتَ وَٱلْحَيَوٰةَ لِيَبْلُوَكُمْ أَيُّكُمْ أَحْسَنُ عَمَلًۭا ۚ وَهُوَ ٱلْعَزِيزُ ٱلْغَفُورُ",
+   "en": "Who hath created life and death that He may try you which of you is best in conduct; and He is the Mighty, the Forgiving,",
+   "theme": "time"
+  },
+  {
+   "ref": "3:185",
+   "surah": "Aal-i-Imraan",
+   "ar": "كُلُّ نَفْسٍۢ ذَآئِقَةُ ٱلْمَوْتِ ۗ وَإِنَّمَا تُوَفَّوْنَ أُجُورَكُمْ يَوْمَ ٱلْقِيَٰمَةِ ۖ فَمَن زُحْزِحَ عَنِ ٱلنَّارِ وَأُدْخِلَ ٱلْجَنَّةَ فَقَدْ فَازَ ۗ وَمَا ٱلْحَيَوٰةُ ٱلدُّنْيَآ إِلَّا مَتَٰعُ ٱلْغُرُورِ",
+   "en": "Every soul will taste of death. And ye will be paid on the Day of Resurrection only that which ye have fairly earned. Whoso is removed from the Fire and is made to enter paradise, he indeed is triumphant. The life of this world is but comfort of illusion.",
+   "theme": "time"
+  },
+  {
+   "ref": "57:20",
+   "surah": "Al-Hadid",
+   "ar": "ٱعْلَمُوٓا۟ أَنَّمَا ٱلْحَيَوٰةُ ٱلدُّنْيَا لَعِبٌۭ وَلَهْوٌۭ وَزِينَةٌۭ وَتَفَاخُرٌۢ بَيْنَكُمْ وَتَكَاثُرٌۭ فِى ٱلْأَمْوَٰلِ وَٱلْأَوْلَٰدِ ۖ كَمَثَلِ غَيْثٍ أَعْجَبَ ٱلْكُفَّارَ نَبَاتُهُۥ ثُمَّ يَهِيجُ فَتَرَىٰهُ مُصْفَرًّۭا ثُمَّ يَكُونُ حُطَٰمًۭا ۖ وَفِى ٱلْءَاخِرَةِ عَذَابٌۭ شَدِيدٌۭ وَمَغْفِرَةٌۭ مِّنَ ٱللَّهِ وَرِضْوَٰنٌۭ ۚ وَمَا ٱلْحَيَوٰةُ ٱلدُّنْيَآ إِلَّا مَتَٰعُ ٱلْغُرُورِ",
+   "en": "Know that the life of the world is only play, and idle talk, and pageantry, and boasting among you, and rivalry in respect of wealth and children; as the likeness of vegetation after rain, whereof the growth is pleasing to the husbandman, but afterward it drieth up and thou seest it turning yellow, then it becometh straw. And in the Hereafter there is grievous punishment, and (also) forgiveness from Allah and His good pleasure, whereas the life of the world is but matter of illusion.",
+   "theme": "time"
+  },
+  {
+   "ref": "28:77",
+   "surah": "Al-Qasas",
+   "ar": "وَٱبْتَغِ فِيمَآ ءَاتَىٰكَ ٱللَّهُ ٱلدَّارَ ٱلْءَاخِرَةَ ۖ وَلَا تَنسَ نَصِيبَكَ مِنَ ٱلدُّنْيَا ۖ وَأَحْسِن كَمَآ أَحْسَنَ ٱللَّهُ إِلَيْكَ ۖ وَلَا تَبْغِ ٱلْفَسَادَ فِى ٱلْأَرْضِ ۖ إِنَّ ٱللَّهَ لَا يُحِبُّ ٱلْمُفْسِدِينَ",
+   "en": "But seek the abode of the Hereafter in that which Allah hath given thee and neglect not thy portion of the world, and be thou kind even as Allah hath been kind to thee, and seek not corruption in the earth; lo! Allah loveth not corrupters,",
+   "theme": "money"
+  },
+  {
+   "ref": "2:195",
+   "surah": "Al-Baqara",
+   "ar": "وَأَنفِقُوا۟ فِى سَبِيلِ ٱللَّهِ وَلَا تُلْقُوا۟ بِأَيْدِيكُمْ إِلَى ٱلتَّهْلُكَةِ ۛ وَأَحْسِنُوٓا۟ ۛ إِنَّ ٱللَّهَ يُحِبُّ ٱلْمُحْسِنِينَ",
+   "en": "Spend your wealth for the cause of Allah, and be not cast by your own hands to ruin; and do good. Lo! Allah loveth the beneficent.",
+   "theme": "money"
+  },
+  {
+   "ref": "17:35",
+   "surah": "Al-Israa",
+   "ar": "وَأَوْفُوا۟ ٱلْكَيْلَ إِذَا كِلْتُمْ وَزِنُوا۟ بِٱلْقِسْطَاسِ ٱلْمُسْتَقِيمِ ۚ ذَٰلِكَ خَيْرٌۭ وَأَحْسَنُ تَأْوِيلًۭا",
+   "en": "Fill the measure when ye measure, and weigh with a right balance; that is meet, and better in the end.",
+   "theme": "money"
+  },
+  {
+   "ref": "2:280",
+   "surah": "Al-Baqara",
+   "ar": "وَإِن كَانَ ذُو عُسْرَةٍۢ فَنَظِرَةٌ إِلَىٰ مَيْسَرَةٍۢ ۚ وَأَن تَصَدَّقُوا۟ خَيْرٌۭ لَّكُمْ ۖ إِن كُنتُمْ تَعْلَمُونَ",
+   "en": "And if the debtor is in straitened circumstances, then (let there be) postponement to (the time of) ease; and that ye remit the debt as almsgiving would be better for you if ye did but know.",
+   "theme": "money"
+  },
+  {
+   "ref": "25:67",
+   "surah": "Al-Furqaan",
+   "ar": "وَٱلَّذِينَ إِذَآ أَنفَقُوا۟ لَمْ يُسْرِفُوا۟ وَلَمْ يَقْتُرُوا۟ وَكَانَ بَيْنَ ذَٰلِكَ قَوَامًۭا",
+   "en": "And those who, when they spend, are neither prodigal nor grudging; and there is ever a firm station between the two;",
+   "theme": "money"
+  },
+  {
+   "ref": "17:29",
+   "surah": "Al-Israa",
+   "ar": "وَلَا تَجْعَلْ يَدَكَ مَغْلُولَةً إِلَىٰ عُنُقِكَ وَلَا تَبْسُطْهَا كُلَّ ٱلْبَسْطِ فَتَقْعُدَ مَلُومًۭا مَّحْسُورًا",
+   "en": "And let not thy hand be chained to thy neck nor open it with a complete opening, lest thou sit down rebuked, denuded.",
+   "theme": "money"
+  },
+  {
+   "ref": "17:26-27",
+   "surah": "Al-Israa",
+   "ar": "وَءَاتِ ذَا ٱلْقُرْبَىٰ حَقَّهُۥ وَٱلْمِسْكِينَ وَٱبْنَ ٱلسَّبِيلِ وَلَا تُبَذِّرْ تَبْذِيرًا ۝ إِنَّ ٱلْمُبَذِّرِينَ كَانُوٓا۟ إِخْوَٰنَ ٱلشَّيَٰطِينِ ۖ وَكَانَ ٱلشَّيْطَٰنُ لِرَبِّهِۦ كَفُورًۭا",
+   "en": "Give the kinsman his due, and the needy, and the wayfarer, and squander not (thy wealth) in wantonness. Lo! the squanderers were ever brothers of the devils, and the devil was ever an ingrate to his Lord.",
+   "theme": "money"
+  },
+  {
+   "ref": "7:31",
+   "surah": "Al-A'raaf",
+   "ar": "۞ يَٰبَنِىٓ ءَادَمَ خُذُوا۟ زِينَتَكُمْ عِندَ كُلِّ مَسْجِدٍۢ وَكُلُوا۟ وَٱشْرَبُوا۟ وَلَا تُسْرِفُوٓا۟ ۚ إِنَّهُۥ لَا يُحِبُّ ٱلْمُسْرِفِينَ",
+   "en": "O Children of Adam! Look to your adornment at every place of worship, and eat and drink, but be not prodigal. Lo! He loveth not the prodigals.",
+   "theme": "money"
+  },
+  {
+   "ref": "14:7",
+   "surah": "Ibrahim",
+   "ar": "وَإِذْ تَأَذَّنَ رَبُّكُمْ لَئِن شَكَرْتُمْ لَأَزِيدَنَّكُمْ ۖ وَلَئِن كَفَرْتُمْ إِنَّ عَذَابِى لَشَدِيدٌۭ",
+   "en": "And when your Lord proclaimed: If ye give thanks, I will give you more; but if ye are thankless, lo! My punishment is dire.",
+   "theme": "purpose"
+  },
+  {
+   "ref": "93:11",
+   "surah": "Ad-Dhuhaa",
+   "ar": "وَأَمَّا بِنِعْمَةِ رَبِّكَ فَحَدِّثْ",
+   "en": "Therefor of the bounty of thy Lord be thy discourse.",
+   "theme": "purpose"
+  },
+  {
+   "ref": "16:18",
+   "surah": "An-Nahl",
+   "ar": "وَإِن تَعُدُّوا۟ نِعْمَةَ ٱللَّهِ لَا تُحْصُوهَآ ۗ إِنَّ ٱللَّهَ لَغَفُورٌۭ رَّحِيمٌۭ",
+   "en": "And if ye would count the favour of Allah ye cannot reckon it. Lo! Allah is indeed Forgiving, Merciful.",
+   "theme": "purpose"
+  },
+  {
+   "ref": "73:20",
+   "surah": "Al-Muzzammil",
+   "ar": "۞ إِنَّ رَبَّكَ يَعْلَمُ أَنَّكَ تَقُومُ أَدْنَىٰ مِن ثُلُثَىِ ٱلَّيْلِ وَنِصْفَهُۥ وَثُلُثَهُۥ وَطَآئِفَةٌۭ مِّنَ ٱلَّذِينَ مَعَكَ ۚ وَٱللَّهُ يُقَدِّرُ ٱلَّيْلَ وَٱلنَّهَارَ ۚ عَلِمَ أَن لَّن تُحْصُوهُ فَتَابَ عَلَيْكُمْ ۖ فَٱقْرَءُوا۟ مَا تَيَسَّرَ مِنَ ٱلْقُرْءَانِ ۚ عَلِمَ أَن سَيَكُونُ مِنكُم مَّرْضَىٰ ۙ وَءَاخَرُونَ يَضْرِبُونَ فِى ٱلْأَرْضِ يَبْتَغُونَ مِن فَضْلِ ٱللَّهِ ۙ وَءَاخَرُونَ يُقَٰتِلُونَ فِى سَبِيلِ ٱللَّهِ ۖ فَٱقْرَءُوا۟ مَا تَيَسَّرَ مِنْهُ ۚ وَأَقِيمُوا۟ ٱلصَّلَوٰةَ وَءَاتُوا۟ ٱلزَّكَوٰةَ وَأَقْرِضُوا۟ ٱللَّهَ قَرْضًا حَسَنًۭا ۚ وَمَا تُقَدِّمُوا۟ لِأَنفُسِكُم مِّنْ خَيْرٍۢ تَجِدُوهُ عِندَ ٱللَّهِ هُوَ خَيْرًۭا وَأَعْظَمَ أَجْرًۭا ۚ وَٱسْتَغْفِرُوا۟ ٱللَّهَ ۖ إِنَّ ٱللَّهَ غَفُورٌۭ رَّحِيمٌۢ",
+   "en": "Lo! thy Lord knoweth how thou keepest vigil sometimes nearly two-thirds of the night, or (sometimes) half or a third thereof, as do a party of those with thee. Allah measureth the night and the day. He knoweth that ye count it not, and turneth unto you in mercy. Recite, then, of the Qur'an that which is easy for you. He knoweth that there are sick folk among you, while others travel in the land in search of Allah's bounty, and others (still) are fighting for the cause of Allah. So recite of it that which is easy (for you), and establish worship and pay the poor-due, and (so) lend unto Allah a goodly loan. Whatsoever good ye send before you for your souls, ye will find it with Allah, better and greater in the recompense. And seek forgiveness of Allah. Lo! Allah is Forgiving, Merciful.",
+   "theme": "time"
+  },
+  {
+   "ref": "2:110",
+   "surah": "Al-Baqara",
+   "ar": "وَأَقِيمُوا۟ ٱلصَّلَوٰةَ وَءَاتُوا۟ ٱلزَّكَوٰةَ ۚ وَمَا تُقَدِّمُوا۟ لِأَنفُسِكُم مِّنْ خَيْرٍۢ تَجِدُوهُ عِندَ ٱللَّهِ ۗ إِنَّ ٱللَّهَ بِمَا تَعْمَلُونَ بَصِيرٌۭ",
+   "en": "Establish worship, and pay the poor-due; and whatever of good ye send before (you) for your souls, ye will find it with Allah. Lo! Allah is Seer of what ye do.",
+   "theme": "start"
+  },
+  {
+   "ref": "63:10",
+   "surah": "Al-Munaafiqoon",
+   "ar": "وَأَنفِقُوا۟ مِن مَّا رَزَقْنَٰكُم مِّن قَبْلِ أَن يَأْتِىَ أَحَدَكُمُ ٱلْمَوْتُ فَيَقُولَ رَبِّ لَوْلَآ أَخَّرْتَنِىٓ إِلَىٰٓ أَجَلٍۢ قَرِيبٍۢ فَأَصَّدَّقَ وَأَكُن مِّنَ ٱلصَّٰلِحِينَ",
+   "en": "And spend of that wherewith We have provided you before death cometh unto one of you and he saith: My Lord! If only thou wouldst reprieve me for a little while, then I would give alms and be among the righteous.",
+   "theme": "start"
+  },
+  {
+   "ref": "4:103",
+   "surah": "An-Nisaa",
+   "ar": "فَإِذَا قَضَيْتُمُ ٱلصَّلَوٰةَ فَٱذْكُرُوا۟ ٱللَّهَ قِيَٰمًۭا وَقُعُودًۭا وَعَلَىٰ جُنُوبِكُمْ ۚ فَإِذَا ٱطْمَأْنَنتُمْ فَأَقِيمُوا۟ ٱلصَّلَوٰةَ ۚ إِنَّ ٱلصَّلَوٰةَ كَانَتْ عَلَى ٱلْمُؤْمِنِينَ كِتَٰبًۭا مَّوْقُوتًۭا",
+   "en": "When ye have performed the act of worship, remember Allah, standing, sitting and reclining. And when ye are in safety, observe proper worship. Worship at fixed times hath been enjoined on the believers.",
+   "theme": "time"
+  },
+  {
+   "ref": "70:19-23",
+   "surah": "Al-Ma'aarij",
+   "ar": "۞ إِنَّ ٱلْإِنسَٰنَ خُلِقَ هَلُوعًا ۝ إِذَا مَسَّهُ ٱلشَّرُّ جَزُوعًۭا ۝ وَإِذَا مَسَّهُ ٱلْخَيْرُ مَنُوعًا ۝ إِلَّا ٱلْمُصَلِّينَ ۝ ٱلَّذِينَ هُمْ عَلَىٰ صَلَاتِهِمْ دَآئِمُونَ",
+   "en": "Lo! man was created anxious, Fretful when evil befalleth him And, when good befalleth him, grudging; Save worshippers. Who are constant at their worship",
+   "theme": "steady"
+  }
+ ],
+ "bible": [
+  {
+   "ref": "Psalms 90:12",
+   "en": "So teach us to number our days, that we may apply our hearts unto wisdom.",
+   "theme": "time"
+  },
+  {
+   "ref": "Ephesians 5:15-16",
+   "en": "See then that ye walk circumspectly, not as fools, but as wise, Redeeming the time, because the days are evil.",
+   "theme": "time"
+  },
+  {
+   "ref": "Ecclesiastes 3:1",
+   "en": "To every thing there is a season, and a time to every purpose under the heaven:",
+   "theme": "time"
+  },
+  {
+   "ref": "Psalms 118:24",
+   "en": "This is the day which the LORD hath made; we will rejoice and be glad in it.",
+   "theme": "time"
+  },
+  {
+   "ref": "James 4:13-15",
+   "en": "Go to now, ye that say, To day or to morrow we will go into such a city, and continue there a year, and buy and sell, and get gain: Whereas ye know not what shall be on the morrow. For what is your life? It is even a vapour, that appeareth for a little time, and then vanisheth away. For that ye ought to say, If the Lord will, we shall live, and do this, or that.",
+   "theme": "time"
+  },
+  {
+   "ref": "Proverbs 27:1",
+   "en": "Boast not thyself of to morrow; for thou knowest not what a day may bring forth.",
+   "theme": "start"
+  },
+  {
+   "ref": "Ecclesiastes 9:10",
+   "en": "Whatsoever thy hand findeth to do, do it with thy might; for there is no work, nor device, nor knowledge, nor wisdom, in the grave, whither thou goest.",
+   "theme": "start"
+  },
+  {
+   "ref": "Ecclesiastes 11:4",
+   "en": "He that observeth the wind shall not sow; and he that regardeth the clouds shall not reap.",
+   "theme": "start"
+  },
+  {
+   "ref": "Proverbs 6:6-8",
+   "en": "Go to the ant, thou sluggard; consider her ways, and be wise: Which having no guide, overseer, or ruler, Provideth her meat in the summer, and gathereth her food in the harvest.",
+   "theme": "start"
+  },
+  {
+   "ref": "Mark 1:35",
+   "en": "And in the morning, rising up a great while before day, he went out, and departed into a solitary place, and there prayed.",
+   "theme": "start"
+  },
+  {
+   "ref": "James 1:22",
+   "en": "But be ye doers of the word, and not hearers only, deceiving your own selves.",
+   "theme": "start"
+  },
+  {
+   "ref": "Proverbs 16:3",
+   "en": "Commit thy works unto the LORD, and thy thoughts shall be established.",
+   "theme": "purpose"
+  },
+  {
+   "ref": "Proverbs 16:9",
+   "en": "A man’s heart deviseth his way: but the LORD directeth his steps.",
+   "theme": "purpose"
+  },
+  {
+   "ref": "Proverbs 19:21",
+   "en": "There are many devices in a man’s heart; nevertheless the counsel of the LORD, that shall stand.",
+   "theme": "purpose"
+  },
+  {
+   "ref": "Proverbs 3:5-6",
+   "en": "Trust in the LORD with all thine heart; and lean not unto thine own understanding. In all thy ways acknowledge him, and he shall direct thy paths.",
+   "theme": "purpose"
+  },
+  {
+   "ref": "Matthew 6:33",
+   "en": "But seek ye first the kingdom of God, and his righteousness; and all these things shall be added unto you.",
+   "theme": "purpose"
+  },
+  {
+   "ref": "Micah 6:8",
+   "en": "He hath shewed thee, O man, what is good; and what doth the LORD require of thee, but to do justly, and to love mercy, and to walk humbly with thy God?",
+   "theme": "purpose"
+  },
+  {
+   "ref": "Psalms 127:1",
+   "en": "Except the LORD build the house, they labour in vain that build it: except the LORD keep the city, the watchman waketh but in vain.",
+   "theme": "purpose"
+  },
+  {
+   "ref": "Luke 6:31",
+   "en": "And as ye would that men should do to you, do ye also to them likewise.",
+   "theme": "purpose"
+  },
+  {
+   "ref": "1 Corinthians 16:14",
+   "en": "Let all your things be done with charity.",
+   "theme": "purpose"
+  },
+  {
+   "ref": "Colossians 3:23",
+   "en": "And whatsoever ye do, do it heartily, as to the Lord, and not unto men;",
+   "theme": "focus"
+  },
+  {
+   "ref": "Philippians 3:13-14",
+   "en": "Brethren, I count not myself to have apprehended: but this one thing I do, forgetting those things which are behind, and reaching forth unto those things which are before, I press toward the mark for the prize of the high calling of God in Christ Jesus.",
+   "theme": "focus"
+  },
+  {
+   "ref": "Hebrews 12:1",
+   "en": "Wherefore seeing we also are compassed about with so great a cloud of witnesses, let us lay aside every weight, and the sin which doth so easily beset us, and let us run with patience the race that is set before us,",
+   "theme": "focus"
+  },
+  {
+   "ref": "Proverbs 4:23",
+   "en": "Keep thy heart with all diligence; for out of it are the issues of life.",
+   "theme": "focus"
+  },
+  {
+   "ref": "Psalms 46:10",
+   "en": "Be still, and know that I am God: I will be exalted among the heathen, I will be exalted in the earth.",
+   "theme": "focus"
+  },
+  {
+   "ref": "Romans 12:2",
+   "en": "And be not conformed to this world: but be ye transformed by the renewing of your mind, that ye may prove what is that good, and acceptable, and perfect, will of God.",
+   "theme": "focus"
+  },
+  {
+   "ref": "1 Corinthians 10:31",
+   "en": "Whether therefore ye eat, or drink, or whatsoever ye do, do all to the glory of God.",
+   "theme": "focus"
+  },
+  {
+   "ref": "Galatians 6:9",
+   "en": "And let us not be weary in well doing: for in due season we shall reap, if we faint not.",
+   "theme": "steady"
+  },
+  {
+   "ref": "Isaiah 40:31",
+   "en": "But they that wait upon the LORD shall renew their strength; they shall mount up with wings as eagles; they shall run, and not be weary; and they shall walk, and not faint.",
+   "theme": "steady"
+  },
+  {
+   "ref": "Romans 12:12",
+   "en": "Rejoicing in hope; patient in tribulation; continuing instant in prayer;",
+   "theme": "steady"
+  },
+  {
+   "ref": "Lamentations 3:22-23",
+   "en": "It is of the LORD’S mercies that we are not consumed, because his compassions fail not. They are new every morning: great is thy faithfulness.",
+   "theme": "steady"
+  },
+  {
+   "ref": "Philippians 4:13",
+   "en": "I can do all things through Christ which strengtheneth me.",
+   "theme": "steady"
+  },
+  {
+   "ref": "1 Corinthians 9:24",
+   "en": "Know ye not that they which run in a race run all, but one receiveth the prize? So run, that ye may obtain.",
+   "theme": "steady"
+  },
+  {
+   "ref": "Isaiah 41:10",
+   "en": "Fear thou not; for I am with thee: be not dismayed; for I am thy God: I will strengthen thee; yea, I will help thee; yea, I will uphold thee with the right hand of my righteousness.",
+   "theme": "steady"
+  },
+  {
+   "ref": "Joshua 1:9",
+   "en": "Have not I commanded thee? Be strong and of a good courage; be not afraid, neither be thou dismayed: for the LORD thy God is with thee whithersoever thou goest.",
+   "theme": "steady"
+  },
+  {
+   "ref": "Romans 8:28",
+   "en": "And we know that all things work together for good to them that love God, to them who are the called according to his purpose.",
+   "theme": "steady"
+  },
+  {
+   "ref": "Philippians 4:6-7",
+   "en": "Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known unto God. And the peace of God, which passeth all understanding, shall keep your hearts and minds through Christ Jesus.",
+   "theme": "steady"
+  },
+  {
+   "ref": "Matthew 6:34",
+   "en": "Take therefore no thought for the morrow: for the morrow shall take thought for the things of itself. Sufficient unto the day is the evil thereof.",
+   "theme": "steady"
+  },
+  {
+   "ref": "Matthew 11:28",
+   "en": "Come unto me, all ye that labour and are heavy laden, and I will give you rest.",
+   "theme": "steady"
+  },
+  {
+   "ref": "2 Timothy 1:7",
+   "en": "For God hath not given us the spirit of fear; but of power, and of love, and of a sound mind.",
+   "theme": "steady"
+  },
+  {
+   "ref": "John 14:27",
+   "en": "Peace I leave with you, my peace I give unto you: not as the world giveth, give I unto you. Let not your heart be troubled, neither let it be afraid.",
+   "theme": "steady"
+  },
+  {
+   "ref": "1 Thessalonians 5:16-18",
+   "en": "Rejoice evermore. Pray without ceasing. In every thing give thanks: for this is the will of God in Christ Jesus concerning you.",
+   "theme": "purpose"
+  },
+  {
+   "ref": "Psalms 37:5",
+   "en": "Commit thy way unto the LORD; trust also in him; and he shall bring it to pass.",
+   "theme": "purpose"
+  },
+  {
+   "ref": "Matthew 7:7",
+   "en": "Ask, and it shall be given you; seek, and ye shall find; knock, and it shall be opened unto you:",
+   "theme": "start"
+  },
+  {
+   "ref": "Proverbs 21:5",
+   "en": "The thoughts of the diligent tend only to plenteousness; but of every one that is hasty only to want.",
+   "theme": "money"
+  },
+  {
+   "ref": "Proverbs 13:11",
+   "en": "Wealth gotten by vanity shall be diminished: but he that gathereth by labour shall increase.",
+   "theme": "money"
+  },
+  {
+   "ref": "Proverbs 22:7",
+   "en": "The rich ruleth over the poor, and the borrower is servant to the lender.",
+   "theme": "money"
+  },
+  {
+   "ref": "Proverbs 24:27",
+   "en": "Prepare thy work without, and make it fit for thyself in the field; and afterwards build thine house.",
+   "theme": "money"
+  },
+  {
+   "ref": "Luke 14:28",
+   "en": "For which of you, intending to build a tower, sitteth not down first, and counteth the cost, whether he have sufficient to finish it?",
+   "theme": "money"
+  },
+  {
+   "ref": "Luke 16:10",
+   "en": "He that is faithful in that which is least is faithful also in much: and he that is unjust in the least is unjust also in much.",
+   "theme": "money"
+  },
+  {
+   "ref": "Proverbs 10:4",
+   "en": "He becometh poor that dealeth with a slack hand: but the hand of the diligent maketh rich.",
+   "theme": "money"
+  },
+  {
+   "ref": "Proverbs 12:24",
+   "en": "The hand of the diligent shall bear rule: but the slothful shall be under tribute.",
+   "theme": "money"
+  },
+  {
+   "ref": "Deuteronomy 8:18",
+   "en": "But thou shalt remember the LORD thy God: for it is he that giveth thee power to get wealth, that he may establish his covenant which he sware unto thy fathers, as it is this day.",
+   "theme": "money"
+  },
+  {
+   "ref": "Hebrews 13:5",
+   "en": "Let your conversation be without covetousness; and be content with such things as ye have: for he hath said, I will never leave thee, nor forsake thee.",
+   "theme": "money"
+  },
+  {
+   "ref": "1 Timothy 6:10",
+   "en": "For the love of money is the root of all evil: which while some coveted after, they have erred from the faith, and pierced themselves through with many sorrows.",
+   "theme": "money"
+  },
+  {
+   "ref": "Malachi 3:10",
+   "en": "Bring ye all the tithes into the storehouse, that there may be meat in mine house, and prove me now herewith, saith the LORD of hosts, if I will not open you the windows of heaven, and pour you out a blessing, that there shall not be room enough to receive it.",
+   "theme": "money"
+  },
+  {
+   "ref": "2 Thessalonians 3:10",
+   "en": "For even when we were with you, this we commanded you, that if any would not work, neither should he eat.",
+   "theme": "start"
+  },
+  {
+   "ref": "James 1:5",
+   "en": "If any of you lack wisdom, let him ask of God, that giveth to all men liberally, and upbraideth not; and it shall be given him.",
+   "theme": "focus"
+  },
+  {
+   "ref": "Psalms 1:1-3",
+   "en": "Blessed is the man that walketh not in the counsel of the ungodly, nor standeth in the way of sinners, nor sitteth in the seat of the scornful. But his delight is in the law of the LORD; and in his law doth he meditate day and night. And he shall be like a tree planted by the rivers of water, that bringeth forth his fruit in his season; his leaf also shall not wither; and whatsoever he doeth shall prosper.",
+   "theme": "purpose"
+  },
+  {
+   "ref": "Proverbs 3:9-10",
+   "en": "Honour the LORD with thy substance, and with the firstfruits of all thine increase: So shall thy barns be filled with plenty, and thy presses shall burst out with new wine.",
+   "theme": "money"
+  }
+ ]
+}

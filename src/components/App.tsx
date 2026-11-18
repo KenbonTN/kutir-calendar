@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import {
-  CalendarDays, ChevronDown, Church, Compass, Clock, Flame, Inbox, Leaf, ListChecks, Monitor, Moon, Mountain, PartyPopper, Plus,
+  CalendarDays, ChevronDown, Church, Compass, MoonStar, Clock, Flame, Inbox, Leaf, ListChecks, Monitor, Moon, Mountain, PartyPopper, Plus,
   Settings as SettingsIcon, Sparkles, Star, Sun, Trash2, Wallet, X,
 } from "lucide-react";
 import dynamic from "next/dynamic";
@@ -16,7 +16,7 @@ import { useEvents } from "@/lib/events";
 import { EXPENSES_KEY, useExpenses } from "@/lib/expenses";
 import { FIXTURES_UPDATED } from "@/lib/fixtures";
 import { addGoal, goalStats, keepLegacyGoal, removeGoal, useGoals, type Goal } from "@/lib/goals";
-import { orthodoxDay } from "@/lib/orthodox";
+import { dayFor, useProfile } from "@/lib/faith";
 import { minsLabel } from "@/lib/pool";
 import { registerServiceWorker, useUpdateReady } from "@/lib/push";
 import { weekOf } from "@/lib/review";
@@ -27,6 +27,7 @@ import { useToday } from "@/lib/useToday";
 import { AccountButton, CloudNotice } from "./Account";
 import { CoachCard, useCoach, usePlanView, type PlanView } from "./Coach";
 import { DateBoth } from "./DateBoth";
+import { ChristianCard, FaithAsk, PrayerCard } from "./Faith";
 import type { Layers } from "./MonthGrid";
 import { PullFromPool, usePool } from "./PullFromPool";
 import { DateReminders, FastToggle, LifeNudges, StuckTasks } from "./TodayExtras";
@@ -89,6 +90,7 @@ function Main({ today, now }: { today: number; now: number }) {
   const reviewWeek = wd === 6 ? weekOf(today)[0] : wd === 0 ? weekOf(today - 7)[0] : null;
   const [nySeen, setNySeen] = useStored<number>("kutir-newyear-seen", 0);
   const [, setPlanView] = usePlanView();
+  const faith = useProfile().faith;
   const tips = useCoach(today, now, tasks);
   const openPlan = (v: PlanView, journal = false) => {
     setPlanView(v);
@@ -130,6 +132,10 @@ function Main({ today, now }: { today: number; now: number }) {
       {isNewYearWeek(today) && nySeen !== fromJdn(today).y && (
         <NewYearCard year={fromJdn(today).y} onOpen={() => setYearReview(fromJdn(today).y - 1)} onDismiss={() => setNySeen(fromJdn(today).y)} />
       )}
+
+      <FaithAsk />
+      {faith === "muslim" && <PrayerCard today={today} now={now} />}
+      {faith === "orthodox" && <ChristianCard today={today} />}
 
       <CoachCard tips={tips} onAction={(to) => openPlan(to === "journal" ? "day" : to, to === "journal")} />
 
@@ -441,7 +447,8 @@ function TodayCard({ today, now, tasks, allTasks, name }: { today: number; now: 
   const sky = partOfDay(now);
   const greeting = t(sky === "morning" ? "Good morning" : sky === "day" ? "Good afternoon" : "Good evening");
   const fasts = useFasts();
-  const od = orthodoxDay(today);
+  const faith = useProfile().faith;
+  const od = dayFor(today, faith);
   const done = tasks.filter((t) => t.done).length;
   const pct = tasks.length ? done / tasks.length : 0;
   const cleared = tasks.length > 0 && done === tasks.length;
@@ -552,7 +559,8 @@ function TodayCard({ today, now, tasks, allTasks, name }: { today: number; now: 
 
       <div className="relative mt-4 flex flex-wrap gap-x-4 gap-y-1 border-t border-line pt-3 text-sm text-muted">
         <span className="flex items-center gap-1.5">
-          <Church size={14} /> {od.monthly.en} · <span lang="am">{od.monthly.am}</span>
+          {od.muslim ? <MoonStar size={14} /> : <Church size={14} />} {od.line.en}
+          {od.line.am && <> · <span lang="am">{od.line.am}</span></>}
         </span>
         {od.feasts.map((f) => (
           <span key={f.en} className="flex items-center gap-1.5 font-semibold text-gold">

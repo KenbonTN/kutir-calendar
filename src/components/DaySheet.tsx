@@ -7,7 +7,7 @@ import {
 } from "@/lib/ethiopian";
 import { between, useEvents } from "@/lib/events";
 import { matchesOn } from "@/lib/fixtures";
-import { orthodoxDay } from "@/lib/orthodox";
+import { dayFor, useProfile } from "@/lib/faith";
 import type { Goal } from "@/lib/goals";
 import { fmt, total, type ScreenLog } from "@/lib/screen";
 import { tasksOn, type Routine, type Task } from "@/lib/tasks";
@@ -32,7 +32,8 @@ const heading = "flex items-center gap-2 text-xs font-bold uppercase tracking-[0
 
 export function DaySheet({ j, today, now, goal, tasks, routines, log }: Props) {
   const e = fromJdn(j);
-  const od = orthodoxDay(j);
+  const faith = useProfile().faith;
+  const od = dayFor(j, faith);
   const matches = matchesOn(j);
   const end = goal ? goal.start + goal.days - 1 : -1;
   const inPlan = !!goal && j >= goal.start && j <= end;
@@ -109,19 +110,25 @@ export function DaySheet({ j, today, now, goal, tasks, routines, log }: Props) {
 
       <section className="grid gap-3">
         <h3 className={heading}>
-          <Church size={14} /> Orthodox calendar
+          <Church size={14} /> {od.muslim ? "Islamic calendar" : "Orthodox calendar"}
         </h3>
         <div className="rounded-2xl border border-line p-3">
-          <div className="text-xs text-muted">Remembered on the {e.d}{suffix(e.d)} of every month</div>
-          <div className="font-semibold">{od.monthly.en}</div>
-          <div lang="am" className="text-green">{od.monthly.am}</div>
+          {od.muslim ? (
+            <div className="font-semibold">{od.line.en}</div>
+          ) : (
+            <>
+              <div className="text-xs text-muted">Remembered on the {e.d}{suffix(e.d)} of every month</div>
+              <div className="font-semibold">{od.line.en}</div>
+              <div lang="am" className="text-green">{od.line.am}</div>
+            </>
+          )}
         </div>
         {od.feasts.map((f) => (
           <div key={f.en} className="flex items-start gap-2 rounded-2xl bg-gold-soft p-3">
             <Star size={16} className="mt-0.5 shrink-0 text-gold" fill={f.kind === "major" ? "currentColor" : "none"} />
             <div>
               <div className="font-semibold">{f.en}</div>
-              <div lang="am" className="text-sm">{f.am}</div>
+              {f.am && <div lang="am" className="text-sm">{f.am}</div>}
               {f.kind === "national" && <div className="text-xs text-muted">National holiday</div>}
             </div>
           </div>
@@ -130,7 +137,7 @@ export function DaySheet({ j, today, now, goal, tasks, routines, log }: Props) {
           <div className="flex items-center gap-2 text-sm">
             <Leaf size={16} className="text-green" />
             <span>
-              Fasting day: {od.fast.en} · <span lang="am">{od.fast.am}</span>
+              Fasting day: {od.fast.en}{od.fast.am && <> · <span lang="am">{od.fast.am}</span></>}
             </span>
           </div>
         )}

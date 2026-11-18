@@ -21,6 +21,7 @@ import { INCOME_KEY } from "./income";
 import { BUDGETS_KEY, DEBTS_KEY, EQUBS_KEY } from "./money-plans";
 import { NOTES_KEY } from "./notes";
 import { OUTCOMES_KEY } from "./plan";
+import { DEVOTION_KEY, PROFILE_KEY } from "./faith";
 import { FASTS_KEY, PEOPLE_KEY } from "./people";
 import { POOL_KEY } from "./pool";
 import { SCREEN_KEY } from "./screen";
@@ -123,7 +124,7 @@ type Rec = { id: string; u?: number; deleted?: boolean; draft?: boolean };
 type Data = Record<Field, Rec[]>;
 export type Field =
   | "goals" | "tasks" | "routines" | "screen" | "expenses" | "pool" | "areas" | "income" | "events" | "notes"
-  | "aims" | "budgets" | "equbs" | "debts" | "people" | "fasts" | "outcomes";
+  | "aims" | "budgets" | "equbs" | "debts" | "people" | "fasts" | "outcomes" | "profile" | "devotion";
 
 export const FIELDS: Record<Field, string> = {
   goals: GOALS_KEY,
@@ -143,6 +144,8 @@ export const FIELDS: Record<Field, string> = {
   people: PEOPLE_KEY,
   fasts: FASTS_KEY,
   outcomes: OUTCOMES_KEY,
+  profile: PROFILE_KEY,
+  devotion: DEVOTION_KEY,
 };
 const KEEP_DELETED_MS = 90 * 864e5; // long enough for every device to hear about a deletion
 

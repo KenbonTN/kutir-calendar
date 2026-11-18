@@ -5,7 +5,7 @@ import { memo } from "react";
 import { formatEt, formatG, fromJdn, geez, weekday, WEEKDAYS, WEEKDAYS_AM_SHORT } from "@/lib/ethiopian";
 import { badge, matchesOn } from "@/lib/fixtures";
 import { dayNumber, otherDate, type Cal, type MonthSpec } from "@/lib/months";
-import { orthodoxDay } from "@/lib/orthodox";
+import { dayFor, useProfile, type FaithKind } from "@/lib/faith";
 import { XMark } from "./XMark";
 
 export type Layers = { saints: boolean; football: boolean };
@@ -24,15 +24,15 @@ type Props = {
 };
 
 const Day = memo(function Day({
-  j, cal, today, plan, layers, score, onOpen,
+  j, cal, today, plan, layers, score, onOpen, faith,
 }: {
   j: number; cal: Cal; today: number; plan: Plan; layers: Layers;
-  score: { done: number; due: number } | undefined; onOpen: (j: number) => void;
+  score: { done: number; due: number } | undefined; onOpen: (j: number) => void; faith?: FaithKind;
 }) {
   const inPlan = !!plan && j >= plan.start && j <= plan.end;
   const crossed = inPlan && j < today; // the day is over: it crosses itself
   const isToday = j === today;
-  const od = layers.saints ? orthodoxDay(j) : null;
+  const od = layers.saints ? dayFor(j, faith) : null;
   const feast = od?.feasts[0];
   const matches = layers.football ? matchesOn(j) : [];
   const match = matches[0];
@@ -70,14 +70,14 @@ const Day = memo(function Day({
           Today
         </span>
       ) : od && (
-        <span className="hidden min-w-0 text-[11px] leading-tight text-muted sm:line-clamp-2" title={od.monthly.en}>
+        <span className="hidden min-w-0 text-[11px] leading-tight text-muted sm:line-clamp-2" title={od.line.en}>
           {feast ? (
             <span className="font-semibold text-gold">
               {feast.kind === "major" && <Star size={9} className="mr-0.5 inline -translate-y-px" fill="currentColor" />}
               {feast.en.split(" · ")[0]}
             </span>
           ) : (
-            od.monthly.en.split(" · ")[0]
+            od.line.en.split(" · ")[0]
           )}
         </span>
       )}
@@ -131,6 +131,7 @@ function ScoreChip({ score, past }: { score: { done: number; due: number }; past
 
 export function MonthGrid({ month, cal, today, plan, layers, info, onOpen }: Props) {
   const { first, length: len } = month;
+  const faith = useProfile().faith;
   const lead = weekday(first);
   return (
     <section className="card p-3 sm:p-5" aria-label={month.title}>
@@ -166,6 +167,7 @@ export function MonthGrid({ month, cal, today, plan, layers, info, onOpen }: Pro
               layers={layers}
               score={info.get(j)}
               onOpen={onOpen}
+              faith={faith}
             />
           );
         })}

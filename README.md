@@ -16,6 +16,7 @@
 - **Life:** big goals for the year that countdowns and tasks link up to, a grid of squares for each habit, reminders to call the people you care about, and a log of the fast days you kept. On Enkutatash, a review of the year that just ended.
 - **Money:** income by source and spending by category, in Birr. Also monthly budgets, equb rounds and payout dates, money lent and borrowed, and profit month by month for each business.
 - **Birthdays & important dates:** they repeat every year on their Ethiopian or Gregorian date, show ages, and remind you ahead of time.
+- **Faith:** choose Orthodox Christian or Muslim (or neither). Muslims get the five prayer times for Addis Ababa or their location, reminders, the Hijri date and Islamic days, a prayer and Quran-reading tracker, and a Quran verse each day (Arabic with Pickthall's English). Orthodox Christians keep the Ethiopian Orthodox calendar and get a Bible verse (KJV) and a tracker for prayer, church and Bible reading.
 - **Screen time:** log TikTok, Instagram and YouTube minutes, and see what that time could have been.
 - **Calendar:** Ethiopian and Gregorian months side by side, Ge'ez numerals, the saint of each day, feasts, fasts and national holidays.
 - **Football (optional):** Arsenal and big Champions League games, with kickoff in Addis time.

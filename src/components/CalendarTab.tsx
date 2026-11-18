@@ -7,7 +7,7 @@ import {
   WEEKDAYS_AM_SHORT, formatEt, formatG,
 } from "@/lib/ethiopian";
 import { between, kind, type DateEvent, type Occurrence, useEvents } from "@/lib/events";
-import { orthodoxDay } from "@/lib/orthodox";
+import { dayFor, useProfile } from "@/lib/faith";
 import { useStored } from "@/lib/storage";
 import { tasksOn, type Routine, type Task } from "@/lib/tasks";
 import { EventForm, ImportantDates } from "./Dates";
@@ -151,7 +151,8 @@ function Cell({
 }: { j: number; mode: Mode; today: number; tasks: Task[]; routines: Routine[]; dates?: Occurrence[]; onOpen: (j: number) => void }) {
   const e = fromJdn(j);
   const g = jdnToDate(j);
-  const od = orthodoxDay(j);
+  const faith = useProfile().faith;
+  const od = dayFor(j, faith);
   const feast = od.feasts[0];
   const planned = j >= today ? tasksOn(j, tasks, routines, today).filter((t) => !t.done).length : 0;
   const big = mode === "ethiopian" ? e.d : g.getUTCDate();
@@ -188,7 +189,7 @@ function Cell({
             {feast.en.split(" · ")[0]}
           </span>
         ) : (
-          <span className="text-muted">{od.monthly.en.split(" · ")[0]}</span>
+          <span className="text-muted">{od.line.en.split(" · ")[0]}</span>
         )}
       </span>
       <div className="flex items-end justify-between gap-1">
@@ -210,25 +211,29 @@ function Cell({
 /** Feasts, national holidays and fasts in the next 120 days. */
 function ComingUp({ today, onOpen }: { today: number; onOpen: (j: number) => void }) {
   const [more, setMore] = useState(false);
+  const faith = useProfile().faith;
   const items = useMemo(() => {
     const out: { j: number; title: string; am: string; kind: "major" | "feast" | "national" | "fast" }[] = [];
-    let prevFast = orthodoxDay(today - 1).fast?.en;
+    let prevFast = dayFor(today - 1, faith).fast?.en;
     for (let j = today; j < today + 120; j++) {
-      const od = orthodoxDay(j);
+      const od = dayFor(j, faith);
       for (const f of od.feasts) out.push({ j, title: f.en, am: f.am, kind: f.kind });
       const fast = od.fast?.en;
       // Announce a fasting season when it starts (not the weekly Wednesday/Friday fasts).
-      if (fast && fast !== prevFast && !/Wednesday|Friday/.test(fast)) out.push({ j, title: `${fast} begins`, am: od.fast!.am, kind: "fast" });
+      if (fast && fast !== prevFast && !od.muslim && !/Wednesday|Friday/.test(fast)) out.push({ j, title: `${fast} begins`, am: od.fast!.am, kind: "fast" });
       prevFast = fast;
     }
     return out;
-  }, [today]);
+  }, [today, faith]);
   const shown = more ? items : items.slice(0, 10);
 
   return (
     <section className="card grid content-start gap-2 p-5 sm:p-6">
       <h2 className="font-display text-xl font-extrabold">Coming up</h2>
-      <p className="text-xs text-muted">Orthodox feasts, fasting seasons and national holidays in the next four months.</p>
+      <p className="text-xs text-muted">
+        {faith === "muslim" ? "Islamic days and national holidays" : "Orthodox feasts, fasting seasons and national holidays"} in the next four months.
+        {faith === "muslim" && " Islamic dates follow the Umm al-Qura calendar; announcements in Ethiopia can differ by a day."}
+      </p>
       <ul className="divide-y divide-line">
         {shown.map((it, i) => {
           const days = it.j - today;

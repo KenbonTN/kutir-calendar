@@ -117,7 +117,7 @@ self.addEventListener("push", (event) => {
       body: data.body || "Check today's tasks before the day ends.",
       icon: `${SCOPE}icon-192.png`,
       badge: `${SCOPE}icon-192.png`,
-      tag: "kutir-evening",
+      tag: data.tag || "kutir-evening",
       data: { url: data.url || SCOPE },
     }),
   );

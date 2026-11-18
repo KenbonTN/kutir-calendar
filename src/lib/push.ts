@@ -7,6 +7,7 @@ import { useSyncExternalStore } from "react";
 // scheduled GitHub Actions job (scripts/send-reminders.mjs) sends the message.
 
 import { currentReminder, saveReminder } from "./cloud";
+import { profileStore } from "./faith";
 
 export const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
@@ -143,6 +144,8 @@ export async function turnOnReminder(time: string) {
 
 export async function turnOffReminder() {
   const sub = await deviceSubscription(false);
+  // Prayer reminders use the same device subscription: keep it while they're on.
+  if (profileStore.all().some((p) => p.remind && !p.deleted)) return saveReminder((r) => ({ ...r, on: false }));
   const endpoint = sub?.endpoint;
   await sub?.unsubscribe().catch(() => {});
   return saveReminder((r) => {
@@ -152,3 +155,22 @@ export async function turnOffReminder() {
 }
 
 export const setReminderTime = (time: string) => saveReminder((r) => ({ ...r, time }));
+
+/**
+ * Prayer reminders: signs this device up for notifications without touching the
+ * evening reminder (the job sends them at each prayer time, see scripts/reminders/prayers.mjs).
+ */
+export async function setPrayerReminders(on: boolean) {
+  if (on) {
+    const permission = await Notification.requestPermission();
+    if (permission !== "granted") throw new Error("denied");
+    const sub = (await deviceSubscription(true))!.toJSON();
+    await saveReminder((r) => ({ ...r, subs: [...r.subs.filter((s) => s.endpoint !== sub.endpoint), sub] }));
+    return;
+  }
+  if (currentReminder()?.on) return; // the evening reminder still needs this device
+  const sub = await deviceSubscription(false);
+  const endpoint = sub?.endpoint;
+  await sub?.unsubscribe().catch(() => {});
+  await saveReminder((r) => ({ ...r, subs: r.subs.filter((s) => s.endpoint !== endpoint) }));
+}

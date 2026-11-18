@@ -5,7 +5,9 @@ import { AlertTriangle, ArrowRight, Lightbulb, Sparkles, ThumbsUp } from "lucide
 import { useMemo, useState } from "react";
 import { useAreas } from "@/lib/areas";
 import { coach, type Tip } from "@/lib/coach";
+import { useDevotion } from "@/lib/faith";
 import { useNotes } from "@/lib/notes";
+import { useFasts } from "@/lib/people";
 import { paceFactor, useCapacity, useOutcomes } from "@/lib/plan";
 import { useStored } from "@/lib/storage";
 import type { Task } from "@/lib/tasks";
@@ -18,11 +20,16 @@ export function useCoach(today: number, now: number, tasks: Task[]) {
   const areas = useAreas();
   const outcomes = useOutcomes();
   const [capacity] = useCapacity();
+  const devotion = useDevotion();
+  const fasts = useFasts();
   const hour = new Date(now + 3 * 3600e3).getUTCHours();
-  return useMemo(
-    () => coach({ today, hour, tasks, outcomes, notes, areas, capacity, pace: paceFactor(tasks) }),
-    [today, hour, tasks, outcomes, notes, areas, capacity],
-  );
+  return useMemo(() => {
+    const faithDays = [
+      ...[...devotion.values()].filter((d) => d.done.length || d.pages).map((d) => d.day),
+      ...[...fasts.entries()].filter(([, kept]) => kept).map(([day]) => day),
+    ];
+    return coach({ today, hour, tasks, outcomes, notes, areas, capacity, pace: paceFactor(tasks), faithDays });
+  }, [today, hour, tasks, outcomes, notes, areas, capacity, devotion, fasts]);
 }
 
 const TONE: Record<Tip["tone"], { icon: typeof Lightbulb; cls: string }> = {

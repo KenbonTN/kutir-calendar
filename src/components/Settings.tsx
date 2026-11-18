@@ -9,9 +9,10 @@ import { currentReminder, saveTelegram, useCloud, useTelegram } from "@/lib/clou
 import { useEvents } from "@/lib/events";
 import { useLang, useT } from "@/lib/i18n";
 import { useTasks } from "@/lib/tasks";
+import { FaithSettings } from "./Faith";
 import { formatClock } from "@/lib/ethiopian";
 import {
-  canPromptInstall, isInstalled, isIOS, promptInstall, pushSupported, reminderOnHere, setReminderTime,
+  canPromptInstall, isInstalled, isIOS, promptInstall, pushSupported, reminderOnHere, setPrayerReminders, setReminderTime,
   turnOffReminder, turnOnReminder,
 } from "@/lib/push";
 
@@ -23,10 +24,20 @@ const TIMES = Array.from({ length: 14 }, (_, i) => {
 
 export function Settings({ today }: { today: number }) {
   const t = useT();
+  const { user } = useCloud();
   return (
     <div className="grid gap-6">
       <h2 className="pr-10 font-display text-2xl font-extrabold">{t("Settings")}</h2>
       <Language />
+      <section className="grid gap-2">
+        <h3 className={heading}>☦️ ☪️ Faith</h3>
+        <FaithSettings
+          onRemind={async (on) => {
+            if (!user) throw new Error("Sign in with Google first. Reminders are sent to your account's devices.");
+            await setPrayerReminders(on);
+          }}
+        />
+      </section>
       <Install />
       <Reminder />
       <TelegramLink />

@@ -15,13 +15,14 @@ import { useT } from "@/lib/i18n";
 import { useIncome } from "@/lib/income";
 import { habitDays, habitGrid, yearRange, yearReview } from "@/lib/insights";
 import { useNotes } from "@/lib/notes";
-import { orthodoxDay } from "@/lib/orthodox";
+import { dayFor, useProfile } from "@/lib/faith";
 import { addPerson, deletePerson, dueIn, EVERY, logFast, touched, useFasts, usePeople, type Person } from "@/lib/people";
 import { minsLabel } from "@/lib/pool";
 import { useScreen } from "@/lib/screen";
 import { addRoutine, deleteRoutine, routineLabel, updateRoutine, type Routine, type Task } from "@/lib/tasks";
 import { AreaSelect, AreaTag } from "./AreaBits";
 import { Deadline } from "./Deadline";
+import { FaithHistory } from "./Faith";
 import { Counter, Reveal } from "./Motion";
 import { FastToggle } from "./TodayExtras";
 import { Sheet } from "./Sheet";
@@ -31,6 +32,7 @@ const input = "rounded-xl border border-line bg-surface-2 px-3 py-2.5 text-[15px
 const pctFmt = (n: number) => `${Math.round(n)}%`;
 
 export function LifeTab({ today, tasks, routines }: { today: number; tasks: Task[]; routines: Routine[] }) {
+  const faith = useProfile().faith;
   const t = useT();
   const [review, setReview] = useState<number | null>(null);
   const year = fromJdn(today).y;
@@ -79,7 +81,8 @@ export function LifeTab({ today, tasks, routines }: { today: number; tasks: Task
         <Reveal><Habits today={today} tasks={tasks} routines={routines} /></Reveal>
         <Reveal delay={0.05}><People today={today} /></Reveal>
       </div>
-      <Reveal><Fasting today={today} /></Reveal>
+      <Reveal><FaithHistory today={today} /></Reveal>
+      {faith !== "other" && <Reveal><Fasting today={today} /></Reveal>}
 
       <Sheet open={review != null} onClose={() => setReview(null)} label="Year in review">
         {review != null && <YearReview year={review} today={today} tasks={tasks} routines={routines} />}
@@ -525,16 +528,17 @@ function PersonRow({ p, today }: { p: Person; today: number }) {
 /* ---------- Fasting ---------- */
 
 function Fasting({ today }: { today: number }) {
+  const faith = useProfile().faith;
   const t = useT();
   const fasts = useFasts();
   const days = useMemo(() => {
     const out: { day: number; name: string }[] = [];
     for (let j = today - 59; j <= today; j++) {
-      const f = orthodoxDay(j).fast;
+      const f = dayFor(j, faith).fast;
       if (f) out.push({ day: j, name: f.en });
     }
     return out;
-  }, [today]);
+  }, [today, faith]);
   const [from, to] = yearRange(fromJdn(today).y);
   const year = useMemo(() => {
     let kept = 0, broke = 0;
@@ -544,7 +548,7 @@ function Fasting({ today }: { today: number }) {
     }
     return { kept, broke };
   }, [fasts, from, to]);
-  const todayFast = orthodoxDay(today).fast;
+  const todayFast = dayFor(today, faith).fast;
 
   return (
     <section className="card grid gap-4 p-5 sm:p-6">
